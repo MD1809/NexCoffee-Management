@@ -1,0 +1,300 @@
+.page-header {
+    margin-bottom: 24px;
+}
+
+.page-header h2 {
+    margin: 0 0 8px 0;
+    font-size: 28px;
+}
+
+.subtitle {
+    color: #666;
+    margin: 0;
+}
+
+
+.layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 24px;
+    align-items: start;
+}
+
+@media (max-width: 768px) {
+    .layout-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ---------------- CỘT TRÁI: KHU VỰC ẢNH ---------------- */
+
+/* Ẩn input file mặc định */
+.hidden-input {
+  display: none;
+}
+
+/* KHU VỰC ẢNH CHÍNH */
+.main-image-upload-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  aspect-ratio: 1 / 1; /* Cố định khung hình vuông */
+  max-height: 350px;
+  background-color: #e9e9e9;
+  border: 2px dashed #cccccc;
+  border-radius: 8px;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.main-image-upload-area:hover {
+  border-color: #999;
+  background-color: #e0e0e0;
+}
+
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.upload-text {
+  color: #2196F3;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.main-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Hoặc cover tùy ý bạn */
+  background-color: #f5f5f5;
+}
+
+/* KHU VỰC ẢNH PHỤ */
+.sub-images-section {
+  margin-top: 15px;
+}
+
+.sub-images-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background-color: #e9e9e9;
+  border: 2px dashed #cccccc;
+  border-radius: 8px;
+  min-height: 80px;
+}
+
+/* Từng item ảnh phụ */
+.sub-image-item {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #fff;
+}
+
+.sub-image-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Nút xóa (Dấu X) - Mặc định ẩn, hover mới hiện */
+.btn-remove-sub {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+  padding: 0;
+}
+
+.btn-remove-sub:hover {
+  background-color: #ff4d4f;
+}
+
+/* Hover vào ảnh sẽ hiện nút xóa */
+.sub-image-item:hover .btn-remove-sub {
+  opacity: 1;
+}
+
+/* Nút bấm thêm ảnh phụ (Nút + màu xanh) */
+.add-sub-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  border: 1.5px dashed #2196F3;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: transparent;
+  transition: background-color 0.2s;
+}
+
+.add-sub-btn:hover {
+  background-color: rgba(33, 150, 243, 0.08);
+}
+
+/* Sections */
+.form-section {
+    background: var(--bg-secondary);
+    min-height: 280px;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px dashed var(--border-primary-color);
+}
+
+.section-title {
+    font-size: 14px;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    letter-spacing: 0.5px;
+}
+
+/* Inputs & Form Controls */
+.input-group {
+    margin-bottom: 16px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-primary-color);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #4982ff;
+    box-shadow: 0 0 0 3px rgba(78, 204, 163, 0.15);
+}
+
+.form-row-flex {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+}
+
+.form-row-flex .input-group {
+  flex: 1;
+}
+
+
+@media (max-width: 768px) {
+  .form-row-flex {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+/* Biến thể (Variants) */
+.section-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.variant-row-modern {
+    display: flex;
+    gap: 16px;
+    background-color: var(--bg-secondary);
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border-primary-color);
+}
+
+.variant-field {
+    flex: 1;
+}
+
+.btn-remove-icon {
+    padding: 10px 16px;
+    background-color: #ffeaea;
+    color: #d93025;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    height: 42px;
+}
+
+.btn-remove-icon:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.bottom-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-primary-color);
+    margin-bottom: 80px;
+}
+
+.btn-cancel {
+    padding: 10px 24px;
+    background-color: var(--btn-cancel);
+    color: var(--text-cancel);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-save {
+    padding: 10px 24px;
+    background-color: var(--btn-submit);
+    color: var(--text-submit);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-add-text {
+    width: 100%;
+    padding: 12px 0;
+    border: 1px solid #00a6fff2;
+    background-color: var(--bg-secondary);
+    color: #00a6fff2;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 4px;
+}

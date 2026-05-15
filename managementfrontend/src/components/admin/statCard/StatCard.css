@@ -1,0 +1,75 @@
+.card {
+  background-color: var(--bg-sidebar);
+  padding: 24px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border-primary-color);
+  display: flex;
+  flex-direction: row; 
+  align-items: center;
+  gap: 18px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px var(--bg-secondary);
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.card-icon-box {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0; 
+}
+
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card-stat__title {
+  font-size: 16px;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding-bottom: 8px;
+}
+
+.card-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary); 
+}
+
+.revenue-icon { 
+  background-color: rgba(46, 204, 113, 0.12); 
+  color: #2ecc71; 
+}
+.revenue-text { color: #2ecc71; }
+
+
+.orders-icon { 
+  background-color: rgba(52, 152, 219, 0.12); 
+  color: #3498db; 
+}
+.orders-text { color: #3498db; }
+
+
+.customers-icon { 
+  background-color: rgba(155, 89, 182, 0.12); 
+  color: #9b59b6; 
+}
+.customers-text { color: #9b59b6; }
+
+
+.products-icon { 
+  background-color: rgba(243, 156, 18, 0.12); 
+  color: #f39c12; 
+}
+.products-text { color: #f39c12; }

@@ -1,0 +1,62 @@
+/* Lớp phủ toàn màn hình */
+.ConfirmModal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;  
+}
+
+/* Nội dung modal */
+.ConfirmModal-content {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ConfirmModal-header {
+  font-weight: bold;
+  font-size: 1.25rem;
+  margin-bottom: 8px;
+}
+
+/* Nhóm nút bấm */
+.ConfirmModal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  background: white;
+}
+
+button:hover {
+  background: #f0f0f0;
+}
+
+.ConfirmModal-btn {
+  background: #ff4d4f;
+  color: white;
+  border: none;
+}
+
+.ConfirmModal-btn:hover {
+  background: #ff7875;
+}

@@ -1,0 +1,111 @@
+.table-container {
+    overflow-x: auto;
+    border-radius: 10px 10px 4px 4px;
+    border: 1px solid var(--bordertable-color);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.table th,
+.table td {
+    padding: 24px 18px;
+    border-bottom: 1px solid var(--bordertable-color);
+    color: var(--text-primary);
+}
+
+.table th {
+    padding: 18px 18px;
+    text-align: center;
+    background-color: var(--bg-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+.table td {
+    text-align: center;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status--active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status--locked {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.btn-icon {
+    cursor: pointer;
+    transition: transform 0.2s, color 0.2s;
+}
+
+.btn-icon:hover {
+    transform: scale(1.2);
+}
+
+.btn-icon--view:hover {
+    color: #3498db;
+}
+
+.btn-icon--edit:hover {
+    color: #f1c40f;
+}
+
+.btn-icon--lock:hover {
+    color: #e74c3c;
+}
+
+.btn-icon--unlock:hover {
+    color: #2ecc71;
+}
+
+.pagination {
+  margin-top: 30px;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  gap: 15px;
+}
+
+.pagination button {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.truncate-1-line {
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px; 
+}

@@ -1,0 +1,409 @@
+/* Container chính */
+.order-container {
+  background-color: var(--bg-main);
+  min-height: 100vh;
+  transition: background-color 0.3s ease;
+}
+
+.order-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.order-content__backBtn {
+  width: 100px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  gap: 10px;
+  margin-left: 4px;
+}
+
+.order-grid-left {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.order-card {
+  background-color: var(--bg-sidebar);
+  border: 1px solid var(--border-primary-color);
+  border-radius: 12px;
+  padding: 24px;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.section-title, .card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-primary-color);
+  padding-bottom: 12px;
+}
+
+.order-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 1024px) {
+  .order-grid {
+    grid-template-columns: 2fr 1fr;
+    align-items: start;
+  }
+}
+
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.product-table th {
+  text-align: left;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 12px;
+  border-bottom: 1px solid var(--bordertable-color);
+}
+
+.product-table td {
+  padding: 16px 12px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--bordertable-color);
+  vertical-align: middle;
+}
+
+.product-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.product-img {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  object-fit: cover;
+  background-color: var(--bg-main);
+}
+
+.product-name {
+  margin: 0 0 4px 0;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.product-note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+.text-right {
+  text-align: right !important;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.price-bold {
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.text-gray-600 {
+  color: var(--text-secondary);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  color: var(--text-secondary);
+  font-size: 15px;
+}
+
+.summary-discount {
+  color: #10b981;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 16px;
+  margin-top: 8px;
+  border-top: 1px solid var(--border-primary-color);
+}
+
+.total-label {
+  font-weight: bold;
+  color: var(--text-primary);
+  font-size: 16px;
+}
+
+.total-value {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--btn-submit);
+}
+
+.order-grid-right {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  border: none;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--btn-primary);
+  color: var(--btn-text-primary);
+}
+
+.btn-primary:hover {
+  background: var(--btn-primary-hover);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 1px solid var(--border-primary-color);
+  color: #ef4444;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* --- Thông tin khách hàng --- */
+.customer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.info-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.info-icon {
+  font-size: 18px;
+  margin-top: 2px;
+}
+
+.info-label {
+  margin: 0 0 4px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.info-value {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-primary);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border-primary-color);
+  margin: 8px 0;
+}
+
+.payment-tag {
+  background-color: #a50064;
+  /* Màu của Momo */
+  color: white;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+/* --- Timeline (Trạng thái đơn hàng) --- */
+.timeline {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  padding: 20px 0;
+}
+
+.timeline-line {
+  position: absolute;
+  top: 33px;
+  left: 40px;
+  right: 40px;
+  height: 3px;
+  background-color: var(--border-primary-color);
+  z-index: 0;
+}
+
+.timeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  width: 120px;
+}
+
+.step-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-sidebar);
+  border: 2px solid var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.step-icon.done {
+  background-color: #10b981;
+  border-color: #10b981;
+  color: white;
+  font-weight: bold;
+}
+
+.step-icon.active {
+  border-color: #1468e3;
+}
+
+.active-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #1468e3;
+}
+
+.step-text {
+  text-align: center;
+}
+
+.step-title {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.step-title.active-text {
+  color: #1468e3;
+}
+
+.step-time {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.step-opacity {
+  opacity: 0.5;
+}
+
+/* =========================================
+   CSS DÀNH RIÊNG CHO BẢN IN HÓA ĐƠN (react-to-print)
+   ========================================= */
+.print-bill-container {
+  width: 80mm;
+  /* Khổ giấy in nhiệt tiêu chuẩn */
+  padding: 5mm;
+  color: #000;
+  font-family: 'Courier New', Courier, monospace;
+  /* Font chữ máy in */
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.bill-header, .bill-footer {
+  text-align: center;
+}
+
+.bill-header h2 {
+  margin: 0;
+  font-size: 18px;
+  text-transform: uppercase;
+}
+
+.bill-header h3 {
+  margin: 10px 0;
+  font-size: 16px;
+}
+
+.bill-header p, .bill-footer p {
+  margin: 2px 0;
+}
+
+.bill-info p {
+  margin: 4px 0;
+}
+
+.bill-items {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+}
+
+.bill-items th {
+  border-bottom: 1px dashed #000;
+  padding-bottom: 5px;
+}
+
+.bill-items td {
+  padding: 5px 0;
+  vertical-align: top;
+}
+
+.print-bill-container hr {
+  border: none;
+  border-top: 1px dashed #000;
+  margin: 10px 0;
+}
+
+.bill-summary {
+  margin-top: 10px;
+}
+
+.summary-line {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.summary-line.total {
+  font-weight: bold;
+  font-size: 14px;
+  border-top: 1px solid #000;
+  padding-top: 5px;
+  margin-top: 5px;
+}
