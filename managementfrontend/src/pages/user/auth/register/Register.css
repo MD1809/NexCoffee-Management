@@ -1,0 +1,77 @@
+.error-text {
+  color: #ff4d4d;
+  font-size: 0.85rem;
+  margin-top: 5px;
+  display: block;
+  font-weight: 500;
+  animation: shake 0.2s ease-in-out;
+}
+
+/* Đổi màu viền input khi có lỗi */
+.input-error {
+  border-color: #ff4d4d !important;
+  background-color: #fff0f0 !important;
+}
+
+.auth-message--success {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  border: 1px solid #c3e6cb;
+}
+
+/* Banner thông báo lỗi chung */
+.auth-message--error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  border: 1px solid #f5c6cb;
+}
+
+/* Hiệu ứng rung nhẹ */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+/* Lỗi hiển thị dưới trường Email/Xác nhận mật khẩu */
+.error-text-inline {
+  color: #ff4d4d;
+  font-size: 1.2;
+  margin-top: 4px;
+  display: block;
+  font-weight: 500;
+}
+
+/* Danh sách lỗi mật khẩu theo dạng danh sách */
+.password-error-list {
+  margin-top: 8px;
+  background: #fff5f5; /* Nền nhạt giúp làm nổi bật vùng lỗi */
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.error-text-bullet {
+  color: #ff4d4d;
+  font-size: 1.2rem;
+  margin: 2px 0;
+  line-height: 1.2;
+}
+
+/* Đổi màu viền input khi có lỗi */
+.input-error {
+  border-color: #ff4d4d !important;
+}

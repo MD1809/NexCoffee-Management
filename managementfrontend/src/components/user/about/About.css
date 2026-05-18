@@ -1,0 +1,78 @@
+.about {
+  background-color: #ffffff; /* Nền sáng để làm nổi bật text */
+  padding: 8rem 0;
+}
+
+.about .body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5rem;
+}
+
+.about-image {
+  flex: 1;
+  max-width: 500px;
+}
+
+.about-image img {
+  width: 100%;
+  height: auto;
+  border-radius: 1rem;
+}
+
+.about-content {
+  flex: 1.5;
+}
+
+.about-title {
+  color: var(--primary-orange); /* Màu cam #ff8914 */
+  font-size: clamp(3.2rem, 5vw, 6rem);
+  margin-bottom: 2rem;
+}
+
+.about-desc {
+  text-align: justify;
+  line-height: 1.6;
+  font-size: 1.8rem;
+  color: #333333;
+}
+
+.about-info {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin: 4rem 0;
+}
+
+.about-info .title {
+  color: var(--primary-orange);
+  font-size: 2.4rem;
+}
+
+.social-icons {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 3rem;
+}
+
+.about-btn {
+  background-color: var(--primary-orange);
+  color: #ffffff;
+  font-size: 2.4rem;
+  padding: 1.2rem 4rem;
+}
+.about-btn:hover {
+  background-color: #ff9f3f;
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+@media (max-width: 992px) {
+  .about .body {
+    flex-direction: column;
+    text-align: center;
+  }
+  .about-desc {
+    text-align: center;
+  }
+}

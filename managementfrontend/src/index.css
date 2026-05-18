@@ -1,5 +1,58 @@
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 62.5%;
+  scroll-behavior: smooth;
+  width: 100%;
+}
+
+body {
+  font-size: 1.6rem;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.user-portal {
+  --primary-brown: #391b09;
+  --primary-orange: #ff8914;
+  --font-main: "Be Vietnam Pro", sans-serif;
+  --font-title: "Tapestry";
+
+  font-family: var(--font-main);
+  background-color: var(--primary-brown);
+  color: #ffffff;
+  min-height: 100vh;
+}
+
+.user-portal .main-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.user-portal .title-font {
+  font-family: var(--font-title);
+}
+
+.user-portal a {
+  text-decoration: none;
+  color: inherit;
+  transition: 0.3s;
+}
+
+.user-portal .btn {
+  display: inline-block;
+  padding: 1.5rem 3rem;
+  border-radius: 5rem;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+  transition: 0.3s;
 }

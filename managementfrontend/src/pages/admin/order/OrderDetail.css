@@ -33,10 +33,13 @@
   border: 1px solid var(--border-primary-color);
   border-radius: 12px;
   padding: 24px;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
 }
 
-.section-title, .card-title {
+.section-title,
+.card-title {
   font-size: 18px;
   font-weight: 600;
   color: var(--text-primary);
@@ -163,22 +166,6 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-}
-
-.btn {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  cursor: pointer;
-  border: none;
-  margin-bottom: 12px;
-  transition: all 0.2s ease;
 }
 
 .btn-primary {
@@ -339,13 +326,14 @@
   /* Khổ giấy in nhiệt tiêu chuẩn */
   padding: 5mm;
   color: #000;
-  font-family: 'Courier New', Courier, monospace;
+  font-family: "Courier New", Courier, monospace;
   /* Font chữ máy in */
   font-size: 12px;
   line-height: 1.4;
 }
 
-.bill-header, .bill-footer {
+.bill-header,
+.bill-footer {
   text-align: center;
 }
 
@@ -360,7 +348,8 @@
   font-size: 16px;
 }
 
-.bill-header p, .bill-footer p {
+.bill-header p,
+.bill-footer p {
   margin: 2px 0;
 }
 

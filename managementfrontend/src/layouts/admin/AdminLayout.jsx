@@ -4,6 +4,7 @@ import { FaSun, FaMoon, FaBars } from "react-icons/fa";
 
 import "./AdminLayout.css";
 import NavSidebar from "../../components/admin/navSidebar/NavSidebar";
+import HeaderActions from "../../components/user/header/HeaderActions";
 
 function AdminLayout() {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
@@ -12,12 +13,11 @@ function AdminLayout() {
     return savedState === "false" ? false : true;
   });
 
-
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
   }, [theme]);
-  
+
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
@@ -32,12 +32,12 @@ function AdminLayout() {
 
   return (
     <div className={`admin-container ${isSidebarOpen ? "" : "sidebar-closed"}`}>
-      <NavSidebar isOpen={isSidebarOpen}/>
+      <NavSidebar isOpen={isSidebarOpen} />
 
       <div className="admin-main">
         <header className="admin-main__header">
           <div className="header__left">
-            <FaBars className="toggle-sidebar" onClick={ToggleSidebar}/>
+            <FaBars className="toggle-sidebar" onClick={ToggleSidebar} />
           </div>
           <div className="header_right">
             <button
@@ -51,6 +51,7 @@ function AdminLayout() {
                 <FaMoon size={20} color="#2c3e50" />
               )}
             </button>
+            <HeaderActions />
             <div className="user-profile">
               <div className="user-info">
                 <div className="user-role">Quản trị viên</div>

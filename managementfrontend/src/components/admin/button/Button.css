@@ -1,13 +1,13 @@
 .button {
-    background: var(--btn-primary);
-    color: var(--btn-text-primary);
-    border: none;
-    padding: 10px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
+  background: var(--btn-primary);
+  color: var(--btn-text-primary);
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
 }
 
 .button:hover {
-    background-color: var(--btn-primary-hover);
+  background-color: var(--btn-primary-hover);
 }

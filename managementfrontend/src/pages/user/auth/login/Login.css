@@ -1,0 +1,115 @@
+.auth-section {
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px);
+  padding: 60px 20px;
+}
+
+.auth-container {
+  background: #fff;
+  width: 100%;
+  max-width: 520px;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.auth-title {
+  text-align: center;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--primary-brown);
+  margin-bottom: 8px;
+}
+
+.auth-subtitle {
+  text-align: center;
+  font-size: 1.4rem;
+  color: #444;
+  margin-bottom: 30px;
+}
+
+.auth-link--highlight {
+  color: var(--primary-orange) !important;
+  font-weight: 600;
+}
+
+/* Chuẩn hóa các nhóm trong Form */
+.auth-form__group {
+  margin-bottom: 15px; /* Thay thế cho mb-4 */
+}
+
+.auth-form__label {
+  display: block;
+  font-weight: 500;
+  color: var(--primary-brown);
+  font-size: 1.4rem;
+  margin-bottom: 6px;
+}
+
+.auth-form__input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1.6rem;
+  transition: all 0.25s ease;
+}
+
+.auth-form__input:focus {
+  border-color: var(--primary-orange);
+  box-shadow: 0 0 0 3px rgba(255, 137, 20, 0.2);
+  outline: none;
+}
+
+.auth-form__options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.auth-form__checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: #444;
+}
+
+.auth-form__checkbox-label input {
+  accent-color: var(--primary-orange);
+  width: 18px;
+  height: 18px;
+}
+
+.auth-form__link {
+  color: var(--primary-orange) !important;
+  font-size: 1.4rem;
+  text-decoration: none;
+  font-weight: 700;
+}
+.auth-form__link:hover {
+  text-decoration: underline;
+}
+
+.auth-form__submit-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 30px;
+  background: #fff;
+  border: 2px solid var(--primary-orange);
+  color: var(--primary-orange);
+  font-size: 1.6rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.auth-form__submit-btn:hover {
+  background: var(--primary-orange);
+  color: #fff;
+}

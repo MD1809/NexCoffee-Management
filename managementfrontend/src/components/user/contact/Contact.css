@@ -1,0 +1,125 @@
+.contact-section {
+  background-color: var(--primary-brown);
+  color: #fff;
+  padding: 10rem 0;
+}
+
+.contact-section .body {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 4rem;
+}
+
+/* --- Cột thông tin bên trái --- */
+.contact-info {
+  flex: 1;
+  max-width: 73.5rem;
+}
+
+.contact-title {
+  color: var(--primary-orange);
+  font-size: clamp(2.6rem, 5vw, 5.5rem);
+  font-weight: 400;
+}
+
+.contact-desc {
+  color: #fff;
+  text-align: justify;
+  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  line-height: 1.5;
+  margin: 3rem 0 5vh;
+}
+
+.info-item {
+  color: #a9a8a8;
+  font-weight: 300;
+  margin-top: 2rem;
+  font-size: 1.6rem;
+}
+
+.info-item strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* --- Cột form liên hệ bên phải --- */
+.contact-form {
+  flex: 1;
+  max-width: 62rem;
+  border: 1px solid var(--primary-orange);
+  border-radius: 1rem;
+  padding: 2rem 3rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-title {
+  color: var(--primary-orange);
+  font-size: 3.2rem;
+  font-style: italic;
+  font-weight: 500;
+  margin-bottom: 5rem;
+}
+
+/* --- Input và textarea --- */
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.6rem;
+  border: none;
+  outline: none;
+  font-size: 1.4rem;
+  transition: 0.3s ease;
+}
+
+.contact-form textarea {
+  resize: vertical;
+  min-height: 12rem;
+}
+
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+  color: var(--primary-orange);
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  box-shadow: 0 0 8px 2px rgba(255, 137, 20, 0.6);
+  transform: scale(1.01);
+}
+
+.btn-submit {
+  width: 100%;
+  background-color: var(--primary-orange);
+  color: #fff;
+  border: none;
+  padding: 1.5rem;
+  font-size: 1.8rem;
+  font-weight: bold;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-submit:hover {
+  background-color: #ff9f3f;
+  transform: translateY(-2px);
+}
+
+/* --- Responsive --- */
+@media (max-width: 992px) {
+  .contact-section .body {
+    flex-direction: column;
+  }
+  .contact-info,
+  .contact-form {
+    max-width: 100%;
+  }
+}
+
+section[id] {
+  scroll-margin-top: 10rem;
+}

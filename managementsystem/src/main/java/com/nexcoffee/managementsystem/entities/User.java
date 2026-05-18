@@ -1,36 +1,82 @@
 package com.nexcoffee.managementsystem.entities;
 
-import com.nexcoffee.managementsystem.enums.RoleUser;
-import com.nexcoffee.managementsystem.enums.UserStatus;
+import com.nexcoffee.managementsystem.enums.Role;
 import jakarta.persistence.*;
-import lombok.Data;
-
+import lombok.*;
+import java.util.UUID;
 import java.time.LocalDateTime;
 
 @Entity
-@Data // Lombok tự động tạo Getter/Setter
 @Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    @Column(name = "full_name")
+    private Long id;
+
+    @Column(nullable = false)
     private String fullName;
+
+    @Column(unique = true, nullable = false)
     private String email;
+
+    @Column(unique = true, nullable = false, length = 10)
     private String phone;
+
+    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
-    private RoleUser role;
+    @Column(nullable = false)
+    private Role role = Role.CUSTOMER;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private UserStatus status;
+    @Column(nullable = false)
+    private String status = "ACTIVE";
 
-    @Column(name = "created_at")
+
+    @Column(name = "verification_token")
+    private String verificationToken;
+
+    @Column(name = "token_expiry_date")
+    private LocalDateTime tokenExpiryDate;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+
+        if (this.verificationToken == null) {
+            this.verificationToken = UUID.randomUUID().toString();
+            this.tokenExpiryDate = LocalDateTime.now().plusHours(24);
+        }
+        if (this.role == null) {
+            this.role = Role.CUSTOMER;
+        }
+
+        if (this.status == null) {
+            this.status = "ACTIVE";
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if (this.createdAt == null) {
+            this.createdAt = now;
+        }
+
+        this.updatedAt = now;
+
+    }
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

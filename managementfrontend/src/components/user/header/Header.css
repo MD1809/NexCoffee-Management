@@ -1,0 +1,204 @@
+/* src/components/user/header/Header.css */
+
+.header-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 1.5rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  background-color: rgba(57, 27, 9, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.logo a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo img {
+  height: 5rem;
+}
+
+/* ===== NAVBAR ===== */
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+}
+
+.nav-menu a,
+.nav-menu button {
+  font-size: 2.4rem;
+  font-weight: 500;
+  color: #ffffff;
+  transition: 0.3s;
+  font-family: var(--font-main);
+}
+
+.nav-menu button {
+  border: none;
+  outline: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.nav-menu a:hover,
+.nav-menu button:hover,
+.nav-menu a.active,
+.nav-menu button.active {
+  color: var(--primary-orange);
+}
+
+/* Dùng cho scroll tới Hero/About/Contact không bị header che */
+.home-scroll-section {
+  scroll-margin-top: 9rem;
+}
+
+/* ===== HEADER ACTIONS ===== */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  font-size: 2.2rem;
+}
+
+.header-actions .icon {
+  cursor: pointer;
+  transition: 0.3s;
+  color: #ffffff;
+}
+
+.header-actions .icon:hover {
+  color: var(--primary-orange);
+}
+
+.header-icon-button {
+  display: flex;
+  align-items: center;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.header-action-link {
+  display: flex;
+  align-items: center;
+}
+
+.header-login-link {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.header-login-link:hover {
+  color: var(--primary-orange);
+}
+
+.header-login-link:hover .icon {
+  color: var(--primary-orange);
+}
+
+.header-user-menu {
+  position: relative;
+}
+
+.header-user-button {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  border: none;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: var(--font-main);
+  padding: 0;
+}
+
+.header-user-button:hover,
+.header-user-button:hover .icon {
+  color: var(--primary-orange);
+}
+
+.header-user-name {
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.header-user-chevron {
+  font-size: 1.1rem;
+  transition: transform 0.25s ease;
+}
+
+.header-user-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.header-user-dropdown {
+  position: absolute;
+  top: calc(100% + 1.4rem);
+  right: 0;
+  width: 16rem;
+  background-color: #ffffff;
+  color: var(--primary-brown);
+  border-radius: 1rem;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  z-index: 1200;
+}
+
+.header-user-dropdown::before {
+  content: "";
+  position: absolute;
+  top: -0.7rem;
+  right: 1.6rem;
+  width: 1.4rem;
+  height: 1.4rem;
+  background-color: #ffffff;
+  transform: rotate(45deg);
+}
+
+.header-user-dropdown-item {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  padding: 1.2rem 1.4rem;
+  border: none;
+  background: #ffffff;
+  color: var(--primary-brown);
+  font-family: var(--font-main);
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.header-user-dropdown-item:hover {
+  background-color: rgba(255, 137, 20, 0.1);
+  color: var(--primary-orange);
+}

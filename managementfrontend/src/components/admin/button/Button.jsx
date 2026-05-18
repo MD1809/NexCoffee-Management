@@ -1,6 +1,6 @@
-import "./Button.css"
+import "./Button.css";
 
-function Button({buttonName, onClick}) {
+function Button({ buttonName, onClick }) {
   return (
     <button className="button" onClick={onClick}>
       <span>{buttonName}</span>
