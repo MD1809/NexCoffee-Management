@@ -24,51 +24,62 @@ public class ProductController {
     private ProductVariantService productVariantService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ProductResponse createProduct(
-            @ModelAttribute ProductRequest request,
+    public ResponseEntity<ProductResponse> createProduct(
+            @ModelAttribute @Valid ProductRequest request,
             @RequestParam("mainImage") MultipartFile mainImage,
             @RequestParam(value = "subImages", required = false) List<MultipartFile> subImages) {
 
-        return productService.createProduct(request, mainImage, subImages);
+        return ResponseEntity.ok(productService.createProduct(request, mainImage, subImages));
     }
 
     @GetMapping
-    public List<ProductResponse> getAllProducts() {
-        return productService.getAllProducts();
+    public ResponseEntity<List<ProductResponse>> getProductsForAdmin() {
+        return ResponseEntity.ok(productService.getProductsForAdmin());
+    }
+
+    @GetMapping("/trashed")
+    public ResponseEntity<List<ProductResponse>> getTrashedProducts() {
+        return ResponseEntity.ok(productService.getTrashedProducts());
     }
 
     @GetMapping("/{productId}")
-    public ProductResponse getProduct(@PathVariable Integer productId) {
-        return productService.getProductById(productId);
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable Integer productId) {
+        return ResponseEntity.ok(productService.getProductById(productId));
     }
 
-    @PutMapping(value = "/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateProduct(
-            @PathVariable Integer id,
+    @PutMapping(value = "edit/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProductResponse> updateProduct(
+            @PathVariable("productId") Integer id,
             @ModelAttribute @Valid ProductRequest request,
             @RequestParam(value = "mainImage", required = false) MultipartFile mainImage,
             @RequestParam(value = "subImages", required = false) List<MultipartFile> subImages,
-            @RequestParam(value = "deletedImageIds", required = false) List<Integer> deletedImageIds // Hứng danh sách ID cần xóa
+            @RequestParam(value = "deletedImageIds", required = false) List<Integer> deletedImageIds,
+            @RequestParam(value = "deletedVariantIds", required = false) List<Integer> deletedVariantIds // <-- THÊM MỚI
     ) {
-        return ResponseEntity.ok(productService.updateProduct(id, request, mainImage, subImages, deletedImageIds));
+        // TRUYỀN THÊM BIẾN VÀO HÀM UPDATE
+        return ResponseEntity.ok(productService.updateProduct(id, request, mainImage, subImages, deletedImageIds, deletedVariantIds));
     }
 
     @DeleteMapping("/{productId}")
-    public String deleteProduct(@PathVariable Integer productId) {
-        productService.deleteProduct(productId);
-        return "Product has been deleted";
+    public ResponseEntity<String> deleteProduct(@PathVariable Integer productId) {
+        productService.softDeleteProduct(productId);
+
+        return ResponseEntity.ok("Sản phẩm đã xóa thành công");
+    }
+
+    @PatchMapping("/{productId}/restore")
+    public ResponseEntity<String> restoreProduct(@PathVariable Integer productId) {
+        productService.restoreProduct(productId);
+        return ResponseEntity.ok("Sản phẩm đã được khôi phục thành công");
     }
 
     @PatchMapping("/variants/{variantId}/status")
     public ResponseEntity<?> updateVariantStatus(
             @PathVariable("variantId") Integer variantId,
-            @RequestParam("status") String statusStr // BƯỚC 1: Nhận String thay vì nhận trực tiếp Enum
+            @RequestParam("status") String statusStr
     ) {
         try {
-            // BƯỚC 2: Tự chuyển đổi String sang Enum
             ProductVariantStatus statusEnum = ProductVariantStatus.valueOf(statusStr);
-
-            // BƯỚC 3: Gọi Service
             productVariantService.updateVariantStatus(variantId, statusEnum);
 
             return ResponseEntity.ok().body(java.util.Map.of(
@@ -77,13 +88,11 @@ public class ProductController {
             ));
 
         } catch (IllegalArgumentException e) {
-            // Bắt lỗi nếu Frontend gửi lên chữ linh tinh không có trong Enum
             return ResponseEntity.badRequest().body(java.util.Map.of(
                     "success", false,
                     "message", "Trạng thái không hợp lệ: " + statusStr
             ));
         } catch (Exception e) {
-            // Các lỗi khác (như không tìm thấy ID)
             return ResponseEntity.badRequest().body(java.util.Map.of(
                     "success", false,
                     "message", "Lỗi hệ thống: " + e.getMessage()

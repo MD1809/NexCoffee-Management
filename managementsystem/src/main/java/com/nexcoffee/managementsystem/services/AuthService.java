@@ -5,7 +5,6 @@ import com.nexcoffee.managementsystem.entities.User;
 import com.nexcoffee.managementsystem.enums.Role;
 import com.nexcoffee.managementsystem.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import java.util.Optional;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -13,6 +12,9 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.nexcoffee.managementsystem.dto.request.LoginRequest;
+import com.nexcoffee.managementsystem.dto.response.AuthResponse;
+
 
 
 import java.time.LocalDateTime;
@@ -29,6 +31,9 @@ public class AuthService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtService jwtService;
 
     public String register(RegisterRequest request) {
         Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
@@ -105,7 +110,7 @@ public class AuthService {
                     <tr>
                         <td align="center">
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
-                                   style="max-width:600px; width:100%; background-color:#ffffff; border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.12);">
+                                   style="max-width:600px; width:100%; background-color:#ffffff; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.12);">
                                 
                                 <tr>
                                     <td align="center" style="background-color:#391b09; padding:28px 20px;">
@@ -139,7 +144,7 @@ public class AuthService {
                                             </a>
                                         </div>
 
-                                        <div style="margin-top:30px; padding:18px 20px; border:1px solid #d8c8bd; border-radius:12px; background-color:#fffaf6;">
+                                        <div style="margin-top:30px; padding:18px 20px; border-top:2px solid #d8c8bd; background-color:#fffaf6;">
                                             <p style="margin:0 0 12px 0; font-size:13px; line-height:1.6; color:#7a5d4a;">
                                                 Nếu bạn gặp khó khăn khi nhấn nút "Xác thực Email", vui lòng sao chép
                                                 và dán liên kết bên dưới vào trình duyệt của bạn:
@@ -202,7 +207,7 @@ public class AuthService {
         }
 
         User user = userRepository.findByVerificationToken(token)
-                .orElseThrow(() -> new RuntimeException("Mã xác thực không hợp lệ hoặc tài khoản đã được kích hoạt."));
+                .orElseThrow(() -> new RuntimeException("Liên kết xác thực không hợp lệ hoặc đã được sử dụng."));
 
         if (user.isVerified()) {
             return "Tài khoản đã được xác thực từ trước.";
@@ -242,5 +247,33 @@ public class AuthService {
         sendVerificationEmail(user);
 
         return "Mã xác thực mới đã được gửi vào email của bạn!";
+    }
+    public AuthResponse login(LoginRequest request) {
+        User user = userRepository.findByEmail(request.getEmail().trim())
+                .orElseThrow(() -> new RuntimeException("Email hoặc mật khẩu không chính xác!"));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Email hoặc mật khẩu không chính xác!");
+        }
+
+        if (!user.isVerified()) {
+            throw new RuntimeException("Tài khoản chưa được xác thực email. Vui lòng kiểm tra email hoặc gửi lại mã xác thực.");
+        }
+
+        if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
+            throw new RuntimeException("Tài khoản của bạn đang bị khóa hoặc không hoạt động.");
+        }
+
+        String token = jwtService.generateToken(user);
+
+        return AuthResponse.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .role(user.getRole())
+                .tokenType("Bearer")
+                .token(token)
+                .build();
     }
 }

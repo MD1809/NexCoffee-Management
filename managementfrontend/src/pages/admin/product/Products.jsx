@@ -46,7 +46,7 @@ function Products() {
                 justifyContent: "center",
                 fontSize: "10px",
                 color: "#999",
-                textAlign: "center"
+                textAlign: "center",
               }}
             >
               No Image
@@ -65,7 +65,9 @@ function Products() {
         <div className="variant-size">
           {row.variants.map((v) => (
             <span key={v.id} className="variant-tag">
-              {v.size}: {v.price.toLocaleString("vi-VN")}đ
+              {v.size
+                ? `${v.size}: ${v.price.toLocaleString("vi-VN")}đ`
+                : `${v.price.toLocaleString("vi-VN")}đ`}
             </span>
           ))}
         </div>

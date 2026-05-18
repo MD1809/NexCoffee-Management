@@ -1,29 +1,29 @@
 .page-header {
-    margin-bottom: 24px;
+  margin-bottom: 24px;
 }
 
 .page-header h2 {
-    margin: 0 0 8px 0;
-    font-size: 28px;
+  margin: 0 0 8px 0;
+  font-size: 28px;
 }
 
 .subtitle {
-    color: #666;
-    margin: 0;
+  color: #666;
+  margin: 0;
 }
 
 
 .layout-grid {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 24px;
-    align-items: start;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 24px;
+  align-items: start;
 }
 
 @media (max-width: 768px) {
-    .layout-grid {
-        grid-template-columns: 1fr;
-    }
+  .layout-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ---------------- CỘT TRÁI: KHU VỰC ẢNH ---------------- */
@@ -39,7 +39,8 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  aspect-ratio: 1 / 1; /* Cố định khung hình vuông */
+  aspect-ratio: 1 / 1;
+  /* Cố định khung hình vuông */
   max-height: 350px;
   background-color: #e9e9e9;
   border: 2px dashed #cccccc;
@@ -71,7 +72,8 @@
 .main-preview-img {
   width: 100%;
   height: 100%;
-  object-fit: contain; /* Hoặc cover tùy ý bạn */
+  object-fit: contain;
+  /* Hoặc cover tùy ý bạn */
   background-color: #f5f5f5;
 }
 
@@ -138,7 +140,6 @@
   opacity: 1;
 }
 
-/* Nút bấm thêm ảnh phụ (Nút + màu xanh) */
 .add-sub-btn {
   display: flex;
   justify-content: center;
@@ -158,51 +159,50 @@
 
 /* Sections */
 .form-section {
-    background: var(--bg-secondary);
-    min-height: 280px;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    border: 1px dashed var(--border-primary-color);
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  padding: 20px 20px 60px 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px dashed var(--border-primary-color);
 }
 
 .section-title {
-    font-size: 14px;
-    color: #888;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-    letter-spacing: 0.5px;
+  font-size: 14px;
+  color: #888;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
 }
 
 /* Inputs & Form Controls */
 .input-group {
-    margin-bottom: 16px;
+  margin-bottom: 16px;
 }
 
 .input-group label {
-    display: block;
-    margin-bottom: 6px;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-primary);
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .form-control {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid var(--border-primary-color);
-    background-color: var(--bg-secondary);
-    color: var(--text-primary);
-    border-radius: 8px;
-    font-size: 14px;
-    transition: all 0.2s;
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border-primary-color);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s;
 }
 
 .form-control:focus {
-    outline: none;
-    border-color: #4982ff;
-    box-shadow: 0 0 0 3px rgba(78, 204, 163, 0.15);
+  outline: none;
+  border-color: #4982ff;
+  box-shadow: 0 0 0 3px rgba(78, 204, 163, 0.15);
 }
 
 .form-row-flex {
@@ -225,76 +225,133 @@
 
 /* Biến thể (Variants) */
 .section-header-flex {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border-primary-color);
+  padding-bottom: 12px;
+}
+
+.product-type-toggle {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.product-type-toggle label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.priceSize {
+  padding-bottom: 0 !important;
+  border-bottom: none !important;
+  margin-bottom: 0 !important;
 }
 
 .variant-row-modern {
-    display: flex;
-    gap: 16px;
-    background-color: var(--bg-secondary);
-    padding: 16px;
-    border-radius: 8px;
-    margin-bottom: 12px;
-    border: 1px solid var(--border-primary-color);
+  display: flex;
+  gap: 16px;
+  background-color: var(--bg-secondary);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border-primary-color);
 }
 
-.variant-field {
-    flex: 1;
+.variant-column-select {
+  width: 200px;
+  max-height: 40px;
+  border: 1px solid var(--border-primary-color);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s;
 }
+
+.variant-column-select:focus {
+  outline: none;
+  border-color: #4982ff;
+  box-shadow: 0 0 0 3px rgba(78, 204, 163, 0.15);
+}
+
+.variant-column-priceInput {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 
 .btn-remove-icon {
-    padding: 10px 16px;
-    background-color: #ffeaea;
-    color: #d93025;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    height: 42px;
+  padding: 10px 16px;
+  background-color: #ffeaea;
+  color: #d93025;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  height: 42px;
 }
 
 .btn-remove-icon:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .bottom-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 16px;
-    margin-top: 32px;
-    padding-top: 24px;
-    border-top: 1px solid var(--border-primary-color);
-    margin-bottom: 80px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-primary-color);
+  margin-bottom: 80px;
 }
 
 .btn-cancel {
-    padding: 10px 24px;
-    background-color: var(--btn-cancel);
-    color: var(--text-cancel);
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
+  padding: 10px 24px;
+  background-color: var(--btn-cancel);
+  color: var(--text-cancel);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
 .btn-save {
-    padding: 10px 24px;
-    background-color: var(--btn-submit);
-    color: var(--text-submit);
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
+  padding: 10px 24px;
+  background-color: var(--btn-submit);
+  color: var(--text-submit);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
 .btn-add-text {
-    width: 100%;
-    padding: 12px 0;
-    border: 1px solid #00a6fff2;
-    background-color: var(--bg-secondary);
-    color: #00a6fff2;
-    font-weight: 600;
-    cursor: pointer;
-    border-radius: 4px;
+  width: 100%;
+  padding: 12px 0;
+  border: 1px solid #00a6fff2;
+  background-color: var(--bg-secondary);
+  color: #00a6fff2;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.error-message {
+  color: #e53935;
+  font-size: 13px;
+  margin-top: 5px;
+  font-weight: 5px;
+  display: block;
+}
+
+.input-error {
+  border-color: #e53935 !important;
+}
+
+.input-error-border {
+  border: 2px dashed #e53935 !important;
 }

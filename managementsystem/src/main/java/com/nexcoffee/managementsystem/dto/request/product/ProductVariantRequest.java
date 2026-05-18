@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class ProductVariantRequest {
     private Integer id;
-    @NotNull(message = "Kích thước (size) không được để trống")
+
     private String size;
     @NotNull(message = "Giá không được để trống")
     @Positive(message = "Giá phải là số dương")

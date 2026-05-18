@@ -38,6 +38,9 @@ public class User {
     @Column(nullable = false)
     private String status = "ACTIVE";
 
+    @Builder.Default
+    @Column(name = "is_verified", nullable = false)
+    private boolean isVerified = false;
 
     @Column(name = "verification_token")
     private String verificationToken;
