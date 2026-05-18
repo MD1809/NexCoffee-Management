@@ -254,11 +254,3 @@
   text-align: center;
   color: var(--text-secondary);
 }
-
-/* LOADING & ERROR */
-.loading-spinner, .error-message {
-  text-align: center;
-  padding: 40px;
-  color: var(--text-secondary);
-  font-size: 16px;
-}

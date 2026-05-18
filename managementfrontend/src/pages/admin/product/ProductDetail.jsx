@@ -84,7 +84,7 @@ function ProductDetailPage() {
           <button className="btn-back" onClick={() => navigate("/admin/products")}>
             <i className="fa-solid fa-arrow-left"></i> Quay lại
           </button>
-          <h2>Chi tiết sản phẩm #{product.id}</h2>
+          <h2>Chi tiết sản phẩm</h2>
         </div>
         <div className="header-right">
           <button 
@@ -152,7 +152,7 @@ function ProductDetailPage() {
             </div>
 
             <div className="info-section">
-              <h3>Bảng giá & Biến thể</h3>
+              <h3>Bảng giá</h3>
               <div className="variants-table-wrapper">
                 <table className="variants-table">
                   <thead>
@@ -167,7 +167,7 @@ function ProductDetailPage() {
                     {product.variants && product.variants.length > 0 ? (
                       product.variants.map((v) => (
                         <tr key={v.id}>
-                          <td className="size-col"><strong>{v.size}</strong></td>
+                          <td className="size-col"><strong>{v.size ? v.size : "Không có"}</strong></td>
                           <td className="price-col">{v.price.toLocaleString("vi-VN")} đ</td>
                           <td>
                             <span className={`v-status ${v.status === 'available' ? 'avail' : 'unavail'}`}>

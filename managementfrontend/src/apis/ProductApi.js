@@ -22,7 +22,7 @@ const productService = {
 
   // Cập nhât sản phẩm
   update: (id, data) => {
-    return axiosClient.put(`/products/${id}`, data, {
+    return axiosClient.put(`/products/edit/${id}`, data, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
