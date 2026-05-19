@@ -173,3 +173,16 @@
     padding: 40px 0;
     color: var(--text-secondary);
 }
+
+.form-modal__input.input--error {
+  border-color: #e74c3c !important;
+}
+
+.addU-error-text {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+  font-weight: 500;
+  text-align: left;
+}

@@ -1,0 +1,120 @@
+.category-detail-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px;
+    background-color: var(--bg-main);
+    min-height: 100vh;
+    color: var(--text-primary);
+}
+
+.cg-info-card,
+.products-card {
+    background-color: var(--bg-sidebar);
+    border: 1px solid var(--border-primary-color);
+    border-radius: 8px;
+    padding: 24px;
+}
+
+.cg-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-primary-color);
+    gap: 16px;
+}
+
+.cg-info-title {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.cg-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.cg-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cg-info-label {
+    font-size: 16px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.cg-info-value {
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.products-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.products-title {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+}
+
+
+/* .search-input:focus {
+  border-color: var(--sidebar-active-dark);
+  box-shadow: 0 0 0 3px var(--sidebar-active-blur);
+} */
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    width: fit-content;
+}
+
+.status-badge.active {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.status-badge.inactive {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+[data-theme='light'] .status-badge.active {
+    background-color: #d4edda;
+}
+
+[data-theme='light'] .status-badge.inactive {
+    background-color: #f8d7da;
+}
+
+.truncate-text {
+    display: inline-block;
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+}
+
+.loading-text {
+    padding: 24px;
+    color: var(--text-primary);
+    text-align: center;
+    font-size: 1.1rem;
+}

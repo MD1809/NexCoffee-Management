@@ -1,9 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { FaDollarSign, FaShoppingCart, FaUsers, FaBox } from "react-icons/fa";
-import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar, Cell } from 'recharts';
+import {
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  Cell,
+} from "recharts";
 
 import "./Dashboard.css";
-import dashboardApi from '../../../apis/DashboardApi';
+import dashboardApi from "../../../apis/DashboardApi";
 import StatCard from "../../../components/admin/statCard/StatCard";
 
 const Dashboard = () => {
@@ -22,7 +33,7 @@ const Dashboard = () => {
   const [selectedYear, setSelectedYear] = useState(
     new Date().getFullYear().toString(),
   ); // Mặc định năm nay
-  const [selectedMonth, setSelectedMonth] = useState("all"); // Mặc định xem cả năm
+  const [selectedMonth, setSelectedMonth] = useState("all"); 
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -37,9 +48,9 @@ const Dashboard = () => {
       // Đợi cả 2 API chạy xong
       const [resOverview, resTopProducts] = await Promise.all([
         dashboardApi.getOverview(),
-        dashboardApi.getTopProducts()
+        dashboardApi.getTopProducts(),
       ]);
-      
+
       // Axios bọc dữ liệu trong .data
       setOverview(resOverview.data);
       setTopProducts(resTopProducts.data);
@@ -50,17 +61,16 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchGeneralData();
-  }, []); 
+  }, []);
 
-
-  // 3. LẤY DỮ LIỆU BIỂU ĐỒ 
+  // 3. LẤY DỮ LIỆU BIỂU ĐỒ
   const fetchChartData = async () => {
     try {
       setLoading(true);
       let response;
       let isDaily = false;
 
-      // Gọi API qua object dashboardApi
+      // Gọi API
       if (selectedMonth === "all") {
         response = await dashboardApi.getRevenueByYear(selectedYear);
       } else {
@@ -68,15 +78,49 @@ const Dashboard = () => {
         isDaily = true;
       }
 
-      // Lấy dữ liệu thật từ response.data
       const dataJson = response.data;
 
-      // Map dữ liệu cho Recharts
+      // Lấy thời gian thực tế hiện tại để so sánh
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentDay = currentDate.getDate();
+
+      // Ép kiểu Selected Year và Month về số nguyên để so sánh
+      const selYear = parseInt(selectedYear);
+      const selMonth = selectedMonth !== "all" ? parseInt(selectedMonth) : null;
+
       if (Array.isArray(dataJson)) {
-        const formattedData = dataJson.map((item) => ({
-          name: isDaily ? `Ngày ${item.day}` : `Tháng ${item.month}`,
-          revenue: item.revenue,
-        }));
+        const formattedData = dataJson.map((item) => {
+          let isFuture = false;
+
+          // Kiểm tra xem mốc thời gian đang lặp có phải là tương lai không
+          if (isDaily) {
+            // Đang xem theo ngày
+            if (selYear > currentYear) {
+              isFuture = true;
+            } else if (selYear === currentYear && selMonth > currentMonth) {
+              isFuture = true;
+            } else if (selYear === currentYear && selMonth === currentMonth && item.day > currentDay) {
+              isFuture = true; // Ngày lớn hơn ngày hôm nay
+            }
+          } else {
+            // Đang xem theo tháng (cả năm)
+            if (selYear > currentYear) {
+              isFuture = true;
+            } else if (selYear === currentYear && item.month > currentMonth) {
+              isFuture = true; // Tháng lớn hơn tháng hiện tại
+            }
+          }
+
+          return {
+            name: isDaily ? item.day.toString() : `Tháng ${item.month}`,
+            // Nếu là tương lai -> trả về null để Recharts cắt đứt đường kẻ tại đây
+            // Nếu là quá khứ/hiện tại -> giữ nguyên doanh thu
+            revenue: isFuture ? null : item.revenue,
+          };
+        });
+        
         setRevenueData(formattedData);
       } else {
         setRevenueData([]);
@@ -105,32 +149,32 @@ const Dashboard = () => {
       <h2 className="dashboard-title">Tổng Quan Cửa Hàng</h2>
 
       <div className="overview-cards">
-        <StatCard 
-          title="Tổng Doanh Thu" 
-          value={formatCurrency(overview.totalRevenue)} 
-          IconComponent={FaDollarSign} 
-          colorTheme="revenue" 
+        <StatCard
+          title="Tổng Doanh Thu"
+          value={formatCurrency(overview.totalRevenue)}
+          IconComponent={FaDollarSign}
+          colorTheme="revenue"
+        />
+
+        <StatCard
+          title="Tổng Đơn Hàng"
+          value={overview.totalOrders}
+          IconComponent={FaShoppingCart}
+          colorTheme="orders"
+        />
+
+        <StatCard
+          title="Tổng sản phẩm" 
+          value={overview.productsSold}
+          IconComponent={FaBox}
+          colorTheme="products"
         />
         
-        <StatCard 
-          title="Tổng Đơn Hàng" 
-          value={overview.totalOrders} 
-          IconComponent={FaShoppingCart} 
-          colorTheme="orders" 
-        />
-        
-        <StatCard 
-          title="Khách Hàng" 
-          value={overview.totalCustomers} 
-          IconComponent={FaUsers} 
-          colorTheme="customers" 
-        />
-        
-        <StatCard 
-          title="Sản Phẩm Đã Bán" 
-          value={overview.productsSold} 
-          IconComponent={FaBox} 
-          colorTheme="products" 
+        <StatCard
+          title="Khách Hàng"
+          value={overview.totalCustomers}
+          IconComponent={FaUsers}
+          colorTheme="customers"
         />
       </div>
 
@@ -202,45 +246,86 @@ const Dashboard = () => {
           </div>
 
           {/* VẼ BIỂU ĐỒ */}
-          <div style={{ width: '100%', height: 350 }}>
+          <div style={{ width: "100%", height: 350 }}>
             <ResponsiveContainer width="100%" height="100%" minHeight={350}>
-              <AreaChart data={revenueData} margin={{ top: 20, right: 20, bottom: 5, left: 20 }}>
-                
+              <AreaChart
+                data={revenueData}
+                margin={{ top: 20, right: 20, bottom: 5, left: 20 }}
+              >
                 {/* 1. Định nghĩa màu Gradient đổ bóng (nhạt dần xuống dưới) */}
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--sidebar-active-dark)" stopOpacity={0.6}/>
-                    <stop offset="95%" stopColor="var(--sidebar-active-dark)" stopOpacity={0.05}/>
+                    <stop
+                      offset="5%"
+                      stopColor="var(--sidebar-active-dark)"
+                      stopOpacity={0.6}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor="var(--sidebar-active-dark)"
+                      stopOpacity={0.05}
+                    />
                   </linearGradient>
                 </defs>
 
                 {/* 2. Lưới biểu đồ (làm mờ đi để giống ảnh) */}
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-primary-color)" opacity={0.4} />
-                
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  stroke="var(--border-primary-color)"
+                  opacity={0.4}
+                />
+
                 {/* 3. Trục X và Y (Bỏ đường viền trục) */}
-                <XAxis dataKey="name" tick={{ fill: 'var(--text-secondary)' }} padding={{ left: 30, right: 30 }} axisLine={false} tickLine={false} minTickGap={16} interval={0}/>
-                <YAxis hide={true} tickFormatter={(value) => `${value.toLocaleString('vi-VN')}đ`} width={80} tick={{ fill: 'var(--text-secondary)' }} axisLine={false} tickLine={false} />
-                
+                <XAxis
+                  dataKey="name"
+                  tick={{ fill: "var(--text-secondary)" }}
+                  padding={{ left: 30, right: 30 }}
+                  axisLine={false}
+                  tickLine={false}
+                  minTickGap={16}
+                  interval={0}
+                />
+                <YAxis
+                  hide={true}
+                  tickFormatter={(value) => `${value.toLocaleString("vi-VN")}đ`}
+                  width={80}
+                  tick={{ fill: "var(--text-secondary)" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+
                 {/* 4. Tooltip nền tối màu giống y hệt ảnh */}
-                <Tooltip 
-                  formatter={(value) => formatCurrency(value)} 
-                  contentStyle={{ backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '6px', padding: '10px' }} 
-                  itemStyle={{ color: '#fff' }}
-                  labelStyle={{ display: 'none' }} /* Ẩn chữ tiêu đề (Ngày/Tháng) mặc định để format gộp vào formatter nếu cần, hoặc để nguyên tùy ý */
+                <Tooltip
+                  formatter={(value) => formatCurrency(value)}
+                  contentStyle={{
+                    backgroundColor: "#333",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "6px",
+                    padding: "10px",
+                  }}
+                  itemStyle={{ color: "#fff" }}
+                  labelStyle={{
+                    display: "none",
+                  }} /* Ẩn chữ tiêu đề (Ngày/Tháng) mặc định để format gộp vào formatter nếu cần, hoặc để nguyên tùy ý */
                 />
-                
+
                 {/* 5. Vẽ biểu đồ vùng (Area) với đường cong mềm (monotone) */}
-                <Area 
-                  type="monotone" 
-                  dataKey="revenue" 
-                  name="Doanh thu" 
-                  stroke="var(--sidebar-active-dark)" 
-                  strokeWidth={3} 
-                  fillOpacity={1} 
+                <Area
+                  type="monotone"
+                  dataKey="revenue"
+                  name="Doanh thu"
+                  stroke="var(--sidebar-active-dark)"
+                  strokeWidth={3}
+                  fillOpacity={1}
                   fill="url(#colorRevenue)" /* Gọi lại màu gradient đã định nghĩa ở trên */
-                  activeDot={{ r: 6, strokeWidth: 0, fill: "var(--sidebar-active-dark)" }} 
+                  activeDot={{
+                    r: 6,
+                    strokeWidth: 0,
+                    fill: "var(--sidebar-active-dark)",
+                  }}
                 />
-                
               </AreaChart>
             </ResponsiveContainer>
           </div>

@@ -108,7 +108,7 @@ function Order() {
             break;
           case "Processing":
             badgeClass = "badge-info";
-            statusText = "Đang pha chế";
+    statusText = "Đang xử lý";
             break;
           case "Shipped":
             badgeClass = "badge-primary";
@@ -172,11 +172,12 @@ function Order() {
   
   // thông kê đơn hàng hôm nay
   const successTodayCount = safeToday.filter(
-    (o) => o && o.status === "Completed",
-  ).length;
-  const canceledTodayCount = safeToday.filter(
-    (o) => o && o.status === "Cancelled",
-  ).length;
+    (o) => o && o.status?.toLowerCase() === "completed",
+).length;
+
+const canceledTodayCount = safeToday.filter(
+    (o) => o && o.status?.toLowerCase() === "cancelled",
+).length;
 
   return (
     <div className="container">

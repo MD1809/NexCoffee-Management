@@ -12,4 +12,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     List<Product> findByStatus(ProductsStatus status);
     List<Product> findByStatusNot(ProductsStatus status);
     List<Product> findByStatusOrderByIdDesc(ProductsStatus status);
+    List<Product> findByCategoryId(Integer categoryId);
+    boolean existsByNameAndCategoryId(String name, Integer categoryId);
+    boolean existsByNameAndCategoryIdAndIdNot(String name, Integer categoryId, Integer id);
 }

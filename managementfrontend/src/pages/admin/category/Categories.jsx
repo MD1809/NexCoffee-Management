@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 import categoryApi from "../../../apis/CategoryApi";
 import { toast } from "react-toastify";
@@ -15,6 +16,8 @@ function Categories() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
+
+  const navigate = useNavigate();
 
   const columns = [
     { header: "ID", accessor: "id" },
@@ -57,6 +60,10 @@ function Categories() {
     } catch (error) {
       console.error("Lỗi khi lấy danh sách:", error);
     }
+  };
+
+  const handleOpenDetail = (category) => {
+    navigate(`detail/${category.id}`); 
   };
 
   const handleOpenEdit = (category) => {

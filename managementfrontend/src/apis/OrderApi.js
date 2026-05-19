@@ -20,9 +20,10 @@ const orderApi = {
   },
 
   // Cập nhập trạng thánh đơn hàng
-  updateOrderStatus: (id, newStatus) => {
-    return axiosClient.patch(`/orders/${id}/status?status=${newStatus}`);
-  },
+  
+  updateOrderStatus: (id, status) => {
+  return axiosClient.patch(`/orders/${id}/status?status=${status}`);
+}
 };
 
 export default orderApi;

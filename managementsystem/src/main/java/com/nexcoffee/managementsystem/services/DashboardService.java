@@ -25,9 +25,9 @@ public class DashboardService {
         Long totalRevenue = dashboardRepository.calculateTotalRevenue();
         Long totalOrders = dashboardRepository.countTotalOrders();
         Long totalCustomers = dashboardRepository.countActiveCustomers();
-        Long productsSold = dashboardRepository.countTotalProductsSold();
+        Long totalProducts = dashboardRepository.countActiveProducts();
 
-        return new DashboardOverviewResponse(totalRevenue, totalOrders, totalCustomers, productsSold);
+        return new DashboardOverviewResponse(totalRevenue, totalOrders, totalCustomers, totalProducts);
     }
 
     // 2. Lấy doanh thu 12 tháng theo năm
