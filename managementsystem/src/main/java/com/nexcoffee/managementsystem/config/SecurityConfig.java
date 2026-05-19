@@ -47,11 +47,14 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
 
                         .requestMatchers("/images/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/locations/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/delivery/check").permitAll()
 
 
                         // Public cho trang menu khách hàng
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                        .requestMatchers("/api/checkout/**").hasAuthority("CUSTOMER")
 
                         // Dashboard: chỉ ADMIN
                         .requestMatchers("/api/dashboard/**").hasAuthority("ADMIN")
@@ -71,9 +74,10 @@ public class SecurityConfig {
                         // Nếu có các controller admin khác đang dùng endpoint hiện tại
                         .requestMatchers("/api/users/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/orders/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/delivery-areas/**").hasAuthority("ADMIN")
 
                         // Customer APIs sau này
-                        .requestMatchers("/api/cart/**").hasAuthority("CUSTOMER")
+                        .requestMatchers("/api/cart/**").permitAll()
                         .requestMatchers("/api/checkout/**").hasAuthority("CUSTOMER")
                         .requestMatchers("/api/customer/**").hasAuthority("CUSTOMER")
 
@@ -102,10 +106,17 @@ public class SecurityConfig {
                 CorsConfiguration config = new CorsConfiguration();
 
                 config.setAllowedOrigins(List.of("http://localhost:5173"));
-                config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                config.setAllowedHeaders(List.of("*"));
+                config.setAllowedMethods(List.of("GET", "POST", "PUT","PATCH", "DELETE", "OPTIONS"));
+                config.setAllowedHeaders(List.of("Authorization",
+                        "Content-Type",
+                        "Accept",
+                        "Origin",
+                        "X-Requested-With",
+                        "X-Cart-Token"));
                 config.setAllowCredentials(true);
                 config.setExposedHeaders(List.of("Authorization"));
+                config.setAllowCredentials(true);
+                config.setMaxAge(3600L);
 
                 return config;
             }
