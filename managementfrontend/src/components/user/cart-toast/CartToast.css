@@ -1,0 +1,140 @@
+.user-portal .cart-toast-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 3000;
+}
+
+.user-portal .cart-toast-card {
+  width: min(48rem, 92vw);
+  background: #ffffff;
+  border-radius: 1.4rem;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  animation: cartToastIn 0.22s ease;
+}
+
+@keyframes cartToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(1.2rem) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.user-portal .toast-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.3rem 1.6rem;
+  background: rgba(255, 137, 20, 0.12);
+  color: var(--primary-orange);
+  font-weight: 800;
+}
+
+.user-portal .toast-head.error {
+  background: #fdecea;
+  color: #c62828;
+}
+
+.user-portal .toast-title {
+  font-size: 1.5rem;
+}
+
+.user-portal .toast-close {
+  background: none;
+  border: 0;
+  font-size: 2.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: inherit;
+}
+
+.user-portal .toast-body {
+  padding: 1.6rem;
+}
+
+.user-portal .toast-body .row {
+  display: flex;
+  gap: 1.2rem;
+  align-items: center;
+}
+
+.user-portal .toast-body img,
+.user-portal .cart-toast-placeholder {
+  width: 6.4rem;
+  height: 6.4rem;
+  border-radius: 1rem;
+  object-fit: cover;
+  flex: 0 0 auto;
+}
+
+.user-portal .cart-toast-placeholder {
+  background: #fffaf6;
+  color: var(--primary-brown);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 900;
+}
+
+.user-portal .toast-body h4 {
+  color: var(--primary-brown);
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 0.4rem;
+}
+
+.user-portal .toast-body p {
+  color: #66564c;
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.user-portal .toast-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding: 1.2rem 1.6rem 1.6rem;
+}
+
+.user-portal .toast-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 4rem;
+  padding: 1rem 1.4rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(57, 27, 9, 0.18);
+  background: #ffffff;
+  color: var(--primary-brown);
+  text-decoration: none;
+  font-size: 1.35rem;
+  font-weight: 800;
+  transition: 0.25s ease;
+}
+
+.user-portal .toast-btn:hover {
+  border-color: var(--primary-orange);
+  color: var(--primary-orange);
+}
+
+.user-portal .toast-btn.primary {
+  background: var(--primary-orange);
+  color: #ffffff;
+  border-color: var(--primary-orange);
+}
+
+.user-portal .toast-btn.primary:hover {
+  background: #ffffff;
+  color: var(--primary-orange);
+}

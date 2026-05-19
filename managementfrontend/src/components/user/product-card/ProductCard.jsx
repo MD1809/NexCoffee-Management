@@ -2,6 +2,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaShoppingCart } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { showCartToast } from "../../../utils/cartToast";
 
 const BACKEND_URL = "http://localhost:8080";
 
@@ -102,7 +103,15 @@ const ProductCard = ({ product }) => {
       return;
     }
 
-    toast.success(`Đã thêm "${product.name}" vào giỏ hàng.`);
+    showCartToast({
+      type: "success",
+      title: "Đã thêm vào giỏ hàng",
+      productName: product.name,
+      productImage: mainImage,
+      size: "",
+      quantity: 1,
+      message: "Sản phẩm đã được thêm vào giỏ hàng của bạn.",
+    });
   };
   const truncateText = (text, maxLength = 30) => {
     if (!text) return "";

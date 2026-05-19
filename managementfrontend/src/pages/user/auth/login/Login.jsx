@@ -5,6 +5,8 @@ import { toast } from "react-toastify";
 import "./Login.css";
 import { loginUser } from "../../../../apis/authApi";
 import { saveAuth } from "../../../../utils/authStorage";
+import { mergeGuestCart } from "../../../../apis/cartApi";
+import { clearGuestCartToken } from "../../../../utils/cartSession";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -77,6 +79,12 @@ const Login = () => {
       });
 
       saveAuth(response, formData.remember);
+      try {
+        await mergeGuestCart();
+        clearGuestCartToken();
+      } catch (mergeError) {
+        console.warn("Không thể gộp giỏ khách:", mergeError);
+      }
 
       toast.success("Đăng nhập thành công!");
       redirectByRole(response);

@@ -7,3 +7,6 @@ export const getMenuProducts = () => {
 export const getMenuCategories = () => {
   return axiosInstance.get("/categories");
 };
+export const getMenuProductById = (id) => {
+  return axiosInstance.get(`/products/${id}`);
+};

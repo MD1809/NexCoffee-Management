@@ -36,13 +36,16 @@ const productService = {
 
   // CẬP NHẬT TRẠNG THÁI BIẾN THỂ (SIZE)
   updateVariantStatus: (variantId, status) => {
-    return axiosClient.patch(`/products/variants/${variantId}/status`, {}, {
-      params: { 
-        status: status 
-      }
-    });
+    return axiosClient.patch(
+      `/products/variants/${variantId}/status`,
+      {},
+      {
+        params: {
+          status: status,
+        },
+      },
+    );
   },
-
 };
 
 export default productService;

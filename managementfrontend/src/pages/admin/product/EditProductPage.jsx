@@ -22,10 +22,10 @@ function EditProductPage() {
   // --- STATE QUẢN LÝ LOẠI SẢN PHẨM & BIẾN THỂ ---
   const [isSimpleProduct, setIsSimpleProduct] = useState(false);
   const [variantsWithSize, setVariantsWithSize] = useState([
-    { size: "S", price: "", status: "available" }
+    { size: "S", price: "", status: "available" },
   ]);
   const [variantSimple, setVariantSimple] = useState([
-    { size: null, price: "", status: "available" }
+    { size: null, price: "", status: "available" },
   ]);
 
   const [product, setProduct] = useState({
@@ -65,7 +65,7 @@ function EditProductPage() {
       const response = await productApi.getById(id);
       const data = response.data;
       console.log("DỮ LIỆU SẢN PHẨM TỪ API:", data);
-      
+
       setProduct({
         name: data.name,
         description: data.description || "",
@@ -77,10 +77,12 @@ function EditProductPage() {
       // --- XỬ LÝ DỮ LIỆU BIẾN THỂ TỪ BACKEND ---
       if (data.variants && data.variants.length > 0) {
         // Nếu chỉ có 1 biến thể và size là null (hoặc chuỗi rỗng/"null") -> Sản phẩm không size
-        const isSimple = data.variants.length === 1 && (!data.variants[0].size || data.variants[0].size === "null");
-        
+        const isSimple =
+          data.variants.length === 1 &&
+          (!data.variants[0].size || data.variants[0].size === "null");
+
         setIsSimpleProduct(isSimple);
-        
+
         if (isSimple) {
           // Gán vào state variantSimple (có kèm id từ backend)
           setVariantSimple(data.variants);
@@ -199,7 +201,11 @@ function EditProductPage() {
       setVariantsWithSize(newVariants);
     }
 
-    if (errors.variants && errors.variants[index] && errors.variants[index][field]) {
+    if (
+      errors.variants &&
+      errors.variants[index] &&
+      errors.variants[index][field]
+    ) {
       const newVariantErrors = [...errors.variants];
       delete newVariantErrors[index][field];
       setErrors((prev) => ({ ...prev, variants: newVariantErrors }));
@@ -215,7 +221,7 @@ function EditProductPage() {
 
   const removeVariant = (index) => {
     const variantToRemove = variantsWithSize[index];
-    
+
     if (variantToRemove.id) {
       setDeletedVariantIds((prev) => [...prev, variantToRemove.id]);
     }
@@ -348,10 +354,7 @@ function EditProductPage() {
               <div className="sub-images-container">
                 {existingSubImages.map((img) => (
                   <div key={`existing-${img.id}`} className="sub-image-item">
-                    <img
-                      src={getImageSource(img.url)}
-                      alt={`Existing Sub`}
-                    />
+                    <img src={getImageSource(img.url)} alt={`Existing Sub`} />
                     <button
                       type="button"
                       className="btn-remove-sub"
@@ -459,8 +462,10 @@ function EditProductPage() {
 
             <div className="form-section">
               <div className="section-header-flex">
-                <h3 className="section-title priceSize">BẢNG GIÁ & KÍCH THƯỚC</h3>
-                
+                <h3 className="section-title priceSize">
+                  BẢNG GIÁ & KÍCH THƯỚC
+                </h3>
+
                 <div className="product-type-toggle">
                   <label>
                     <input
@@ -503,12 +508,22 @@ function EditProductPage() {
                             <option value="XL">Size XL</option>
                           </select>
                         ) : (
-                          <div style={{ padding: "8px 0", fontWeight: "600", color: "#555", minWidth: "100px" }}>
+                          <div
+                            style={{
+                              padding: "8px 0",
+                              fontWeight: "600",
+                              color: "#555",
+                              minWidth: "100px",
+                            }}
+                          >
                             Giá sản phẩm:
                           </div>
                         )}
 
-                        <div className="variant-column-priceInput" style={{ flex: 1 }}>
+                        <div
+                          className="variant-column-priceInput"
+                          style={{ flex: 1 }}
+                        >
                           <input
                             type="number"
                             placeholder="Nhập giá bán (VNĐ)"
@@ -516,7 +531,11 @@ function EditProductPage() {
                             value={v.price}
                             onWheel={(e) => e.target.blur()}
                             onChange={(e) =>
-                              handleVariantChange(index, "price", e.target.value)
+                              handleVariantChange(
+                                index,
+                                "price",
+                                e.target.value,
+                              )
                             }
                           />
                           {variantError?.price && (
@@ -540,7 +559,7 @@ function EditProductPage() {
                     </div>
                   );
                 })}
-                
+
                 {!isSimpleProduct && (
                   <button
                     type="button"

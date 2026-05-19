@@ -12,6 +12,8 @@ import Menu from "../pages/user/menu/Menu";
 import ProtectedRoute from "./ProtectedRoute";
 import BlockAdminRoute from "./BlockAdminRoute";
 import GuestOnlyRoute from "./GuestOnlyRoute";
+import ProductDetail from "../pages/user/product-detail/ProductDetail";
+import Cart from "../pages/user/cart/Cart";
 
 // Layout Page
 import AdminLayout from "../layouts/admin/AdminLayout";
@@ -37,6 +39,8 @@ function WebRouters() {
           <Route element={<BlockAdminRoute />}>
             <Route index element={<Home />} />
             <Route path="menu" element={<Menu />} />
+            <Route path="products/:id" element={<ProductDetail />} />
+            <Route path="cart" element={<Cart />} />
           </Route>
 
           {/* Chỉ người chưa đăng nhập mới được vào */}

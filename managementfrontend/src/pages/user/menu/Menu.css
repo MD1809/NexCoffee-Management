@@ -128,7 +128,7 @@
 
 .user-portal .menu-products {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
   gap: 2.4rem;
 }
 
@@ -159,7 +159,7 @@
 
 .user-portal .menu-card-img {
   width: 100%;
-  height: 16rem;
+  height: 21rem;
   overflow: hidden;
   background-color: #f5eee8;
 }
@@ -178,7 +178,7 @@
 
 .user-portal .menu-card-info {
   min-height: 8rem;
-  padding: 1.6rem 1.6rem 4.8rem;
+  padding: 1.6rem 1.6rem 1.6rem;
 }
 
 .user-portal .menu-card-name {
@@ -224,7 +224,7 @@
   height: 4.4rem;
   border: none;
   border-radius: 50%;
-  background-color: color-mix(in srgb, var(--primary-orange), transparent 40%);
+  background-color: var(--primary-orange);
   border: var(--primary-orange) 3px solid;
   color: #ffffff;
   display: flex;

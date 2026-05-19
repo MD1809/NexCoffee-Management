@@ -19,10 +19,10 @@ function AddProductPage() {
 
   // TÁCH RIÊNG 2 STATE QUẢN LÝ BIẾN THỂ (TỐI ƯU UX)
   const [variantsWithSize, setVariantsWithSize] = useState([
-    { size: "S", price: "", status: "available" }
+    { size: "S", price: "", status: "available" },
   ]);
   const [variantSimple, setVariantSimple] = useState([
-    { size: null, price: "", status: "available" }
+    { size: null, price: "", status: "available" },
   ]);
 
   // Loại bỏ variants ra khỏi state product chung để dễ quản lý
@@ -152,7 +152,11 @@ function AddProductPage() {
     }
 
     // Xóa lỗi nếu đang nhập
-    if (errors.variants && errors.variants[index] && errors.variants[index][field]) {
+    if (
+      errors.variants &&
+      errors.variants[index] &&
+      errors.variants[index][field]
+    ) {
       const newVariantErrors = [...errors.variants];
       delete newVariantErrors[index][field];
       setErrors((prev) => ({ ...prev, variants: newVariantErrors }));
@@ -161,10 +165,10 @@ function AddProductPage() {
 
   // Chỉ thêm variant cho chế độ "Có size"
   const addVariant = () => {
-    setProduct({
-      ...product,
-      variants: [...product.variants, { size: "S", price: "", status: "available" }],
-    });
+    setVariantsWithSize([
+      ...variantsWithSize,
+      { size: "S", price: "", status: "available" },
+    ]);
   };
 
   // Chỉ xóa variant cho chế độ "Có size"
@@ -240,7 +244,10 @@ function AddProductPage() {
                 onChange={handleMainImageChange}
                 className="hidden-input"
               />
-              <label htmlFor="mainImageInput" className="main-image-upload-area">
+              <label
+                htmlFor="mainImageInput"
+                className={`main-image-upload-area ${errors.image ? "input-error-border" : ""}`}
+              >
                 {previewImage ? (
                   <img
                     src={previewImage}
@@ -249,8 +256,16 @@ function AddProductPage() {
                   />
                 ) : (
                   <div className="upload-placeholder">
-                    {/* SVG Icon Upload (Đám mây) */}
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      width="40"
+                      height="40"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#555"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                       <polyline points="17 8 12 3 7 8"></polyline>
                       <line x1="12" y1="3" x2="12" y2="15"></line>
@@ -324,13 +339,25 @@ function AddProductPage() {
 
               <div className="input-group">
                 <label>Tên sản phẩm</label>
-                <input name="name" placeholder="Ví dụ: Latte Macchiato" onChange={handleInputChange} required className="form-control" />
+                <input
+                  name="name"
+                  placeholder="Ví dụ: Latte Macchiato"
+                  onChange={handleInputChange}
+                  className={`form-control ${errors.name ? "input-error" : ""}`}
+                />
+                {errors.name && (
+                  <div className="error-message">{errors.name}</div>
+                )}
               </div>
 
               <div className="form-row-flex">
                 <div className="input-group">
                   <label>Danh mục</label>
-                  <select name="categoryId" onChange={handleInputChange} required className="form-control">
+                  <select
+                    name="categoryId"
+                    onChange={handleInputChange}
+                    className={`form-control ${errors.categoryId ? "input-error" : ""}`}
+                  >
                     <option value="">-- Chọn danh mục --</option>
                     {categories.map((cat) => (
                       <option key={cat.id} value={cat.id}>
@@ -345,7 +372,11 @@ function AddProductPage() {
 
                 <div className="input-group">
                   <label>Trạng thái</label>
-                  <select name="status" onChange={handleInputChange} required className="form-control">
+                  <select
+                    name="status"
+                    onChange={handleInputChange}
+                    className="form-control"
+                  >
                     <option value="active">Đang kinh doanh</option>
                     <option value="inactive">Ngừng kinh doanh</option>
                   </select>
@@ -367,7 +398,9 @@ function AddProductPage() {
             {/* BẢNG GIÁ & KÍCH THƯỚC */}
             <div className="form-section">
               <div className="section-header-flex">
-                <h3 className="section-title priceSize">BẢNG GIÁ & KÍCH THƯỚC</h3>
+                <h3 className="section-title priceSize">
+                  BẢNG GIÁ & KÍCH THƯỚC
+                </h3>
 
                 <div className="product-type-toggle">
                   <label>
@@ -392,19 +425,87 @@ function AddProductPage() {
               </div>
 
               <div className="variants-container">
-                {product.variants.map((v, index) => (
-                  <div key={index} className="variant-row-modern">
-                    <select value={v.size} onChange={(e) => handleVariantChange(index, "size", e.target.value)} className="variant-select form-control">
-                      <option value="S">Size S</option>
-                      <option value="M">Size M</option>
-                      <option value="L">Size L</option>
-                      <option value="XL">Size XL</option>
-                    </select>
-                    <input type="number" placeholder="Giá bán" className="variant-price form-control" value={v.price} onWheel={(e) => e.target.blur()} onChange={(e) => handleVariantChange(index, "price", e.target.value)} required />
-                    <button type="button" onClick={() => removeVariant(index)} className="btn-remove-icon" disabled={product.variants.length === 1}>Xóa</button>
-                  </div>
-                ))}
-                <button type="button" onClick={addVariant} className="btn-add-text">+ Thêm size</button>
+                {/* Lặp qua danh sách tương ứng (currentVariants) */}
+                {currentVariants.map((v, index) => {
+                  const variantError = errors.variants?.[index];
+                  return (
+                    <div key={index} className="variant-wrapper">
+                      <div className="variant-row-modern">
+                        {!isSimpleProduct ? (
+                          <select
+                            value={v.size || "S"}
+                            onChange={(e) =>
+                              handleVariantChange(index, "size", e.target.value)
+                            }
+                            className="variant-column-select"
+                          >
+                            <option value="S">Size S</option>
+                            <option value="M">Size M</option>
+                            <option value="L">Size L</option>
+                            <option value="XL">Size XL</option>
+                          </select>
+                        ) : (
+                          <div
+                            style={{
+                              padding: "8px 0",
+                              fontWeight: "600",
+                              color: "#555",
+                              minWidth: "100px",
+                            }}
+                          >
+                            Giá sản phẩm:
+                          </div>
+                        )}
+
+                        <div
+                          className="variant-column-priceInput"
+                          style={{ flex: 1 }}
+                        >
+                          <input
+                            type="number"
+                            placeholder="Nhập giá bán (VNĐ)"
+                            className={`variant-price form-control ${variantError?.price ? "input-error" : ""}`}
+                            value={v.price}
+                            onWheel={(e) => e.target.blur()}
+                            onChange={(e) =>
+                              handleVariantChange(
+                                index,
+                                "price",
+                                e.target.value,
+                              )
+                            }
+                          />
+                          {variantError?.price && (
+                            <div className="error-message variant-error">
+                              {variantError.price}
+                            </div>
+                          )}
+                        </div>
+
+                        {!isSimpleProduct && (
+                          <button
+                            type="button"
+                            onClick={() => removeVariant(index)}
+                            className="btn-remove-icon"
+                            disabled={currentVariants.length === 1}
+                          >
+                            Xóa
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {!isSimpleProduct && (
+                  <button
+                    type="button"
+                    onClick={addVariant}
+                    className="btn-add-text"
+                  >
+                    + Thêm size
+                  </button>
+                )}
               </div>
             </div>
           </div>
