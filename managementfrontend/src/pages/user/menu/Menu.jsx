@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import "./Menu.css";
@@ -49,6 +50,8 @@ const groupProductsByCategory = (products) => {
 };
 
 const Menu = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
 
@@ -63,7 +66,15 @@ const Menu = () => {
       behavior: "smooth",
     });
   }, []);
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get("category");
 
+    if (categoryFromUrl) {
+      setActiveCategoryId(categoryFromUrl);
+    } else {
+      setActiveCategoryId("all");
+    }
+  }, [searchParams]);
   useEffect(() => {
     const fetchMenuData = async () => {
       try {
@@ -164,7 +175,10 @@ const Menu = () => {
                 className={`menu-category-btn ${
                   activeCategoryId === "all" ? "active" : ""
                 }`}
-                onClick={() => setActiveCategoryId("all")}
+                onClick={() => {
+                  setActiveCategoryId("all");
+                  setSearchParams({});
+                }}
               >
                 Tất cả
               </button>
@@ -179,7 +193,10 @@ const Menu = () => {
                       ? "active"
                       : ""
                   }`}
-                  onClick={() => setActiveCategoryId(category.id)}
+                  onClick={() => {
+                    setActiveCategoryId(category.id);
+                    setSearchParams({ category: String(category.id) });
+                  }}
                 >
                   {category.name}
                 </button>

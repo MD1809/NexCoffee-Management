@@ -82,11 +82,19 @@ const Login = () => {
       try {
         await mergeGuestCart();
         clearGuestCartToken();
+        window.dispatchEvent(new Event("cart-changed"));
       } catch (mergeError) {
         console.warn("Không thể gộp giỏ khách:", mergeError);
       }
 
       toast.success("Đăng nhập thành công!");
+
+      const redirectPath = location.state?.from;
+
+      if (redirectPath) {
+        navigate(redirectPath, { replace: true });
+        return;
+      }
       redirectByRole(response);
     } catch (error) {
       const serverError =

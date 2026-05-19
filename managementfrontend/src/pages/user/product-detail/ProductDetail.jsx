@@ -18,6 +18,7 @@ import ProductCard from "../../../components/user/product-card/ProductCard";
 import { getMenuProductById, getMenuProducts } from "../../../apis/menuApi";
 import { addCartItem } from "../../../apis/cartApi";
 import { showCartToast } from "../../../utils/cartToast";
+import ProductBreadcrumb from "../../../components/user/breadcrumb/ProductBreadcrumb";
 
 const BACKEND_URL = "http://localhost:8080";
 
@@ -345,6 +346,11 @@ const ProductDetail = () => {
   return (
     <section className="product-detail-page fade-in">
       <div className="main-content">
+        <ProductBreadcrumb
+          categoryId={product.categoryId}
+          categoryName={product.categoryName}
+          productName={product.name}
+        />
         <div className="product-detail-shell">
           <div className="product-detail-gallery">
             <div className="product-detail-main-image">
@@ -398,14 +404,14 @@ const ProductDetail = () => {
             )}
 
             <div className="product-detail-benefits">
-              <div>
+              {/* <div>
                 <FaCoffee />
                 <span>Hương vị NexCoffee đặc trưng</span>
               </div>
               <div>
                 <FaTruck />
                 <span>Giao hàng nhanh trong khu vực</span>
-              </div>
+              </div> */}
               <div>
                 <FaShieldAlt />
                 <span>Nguyên liệu được chọn lọc</span>
@@ -480,7 +486,7 @@ const ProductDetail = () => {
               </button>
             </div>
 
-            <div className="product-detail-policy">
+            {/* <div className="product-detail-policy">
               <div>
                 <FaTruck />
                 <span>Giao hàng nội thành</span>
@@ -489,7 +495,7 @@ const ProductDetail = () => {
                 <FaShieldAlt />
                 <span>Đảm bảo chất lượng</span>
               </div>
-            </div>
+            </div> */}
           </aside>
         </div>
 

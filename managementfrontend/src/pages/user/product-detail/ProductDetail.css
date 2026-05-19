@@ -4,7 +4,34 @@
   background: #ffffff;
   color: var(--primary-brown);
 }
+.user-portal .product-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 2.4rem;
+  color: rgba(57, 27, 9, 0.55);
+  font-size: 1.45rem;
+  font-weight: 600;
+}
 
+.user-portal .product-breadcrumb a {
+  color: var(--primary-orange);
+  font-weight: 800;
+}
+
+.user-portal .product-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.user-portal .product-breadcrumb span {
+  color: rgba(57, 27, 9, 0.5);
+}
+
+.user-portal .product-breadcrumb strong {
+  color: var(--primary-brown);
+  font-weight: 800;
+}
 .user-portal .product-detail-shell {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(34rem, 0.75fr);
@@ -53,13 +80,34 @@
 }
 
 .user-portal .product-detail-thumbs {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(8rem, 1fr));
+  display: flex;
+  flex-wrap: nowrap;
   gap: 1.2rem;
   margin-top: 1.2rem;
+  padding-bottom: 0.8rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 137, 20, 0.65) #f5eee8;
+}
+
+.user-portal .product-detail-thumbs::-webkit-scrollbar {
+  height: 0.8rem;
+}
+
+.user-portal .product-detail-thumbs::-webkit-scrollbar-track {
+  background: #f5eee8;
+  border-radius: 999px;
+}
+
+.user-portal .product-detail-thumbs::-webkit-scrollbar-thumb {
+  background: rgba(255, 137, 20, 0.7);
+  border-radius: 999px;
 }
 
 .user-portal .product-detail-thumb {
+  flex: 0 0 17.8rem;
   height: 10rem;
   border: 1px solid transparent;
   border-radius: 0.8rem;
@@ -258,7 +306,16 @@
   font-size: 1.5rem;
   font-weight: 800;
 }
+.user-portal .product-detail-quantity input::-webkit-outer-spin-button,
+.user-portal .product-detail-quantity input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
 
+.user-portal .product-detail-quantity input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
 .user-portal .product-detail-actions {
   display: grid;
   gap: 1rem;
@@ -421,11 +478,8 @@
     height: 28rem;
   }
 
-  .user-portal .product-detail-thumbs {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
   .user-portal .product-detail-thumb {
+    flex-basis: 9rem;
     height: 7.4rem;
   }
 

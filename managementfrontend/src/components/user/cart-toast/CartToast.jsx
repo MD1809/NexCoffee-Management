@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./CartToast.css";
+import { getAccessToken, getCurrentUser } from "../../../utils/authStorage";
 
 const defaultToast = {
   show: false,
@@ -15,6 +16,7 @@ const defaultToast = {
 
 const CartToast = () => {
   const [toastData, setToastData] = useState(defaultToast);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleShowCartToast = (event) => {
@@ -34,6 +36,29 @@ const CartToast = () => {
 
   const handleClose = () => {
     setToastData(defaultToast);
+  };
+
+  const handleCheckoutClick = () => {
+    handleClose();
+
+    const token = getAccessToken();
+    const currentUser = getCurrentUser();
+
+    if (!token || !currentUser) {
+      navigate("/login", {
+        state: {
+          from: "/checkout",
+        },
+      });
+      return;
+    }
+
+    if (currentUser.role === "ADMIN") {
+      navigate("/admin", { replace: true });
+      return;
+    }
+
+    navigate("/checkout");
   };
 
   if (!toastData.show) return null;
@@ -82,9 +107,13 @@ const CartToast = () => {
         </div>
 
         <div className="toast-actions">
-          <Link className="toast-btn primary" to="/cart" onClick={handleClose}>
+          <button
+            type="button"
+            className="toast-btn primary"
+            onClick={handleCheckoutClick}
+          >
             Thanh toán
-          </Link>
+          </button>
 
           <Link className="toast-btn" to="/cart" onClick={handleClose}>
             Xem giỏ hàng

@@ -1,35 +1,34 @@
 import React from "react";
-import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { getCurrentUser, isAuthenticated } from "../utils/authStorage";
+import { Navigate, useLocation } from "react-router-dom";
+import { getAccessToken, getCurrentUser } from "../utils/authStorage";
 
-const getRedirectPathByRole = (role) => {
-  switch (role) {
-    case "ADMIN":
-      return "/admin";
-    case "STAFF":
-      return "/staff";
-    case "CUSTOMER":
-      return "/";
-    default:
-      return "/login";
-  }
-};
-
-const ProtectedRoute = ({ allowedRoles = [], children }) => {
+const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const location = useLocation();
+
+  const token = getAccessToken();
   const currentUser = getCurrentUser();
 
-  if (!isAuthenticated() || !currentUser) {
-    return <Navigate to="/login" replace state={{ from: location }} />;
+  if (!token || !currentUser) {
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{
+          from: location.pathname + location.search,
+        }}
+      />
+    );
   }
 
-  const userRole = currentUser.role;
+  if (allowedRoles.length > 0 && !allowedRoles.includes(currentUser.role)) {
+    if (currentUser.role === "ADMIN") {
+      return <Navigate to="/admin" replace />;
+    }
 
-  if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
-    return <Navigate to={getRedirectPathByRole(userRole)} replace />;
+    return <Navigate to="/" replace />;
   }
 
-  return children || <Outlet />;
+  return children;
 };
 
 export default ProtectedRoute;

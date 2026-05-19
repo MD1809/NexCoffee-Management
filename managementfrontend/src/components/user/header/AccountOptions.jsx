@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { FaChevronDown, FaUserCircle } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { clearGuestCartToken } from "../../../utils/cartSession";
 
 import {
   AUTH_EVENTS,
@@ -40,6 +41,12 @@ const AccountOptions = () => {
 
   const handleLogout = () => {
     clearAuth();
+
+    // Xóa token giỏ guest để tránh giữ lại giỏ của user vừa đăng xuất
+    clearGuestCartToken();
+
+    window.dispatchEvent(new Event("cart-changed"));
+
     setOpenDropdown(false);
 
     toast.success("Đã đăng xuất.");

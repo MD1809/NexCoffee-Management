@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 
 import "./Cart.css";
 import { getCart, removeCartItem, updateCartItem } from "../../../apis/cartApi";
+import { getAccessToken, getCurrentUser } from "../../../utils/authStorage";
 
 const BACKEND_URL = "http://localhost:8080";
 
@@ -155,9 +156,28 @@ const Cart = () => {
       return;
     }
 
-    toast.info("Chức năng thanh toán sẽ được phát triển ở bước tiếp theo.");
-    // Sau này đổi thành:
-    // navigate("/checkout");
+    const token = getAccessToken();
+    const currentUser = getCurrentUser();
+
+    if (!token || !currentUser) {
+      toast.info("Vui lòng đăng nhập để thanh toán.");
+
+      navigate("/login", {
+        state: {
+          from: "/checkout",
+        },
+      });
+
+      return;
+    }
+
+    if (currentUser.role === "ADMIN") {
+      toast.warning("Tài khoản admin không thể thanh toán.");
+      navigate("/admin", { replace: true });
+      return;
+    }
+
+    navigate("/checkout");
   };
 
   if (loading) {

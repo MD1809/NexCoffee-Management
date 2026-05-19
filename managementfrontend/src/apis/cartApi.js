@@ -1,7 +1,27 @@
-import axiosInstance from "./axios";
-import { getGuestCartToken, saveGuestCartToken } from "../utils/cartSession";
+import axiosClient from "./axiosClient";
+import {
+  clearGuestCartToken,
+  getGuestCartToken,
+  saveGuestCartToken,
+} from "../utils/cartSession";
 
-const buildGuestHeaders = () => {
+const getAccessToken = () => {
+  return (
+    localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken")
+  );
+};
+
+const isLoggedIn = () => {
+  return Boolean(getAccessToken());
+};
+
+const buildCartHeaders = () => {
+  // Đã đăng nhập thì KHÔNG gửi X-Cart-Token.
+  // Backend sẽ lấy giỏ hàng theo JWT user.
+  if (isLoggedIn()) {
+    return {};
+  }
+
   const cartToken = getGuestCartToken();
 
   return cartToken
@@ -11,62 +31,82 @@ const buildGuestHeaders = () => {
     : {};
 };
 
-const persistCartToken = (response) => {
-  if (response?.cartToken) {
-    saveGuestCartToken(response.cartToken);
+const unwrapResponse = (response) => {
+  return response?.data ?? response;
+};
+
+const persistGuestCartToken = (cartData) => {
+  // Đã đăng nhập thì không giữ token guest nữa.
+  if (isLoggedIn()) {
+    clearGuestCartToken();
+    return cartData;
   }
 
-  return response;
+  if (cartData?.cartToken) {
+    saveGuestCartToken(cartData.cartToken);
+  }
+
+  return cartData;
 };
 
 export const getCart = async () => {
-  const response = await axiosInstance.get("/cart", {
-    headers: buildGuestHeaders(),
+  const response = await axiosClient.get("/cart", {
+    headers: buildCartHeaders(),
   });
 
-  return persistCartToken(response);
+  const cartData = unwrapResponse(response);
+
+  return persistGuestCartToken(cartData);
 };
 
 export const addCartItem = async ({ variantId, quantity = 1 }) => {
-  const response = await axiosInstance.post(
+  const response = await axiosClient.post(
     "/cart/items",
     { variantId, quantity },
     {
-      headers: buildGuestHeaders(),
+      headers: buildCartHeaders(),
     },
   );
 
-  return persistCartToken(response);
+  const cartData = unwrapResponse(response);
+
+  return persistGuestCartToken(cartData);
 };
 
 export const updateCartItem = async (cartItemId, quantity) => {
-  const response = await axiosInstance.patch(
+  const response = await axiosClient.patch(
     `/cart/items/${cartItemId}`,
     { quantity },
     {
-      headers: buildGuestHeaders(),
+      headers: buildCartHeaders(),
     },
   );
 
-  return persistCartToken(response);
+  const cartData = unwrapResponse(response);
+
+  return persistGuestCartToken(cartData);
 };
 
 export const removeCartItem = async (cartItemId) => {
-  const response = await axiosInstance.delete(`/cart/items/${cartItemId}`, {
-    headers: buildGuestHeaders(),
+  const response = await axiosClient.delete(`/cart/items/${cartItemId}`, {
+    headers: buildCartHeaders(),
   });
 
-  return persistCartToken(response);
+  const cartData = unwrapResponse(response);
+
+  return persistGuestCartToken(cartData);
 };
 
 export const mergeGuestCart = async () => {
   const cartToken = getGuestCartToken();
+  const accessToken = getAccessToken();
 
-  if (!cartToken) {
+  // Không có giỏ guest hoặc chưa login thì không gọi merge.
+  if (!cartToken || !accessToken) {
     return null;
   }
 
-  return axiosInstance.post(
+  const response = await axiosClient.post(
     "/cart/merge",
     {},
     {
@@ -75,4 +115,12 @@ export const mergeGuestCart = async () => {
       },
     },
   );
+
+  const cartData = unwrapResponse(response);
+
+  // Chỉ xóa token guest sau khi merge thành công.
+  clearGuestCartToken();
+  window.dispatchEvent(new Event("cart-changed"));
+
+  return cartData;
 };

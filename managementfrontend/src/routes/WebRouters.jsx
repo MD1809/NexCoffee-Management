@@ -14,6 +14,7 @@ import BlockAdminRoute from "./BlockAdminRoute";
 import GuestOnlyRoute from "./GuestOnlyRoute";
 import ProductDetail from "../pages/user/product-detail/ProductDetail";
 import Cart from "../pages/user/cart/Cart";
+import UserCheckout from "../pages/user/checkout/UserCheckout";
 
 // Layout Page
 import AdminLayout from "../layouts/admin/AdminLayout";
@@ -28,6 +29,9 @@ import ProductDetailPage from "../pages/admin/product/ProductDetail";
 import UsersPage from "../pages/admin/Users";
 import OrderPage from "../pages/admin/order/Order";
 import OrderDetailPage from "../pages/admin/order/OrderDetail";
+import DeliveryAreasPage from "../pages/admin/delivery-area/DeliveryAreasPage";
+import AddDeliveryAreaPage from "../pages/admin/delivery-area/AddDeliveryAreaPage";
+import EditDeliveryAreaPage from "../pages/admin/delivery-area/EditDeliveryAreaPage";
 
 function WebRouters() {
   return (
@@ -61,6 +65,7 @@ function WebRouters() {
           element={
             <ProtectedRoute allowedRoles={["ADMIN"]}>
               <AdminLayout />
+              <UserCheckout />
             </ProtectedRoute>
           }
         >
@@ -73,6 +78,12 @@ function WebRouters() {
           <Route path="users" element={<UsersPage />} />
           <Route path="orders" element={<OrderPage />} />
           <Route path="orders/detail/:id" element={<OrderDetailPage />} />
+          <Route path="delivery-areas" element={<DeliveryAreasPage />} />
+          <Route path="delivery-areas/add" element={<AddDeliveryAreaPage />} />
+          <Route
+            path="delivery-areas/edit/:id"
+            element={<EditDeliveryAreaPage />}
+          />
         </Route>
       </Routes>
     </BrowserRouter>

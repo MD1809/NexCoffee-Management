@@ -1,4 +1,7 @@
 /* src/components/user/header/Header.css */
+.user-portal .header-container .main-content {
+  max-width: 1700px;
+}
 
 .header-container {
   display: flex;

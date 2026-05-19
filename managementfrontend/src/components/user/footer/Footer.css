@@ -1,3 +1,6 @@
+.user-portal .footer .main-content {
+  max-width: 1700px;
+}
 .footer {
   background-color: #1c1613; /* Màu tối đậm chất cafe */
   padding-top: 7.5rem;
