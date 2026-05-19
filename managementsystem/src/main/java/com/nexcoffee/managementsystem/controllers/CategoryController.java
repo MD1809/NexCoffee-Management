@@ -2,8 +2,8 @@ package com.nexcoffee.managementsystem.controllers;
 
 import com.nexcoffee.managementsystem.dto.request.category.CategoryRequest;
 import com.nexcoffee.managementsystem.dto.request.category.CategoryUpdateStatus;
+import com.nexcoffee.managementsystem.dto.response.CategoryDetailResponse;
 import com.nexcoffee.managementsystem.dto.response.CategoryResponse;
-import com.nexcoffee.managementsystem.entities.Category;
 import com.nexcoffee.managementsystem.services.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +30,12 @@ public class CategoryController {
     @GetMapping("/{categoryId}")
     public CategoryResponse getCategory(@PathVariable Integer categoryId) {
         return categoryService.getCategoryById(categoryId);
+    }
+
+    // --- ENDPOINT MỚI CHO TRANG CHI TIẾT ---
+    @GetMapping("/detail/{categoryId}")
+    public CategoryDetailResponse getCategoryDetail(@PathVariable Integer categoryId) {
+        return categoryService.getCategoryDetail(categoryId);
     }
 
     @PutMapping("/{categoryId}")

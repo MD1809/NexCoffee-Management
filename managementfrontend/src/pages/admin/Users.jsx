@@ -10,9 +10,13 @@ import DataTable from "../../components/admin/dataTable/DataTable";
 import ConfirmModal from "../../components/admin/confirmModal/ConfirmModal";
 
 import { formatDateTime } from "../../utils/fomatDateTime";
+import { getAccessToken } from "../../utils/authStorage";
 
 function Users() {
+  const API_BASE_URL = "http://localhost:8080/api/admin/users";
+
   const [users, setUsers] = useState([]);
+  const [formErrors, setFormErrors] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [viewingUser, setViewingUser] = useState(null);
@@ -23,8 +27,8 @@ function Users() {
     phone: "",
     password: "",
     confirmPassword: "",
-    role: "",
-    status: "active",
+    role: "CUSTOMER",
+    status: "ACTIVE",
   });
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({
@@ -36,23 +40,71 @@ function Users() {
     status: "",
   });
 
+  const validateForm = (data, isEdit = false) => {
+    const errors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^[0-9]{10}$/;
+
+    if (!data.fullName.trim())
+      errors.fullName = "Họ và tên không được để trống";
+
+    if (!data.email.trim()) {
+      errors.email = "Email không được để trống";
+    } else if (!emailRegex.test(data.email)) {
+      errors.email = "Định dạng email không hợp lệ";
+    }
+
+    if (!data.phone.trim()) {
+      errors.phone = "Số điện thoại không được để trống";
+    } else if (!phoneRegex.test(data.phone)) {
+      errors.phone = "Số điện thoại phải có 10 chữ số";
+    }
+
+    if (!isEdit) {
+      if (!data.password) {
+        errors.password = "Mật khẩu không được để trống";
+      } else if (data.password.length < 8) {
+        errors.password = "Mật khẩu phải ít nhất 8 ký tự";
+      }
+      if (data.password !== data.confirmPassword) {
+        errors.confirmPassword = "Xác nhận mật khẩu không khớp";
+      }
+    }
+
+    if (!data.role) errors.role = "Vui lòng chọn vai trò";
+
+    return errors;
+  };
+
   useEffect(() => {
     fetchUsers();
   }, []);
+
   const fetchUsers = async () => {
     try {
-      // Gọi API
-      const response = await axios.get("http://localhost:8080/api/users");
+      // 2. Dùng hàm này, nó sẽ tự tìm ở cả Local và Session Storage cho bạn
+      const token = getAccessToken();
+
+      if (!token) {
+        console.error("Không tìm thấy token!");
+        return;
+      }
+
+      const response = await axios.get(API_BASE_URL, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setUsers(response.data);
     } catch (error) {
-      console.error("Lỗi khi tải dữ liệu người dùng:", error);
+      console.error("Lỗi:", error.response?.status);
     }
   };
 
   const roleTranslations = {
-    admin: "Quản trị viên",
-    staff: "Nhân viên",
-    customer: "Khách hàng",
+    ADMIN: "Quản trị viên",
+    STAFF: "Nhân viên",
+    CUSTOMER: "Khách hàng",
   };
 
   const columnsTableUser = [
@@ -64,14 +116,20 @@ function Users() {
     { header: "Người dùng", accessor: "fullName" },
     { header: "Email", accessor: "email" },
     { header: "Số điện thoại", accessor: "phone", className: "td-phone" },
-    { header: "Vai trò", accessor: "role", render: (row) => roleTranslations[row.role] || row.role},
+    {
+      header: "Vai trò",
+      accessor: "role",
+      render: (row) => roleTranslations[row.role] || row.role,
+    },
     {
       header: "Trạng thái",
       accessor: "status",
       className: "td-status",
       render: (row) => (
-        <span className={`status ${row.status === "active" ? "status--active" : "status--locked"}`}>
-          {row.status === "active" ? "Hoạt đông" : "Ngừng hoạt động"}
+        <span
+          className={`status ${row.status === "ACTIVE" ? "status--active" : "status--locked"}`}
+        >
+          {row.status === "ACTIVE" ? "Hoạt động" : "Ngừng hoạt động"}
         </span>
       ),
     },
@@ -82,24 +140,19 @@ function Users() {
           <i
             className="fa-regular fa-eye btn-icon btn-icon--view"
             onClick={() => handleOpenDetail(u)}
+            title="Xem chi tiết"
           ></i>
           <i
             className="fa-regular fa-pen-to-square btn-icon btn-icon--edit"
             onClick={() => handleOpenEdit(u)}
           ></i>
-          {/* {u.status === "active" ? (
-            <i
-              className="fa-solid fa-user-slash btn-icon btn-icon--lock"
-              onClick={() => handleToggleStatus(u)}
-              title="Khóa tài khoản"
-            ></i>
-          ) : (
-            <i
-              className="fa-solid fa-user-check btn-icon btn-icon--unlock"
-              onClick={() => handleToggleStatus(u)}
-              title="Mở khóa tài khoản"
-            ></i>
-          )} */}
+          {/* Nút bật/tắt trạng thái nhanh */}
+          <i
+            className={`fa-solid ${u.status === "ACTIVE" ? "fa-user-slash" : "fa-user-check"} btn-icon`}
+            style={{ color: u.status === "ACTIVE" ? "#e74c3c" : "#2ecc71" }}
+            onClick={() => handleToggleStatus(u)}
+            title={u.status === "ACTIVE" ? "Khóa tài khoản" : "Mở khóa"}
+          ></i>
         </div>
       ),
     },
@@ -114,31 +167,57 @@ function Users() {
     const { name, value } = e.target;
     setAddFormData({ ...addFormData, [name]: value });
   };
-  const handleAddSubmit = async () => {
-    if (addFormData.password !== addFormData.confirmPassword) {
-      alert("Lỗi: Mật khẩu và Xác nhận mật khẩu không trùng khớp!");
-      return;
+const handleAddSubmit = async () => {
+    const errors = validateForm(addFormData);
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return; 
     }
+
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/users",
-        addFormData,
-      );
-      setUsers([...users, response.data]);
-      setIsAddModalOpen(false);
-      setAddFormData({
-        fullName: "",
-        email: "",
-        phone: "",
-        password: "",
-        confirmPassword: "",
-        role: "",
-        status: "active",
+      const token = getAccessToken();
+      const dataToSend = { ...addFormData, isVerified: false };
+      
+      const response = await axios.post(API_BASE_URL, dataToSend, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("Thành công!");
+
+      // --- CHỈ CHẠY KHI API TRẢ VỀ 200/201 (THÀNH CÔNG) ---
+      setUsers([...users, response.data]);
+      setIsAddModalOpen(false); 
+      setFormErrors({});       
+      setAddFormData({         
+        fullName: "", email: "", phone: "", 
+        password: "", confirmPassword: "", 
+        role: "CUSTOMER", status: "ACTIVE" 
+      });
+      toast.success("Thêm người dùng thành công!");
+
     } catch (error) {
-      console.error("Lỗi khi thêm:", error);
-      toast.success("Thất bại!");
+      // --- XỬ LÝ KHI API TRẢ VỀ LỖI (400, 409, 500...) ---
+      console.error("Lỗi từ Server:", error.response?.data);
+
+      const serverError = error.response?.data;
+
+      // Trường hợp 1: Backend trả về danh sách lỗi cho từng ô (Validation)
+      if (serverError?.errors) {
+        setFormErrors(serverError.errors);
+      } 
+      // Trường hợp 2: Backend trả về một câu thông báo lỗi chung (như "Email đã tồn tại")
+      else if (serverError?.message) {
+        // Gán lỗi message này vào đúng ô email để người dùng thấy
+        if (serverError.message.includes("Email")) {
+          setFormErrors({ email: serverError.message });
+        } else if (serverError.message.includes("Số điện thoại")) {
+          setFormErrors({ phone: serverError.message });
+        } else {
+          toast.error(serverError.message);
+        }
+      } else {
+        toast.error("Có lỗi xảy ra, vui lòng thử lại!");
+      }
+      
+      // QUAN TRỌNG: Tuyệt đối không gọi setIsAddModalOpen(false) ở đây
     }
   };
 
@@ -150,43 +229,103 @@ function Users() {
     const { name, value } = e.target;
     setEditFormData({ ...editFormData, [name]: value });
   };
-  const handleEditSubmit = async () => {
-    try {
-      const response = await axios.put(
-        `http://localhost:8080/api/users/${editFormData.id}`,
-        editFormData,
-      );
-      setUsers(
-        users.map((u) => (u.id === editFormData.id ? response.data : u)),
-      );
-      setIsEditModalOpen(false);
-      toast.success("Cập nhật thành công!");
-    } catch (error) {
-      console.error("Lỗi khi sửa:", error);
-      toast.error("Cập nhật thất bại!");
+const handleEditSubmit = async () => {
+  // 1. Validate ở Frontend
+  const errors = validateForm(editFormData, true);
+
+  if (Object.keys(errors).length > 0) {
+    setFormErrors(errors);
+    return; // Chặn không cho đóng form nếu có lỗi nhập liệu
+  }
+
+  try {
+    const token = getAccessToken();
+    const dataToSend = {
+      ...editFormData,
+      isVerified: editFormData.isVerified ?? false,
+    };
+
+    const response = await axios.put(`${API_BASE_URL}/${editFormData.id}`, dataToSend, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    // --- CHỈ CHẠY KHI BACKEND TRẢ VỀ THÀNH CÔNG (200 OK) ---
+    setUsers(users.map((u) => (u.id === editFormData.id ? response.data : u)));
+    setIsEditModalOpen(false); // Đóng modal
+    setFormErrors({});       // Xóa sạch thông báo lỗi
+    toast.success("Cập nhật thành công!");
+
+  } catch (error) {
+    // --- XỬ LÝ KHI BACKEND TRẢ VỀ LỖI (400, 404, 403, 500...) ---
+    console.error("Lỗi cập nhật:", error.response?.data);
+
+    const serverError = error.response?.data;
+
+    // Trường hợp 1: Backend trả về danh sách lỗi cụ thể (Validation)
+    if (serverError?.errors) {
+      setFormErrors(serverError.errors);
+    } 
+    // Trường hợp 2: Backend trả về thông báo lỗi logic (ví dụ: Email đã tồn tại)
+    else if (serverError?.message) {
+      const msg = serverError.message;
+      if (msg.includes("Email")) {
+        setFormErrors({ email: msg });
+      } else if (msg.includes("Số điện thoại")) {
+        setFormErrors({ phone: msg });
+      } else {
+        toast.error(msg);
+      }
+    } else {
+      toast.error("Cập nhật thất bại. Vui lòng kiểm tra lại!");
     }
-  };
+    
+    // Lưu ý: Không gọi setIsEditModalOpen(false) ở đây để giữ Form mở cho người dùng sửa lại
+  }
+};
 
   const handleToggleStatus = async (user) => {
-    const nextStatus = user.status === "active" ? "inactive" : "active";
+    const nextStatus = user.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
 
     try {
-      await axios.patch(`http://localhost:8080/api/users/${user.id}/status`, {
+      const token = getAccessToken();
+
+      // Tạo đối tượng gửi đi và đảm bảo không có trường nào bị null gây lỗi Backend
+      const updatedData = {
+        ...user,
         status: nextStatus,
-      });
+        // Đảm bảo isVerified luôn có giá trị boolean, tránh lỗi JSON parse null
+        isVerified: user.isVerified ?? false,
+      };
+
+      const response = await axios.put(
+        `${API_BASE_URL}/${user.id}`,
+        updatedData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
       setUsers((prevUsers) =>
-        prevUsers.map((u) =>
-          u.id === user.id ? { ...u, status: nextStatus } : u,
-        ),
+        prevUsers.map((u) => (u.id === user.id ? response.data : u)),
       );
 
       toast.success(
-        `Đã ${nextStatus === "active" ? "mở khóa" : "khóa"} thành công!`,
+        `Đã ${nextStatus === "ACTIVE" ? "mở khóa" : "khóa"} tài khoản thành công!`,
       );
     } catch (error) {
-      console.error(error);
-      toast.error("Có lỗi xảy ra khi cập nhật trạng thái!");
+      console.error("Lỗi thay đổi trạng thái:", error);
+      toast.error("Không thể thay đổi trạng thái!");
+    }
+  };
+
+  const handleInputChange = (e, formType) => {
+    const { name, value } = e.target;
+    if (formType === "add") {
+      setAddFormData((prev) => ({ ...prev, [name]: value }));
+    } else {
+      setEditFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
@@ -246,9 +385,11 @@ function Users() {
                     Mã ID: #{viewingUser.id}
                   </p>
                   <span
-                    className={`modal-userdetail__status ${viewingUser.status === "active" ? "status--active" : "status--locked"}`}
+                    className={`modal-userdetail__status ${viewingUser.status === "ACTIVE" ? "status--active" : "status--locked"}`}
                   >
-                    {viewingUser.status}
+                    {viewingUser.status === "ACTIVE"
+                      ? "Hoạt động"
+                      : "Không hoạt động"}
                   </span>
                 </div>
               </div>
@@ -265,24 +406,26 @@ function Users() {
                   </div>
                   <div className="modal-userdetail__info-item">
                     <span className="label">Vai trò:</span>
-                    <span className="value">{roleTranslations[viewingUser.role] || viewingUser.role}</span>
+                    <span className="value">
+                      {roleTranslations[viewingUser.role] || viewingUser.role}
+                    </span>
                   </div>
                   <div className="modal-userdetail__info-item">
                     <span className="label">Số điện thoại:</span>
                     <span className="value">{viewingUser.phone}</span>
                   </div>
-                  <div className="modal-userdetail__info-item">
+                  {/* <div className="modal-userdetail__info-item">
                     <span className="label">Ngày tham gia:</span>
 
                     <span className="value">
                       {formatDateTime(viewingUser.createdAt)}
                     </span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
 
-            {viewingUser.role === "customer" && (
+            {viewingUser.role === "CUSTOMER" && (
               <>
                 <hr className="modal-userdetail__divider" />
 
@@ -303,104 +446,144 @@ function Users() {
       {/* add user */}
       <FormModal
         isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setFormErrors({}); // Xóa lỗi khi đóng modal
+        }}
         title="Thêm người dùng mới"
         submitText="Tạo tài khoản"
         onSubmit={handleAddSubmit}
       >
+        {/* Họ và tên */}
         <div className="form-modal__group">
           <label className="form-modal__label">Họ và tên</label>
           <input
             type="text"
-            className="form-modal__input"
+            className={`form-modal__input ${formErrors.fullName ? "input--error" : ""}`}
             placeholder="Nhập họ và tên..."
             name="fullName"
             value={addFormData.fullName}
-            onChange={handleAddInputChange}
-            required
+            onChange={(e) => {
+              handleInputChange(e, "add");
+              if (formErrors.fullName)
+                setFormErrors({ ...formErrors, fullName: "" });
+            }}
           />
+          {formErrors.fullName && (
+            <span className="addU-error-text">{formErrors.fullName}</span>
+          )}
         </div>
 
+        {/* Email */}
         <div className="form-modal__group">
           <label className="form-modal__label">Email</label>
           <input
             type="email"
-            className="form-modal__input"
+            className={`form-modal__input ${formErrors.email ? "input--error" : ""}`}
             placeholder="VD: example@gmail.com"
             name="email"
             value={addFormData.email}
-            onChange={handleAddInputChange}
-            required
+            onChange={(e) => {
+              handleInputChange(e, "add");
+              if (formErrors.email) setFormErrors({ ...formErrors, email: "" });
+            }}
           />
+          {formErrors.email && (
+            <span className="addU-error-text">{formErrors.email}</span>
+          )}
         </div>
 
+        {/* Số điện thoại */}
         <div className="form-modal__group">
           <label className="form-modal__label">Số điện thoại</label>
           <input
-            type="number"
-            className="form-modal__input"
+            type="text"
+            className={`form-modal__input ${formErrors.phone ? "input--error" : ""}`}
             placeholder="VD: 039****327"
             name="phone"
             value={addFormData.phone}
-            onChange={handleAddInputChange}
-            required
+            onChange={(e) => {
+              handleInputChange(e, "add");
+              if (formErrors.phone) setFormErrors({ ...formErrors, phone: "" });
+            }}
           />
+          {formErrors.phone && (
+            <span className="addU-error-text">{formErrors.phone}</span>
+          )}
         </div>
 
+        {/* Mật khẩu */}
         <div className="form-modal__group">
           <label className="form-modal__label">Mật khẩu</label>
           <input
             type="password"
-            className="form-modal__input"
+            className={`form-modal__input ${formErrors.password ? "input--error" : ""}`}
             placeholder="VD: Aa@1234"
             name="password"
             value={addFormData.password}
-            onChange={handleAddInputChange}
-            required
+            onChange={(e) => {
+              handleInputChange(e, "add");
+              if (formErrors.password)
+                setFormErrors({ ...formErrors, password: "" });
+            }}
           />
+          {formErrors.password && (
+            <span className="addU-error-text">{formErrors.password}</span>
+          )}
         </div>
 
+        {/* Xác nhận mật khẩu */}
         <div className="form-modal__group">
           <label className="form-modal__label">Xác nhận mật khẩu</label>
           <input
             type="password"
-            className="form-modal__input"
+            className={`form-modal__input ${formErrors.confirmPassword ? "input--error" : ""}`}
             placeholder="Nhập lại mật khẩu"
             name="confirmPassword"
             value={addFormData.confirmPassword}
-            onChange={handleAddInputChange}
-            required
+            onChange={(e) => {
+              handleInputChange(e, "add");
+              if (formErrors.confirmPassword)
+                setFormErrors({ ...formErrors, confirmPassword: "" });
+            }}
           />
+          {formErrors.confirmPassword && (
+            <span className="addU-error-text">{formErrors.confirmPassword}</span>
+          )}
         </div>
 
+        {/* Hàng Vai trò & Trạng thái */}
         <div className="form-modal__row">
           <div className="form-modal__group">
             <label className="form-modal__label">Vai trò</label>
             <select
-              className="form-modal__input"
+              className={`form-modal__input ${formErrors.role ? "input--error" : ""}`}
               name="role"
               value={addFormData.role}
-              onChange={handleAddInputChange}
-              required
+              onChange={(e) => {
+                handleInputChange(e, "add");
+                if (formErrors.role) setFormErrors({ ...formErrors, role: "" });
+              }}
             >
-              <option value="" disabled>
-                Chọn vai trò
-              </option>
-              <option value="admin">Quản trị viên (Admin)</option>
-              <option value="staff">Nhân viên</option>
-              <option value="customer">Khách hàng</option>
+              <option value="CUSTOMER">Khách hàng</option>
+              <option value="STAFF">Nhân viên</option>
+              <option value="ADMIN">Quản trị viên</option>
             </select>
+            {formErrors.role && (
+              <span className="addU-error-text">{formErrors.role}</span>
+            )}
           </div>
+
           <div className="form-modal__group">
             <label className="form-modal__label">Trạng thái</label>
             <select
               className="form-modal__input"
               name="status"
               value={addFormData.status}
-              onChange={handleAddInputChange}
+              onChange={(e) => handleInputChange(e, "add")}
             >
-              <option value="active">Hoạt động</option>
-              <option value="inactive">Đã khóa</option>
+              <option value="ACTIVE">Hoạt động</option>
+              <option value="INACTIVE">Ngừng hoạt động</option>
             </select>
           </div>
         </div>
@@ -409,7 +592,10 @@ function Users() {
       {/* edit user */}
       <FormModal
         isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setFormErrors({});
+        }}
         title="Cập nhật thông tin tài khoản"
         submitText="Cập nhật"
         onSubmit={handleEditSubmit}
@@ -418,39 +604,52 @@ function Users() {
           <label className="form-modal__label">Họ và tên</label>
           <input
             type="text"
-            className="form-modal__input"
-            placeholder="Nhập họ và tên..."
+            className={`form-modal__input ${formErrors.fullName ? "input--error" : ""}`}
             name="fullName"
             value={editFormData.fullName}
-            onChange={handleEditInputChange}
-            required
+            onChange={(e) => {
+              handleInputChange(e, "edit");
+              if (formErrors.fullName)
+                setFormErrors({ ...formErrors, fullName: "" });
+            }}
           />
+          {formErrors.fullName && (
+            <span className="addU-error-text">{formErrors.fullName}</span>
+          )}
         </div>
 
         <div className="form-modal__group">
           <label className="form-modal__label">Email</label>
           <input
             type="email"
-            className="form-modal__input"
-            placeholder="VD: example@gmail.com"
+            className={`form-modal__input ${formErrors.email ? "input--error" : ""}`}
             name="email"
             value={editFormData.email}
-            onChange={handleEditInputChange}
-            required
+            onChange={(e) => {
+              handleInputChange(e, "edit");
+              if (formErrors.email) setFormErrors({ ...formErrors, email: "" });
+            }}
           />
+          {formErrors.email && (
+            <span className="addU-error-text">{formErrors.email}</span>
+          )}
         </div>
 
         <div className="form-modal__group">
           <label className="form-modal__label">Số điện thoại</label>
           <input
-            type="number"
-            className="form-modal__input"
-            placeholder="VD: 039****327"
+            type="text"
+            className={`form-modal__input ${formErrors.phone ? "input--error" : ""}`}
             name="phone"
             value={editFormData.phone}
-            onChange={handleEditInputChange}
-            required
+            onChange={(e) => {
+              handleInputChange(e, "edit");
+              if (formErrors.phone) setFormErrors({ ...formErrors, phone: "" });
+            }}
           />
+          {formErrors.phone && (
+            <span className="addU-error-text">{formErrors.phone}</span>
+          )}
         </div>
 
         <div className="form-modal__row">
@@ -460,15 +659,11 @@ function Users() {
               className="form-modal__input"
               name="role"
               value={editFormData.role}
-              onChange={handleEditInputChange}
-              required
+              onChange={(e) => handleInputChange(e, "edit")}
             >
-              <option value="" disabled>
-                Chọn vai trò
-              </option>
-              <option value="Admin">Quản trị viên (Admin)</option>
-              <option value="staff">Nhân viên</option>
-              <option value="customer">Khách hàng</option>
+              <option value="CUSTOMER">Khách hàng</option>
+              <option value="STAFF">Nhân viên</option>
+              <option value="ADMIN">Quản trị viên</option>
             </select>
           </div>
           <div className="form-modal__group">
@@ -477,10 +672,10 @@ function Users() {
               className="form-modal__input"
               name="status"
               value={editFormData.status}
-              onChange={handleEditInputChange}
+              onChange={(e) => handleInputChange(e, "edit")}
             >
-              <option value="active">Hoạt động</option>
-              <option value="inactive">Ngừng hoạt động</option>
+              <option value="ACTIVE">Hoạt động</option>
+              <option value="INACTIVE">Ngừng hoạt động</option>
             </select>
           </div>
         </div>

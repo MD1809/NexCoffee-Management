@@ -293,10 +293,27 @@ function EditProductPage() {
       toast.success("Cập nhật sản phẩm thành công!");
       navigate("/admin/products");
     } catch (error) {
-      console.error(error);
-      const errorMsg =
-        error.response?.data?.message || "Có lỗi xảy ra khi cập nhật!";
-      toast.error(errorMsg);
+      if (error.response && error.response.data) {
+        const errorData = error.response.data;
+        
+        // 1. Lỗi từ @Valid (ví dụ: trống dữ liệu, sai định dạng)
+        if (errorData.errors) {
+          setErrors(errorData.errors);
+          toast.error("Vui lòng kiểm tra lại dữ liệu nhập!");
+        } 
+        // 2. Lỗi Custom từ Backend (ví dụ: Trùng tên cùng danh mục)
+        else if (errorData.message) {
+          toast.error(errorData.message);
+          // Gán lỗi vào ô tên sản phẩm để hiện chữ đỏ bên dưới ô input
+          setErrors({ name: errorData.message }); 
+        } 
+        else {
+          toast.error("Có lỗi xảy ra khi cập nhật!");
+        }
+      } else {
+        toast.error("Lỗi kết nối đến máy chủ");
+      }
+      console.error("Chi tiết lỗi:", error);
     }
   };
 

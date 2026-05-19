@@ -24,13 +24,10 @@ public interface DashboardRepository extends JpaRepository<Order, Integer> {
     Long countActiveCustomers();
 
     // 4. Tính tổng số lượng sản phẩm (ly nước) đã bán được thành công (từ các đơn 'Completed')
-    @Query(value = "SELECT COALESCE(SUM(od.quantity), 0) FROM order_details od " +
-            "JOIN orders o ON od.order_id = o.id " +
-            "WHERE o.status = 'Completed'", nativeQuery = true)
-    Long countTotalProductsSold();
+    @Query(value = "SELECT COUNT(*) FROM products WHERE status = 'active'", nativeQuery = true)
+    Long countActiveProducts();
 
     // 5. Thống kê doanh thu chi tiết theo từng tháng (từ tháng 1 đến tháng 12) của một năm cụ thể
-    // Câu query sử dụng subquery tạo 12 tháng để đảm bảo tháng nào không có doanh thu vẫn hiển thị bằng 0
     @Query(value = "SELECT m.month, COALESCE(SUM(o.total), 0) as revenue " +
             "FROM (SELECT 1 as month UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 " +
             "      UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 " +
@@ -40,16 +37,17 @@ public interface DashboardRepository extends JpaRepository<Order, Integer> {
             "GROUP BY m.month ORDER BY m.month", nativeQuery = true)
     List<Object[]> getMonthlyRevenueByYear(@Param("year") int year);
 
-    // 6. Lấy danh sách Top 5 sản phẩm bán chạy nhất kèm tỉ lệ phần trăm doanh số
+    // 6. Lấy danh sách Top 5 sản phẩm bán chạy nhất kèm tỉ lệ phần trăm doanh số (ĐÃ SỬA LỖI IMAGE)
     @Query(value = "SELECT p.name, SUM(od.quantity) as qty, " +
             "ROUND((SUM(od.total_price) / (SELECT SUM(od2.total_price) FROM order_details od2 JOIN orders o2 ON od2.order_id = o2.id WHERE o2.status = 'Completed')) * 100, 2) as percentage, " +
-            "p.image, p.status " +
+            "pi.image_url as image, p.status " +
             "FROM order_details od " +
             "JOIN orders o ON od.order_id = o.id " +
             "JOIN product_variants pv ON od.product_variant_id = pv.id " +
             "JOIN products p ON pv.product_id = p.id " +
+            "LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_main = TRUE " + // JOIN thêm bảng ảnh
             "WHERE o.status = 'Completed' " +
-            "GROUP BY p.id, p.name, p.image, p.status " +
+            "GROUP BY p.id, p.name, pi.image_url, p.status " + // Thêm pi.image_url vào GROUP BY
             "ORDER BY qty DESC LIMIT 5", nativeQuery = true)
     List<Object[]> findTopSellingProducts();
 

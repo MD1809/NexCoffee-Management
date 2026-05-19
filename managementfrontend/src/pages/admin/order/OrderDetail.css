@@ -168,12 +168,12 @@
   gap: 24px;
 }
 
-.btn-primary {
+.btn-ud-order {
   background: var(--btn-primary);
   color: var(--btn-text-primary);
 }
 
-.btn-primary:hover {
+.btn-ud-order:hover {
   background: var(--btn-primary-hover);
 }
 

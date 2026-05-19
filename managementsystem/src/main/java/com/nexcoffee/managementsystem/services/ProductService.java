@@ -110,13 +110,12 @@ public class ProductService {
         return res;
     }
 
-    // hàm lấy sản phẩm có trạng thái active và inactive hiển thị phía admin
     public List<ProductResponse> getProductsForAdmin() {
         return productRepository.findByStatusNot(ProductsStatus.deleted).stream()
                 .map(this::toProductResponse)
                 .collect(Collectors.toList());
     }
-    // hàm lấy sản phẩm có trạng thái deleted
+
     public List<ProductResponse> getTrashedProducts() {
         return productRepository.findByStatusOrderByIdDesc(ProductsStatus.deleted).stream()
                 .map(this::toProductResponse)
@@ -135,6 +134,10 @@ public class ProductService {
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Danh mục (Category) không tồn tại "));
 
+        if (productRepository.existsByNameAndCategoryId(request.getName(), request.getCategoryId())) {
+            throw new InvalidOperationException("Tên sản phẩm này đã tồn tại trong danh mục được chọn!");
+        }
+
         Product product = new Product();
         product.setName(request.getName());
         product.setDescription(request.getDescription());
@@ -144,7 +147,6 @@ public class ProductService {
         product.setUpdatedAt(LocalDateTime.now());
 
         try {
-            // Xử lý ảnh chính (Bắt buộc)
             if (mainImageFile == null || mainImageFile.isEmpty()) {
                 throw new InvalidOperationException("Ảnh chính sản phẩm là bắt buộc!");
             }
@@ -156,7 +158,6 @@ public class ProductService {
             mainImage.setUpdatedAt(LocalDateTime.now());
             product.getImages().add(mainImage);
 
-            // Xử lý ảnh phụ (Tùy chọn)
             if (subImageFiles != null && !subImageFiles.isEmpty()) {
                 for (MultipartFile subFile : subImageFiles) {
                     if (!subFile.isEmpty()) {
@@ -215,6 +216,11 @@ public class ProductService {
 
         product.setVariants(variants);
         Product savedProduct = productRepository.save(product);
+
+        int currentCount = category.getProductCount() == null ? 0 : category.getProductCount();
+        category.setProductCount(currentCount + 1);
+        categoryRepository.save(category);
+
         return toProductResponse(savedProduct);
     }
 
@@ -228,8 +234,23 @@ public class ProductService {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm với ID: " + id));
 
-        Category category = categoryRepository.findById(request.getCategoryId())
+        if (productRepository.existsByNameAndCategoryIdAndIdNot(request.getName(), request.getCategoryId(), id)) {
+            throw new InvalidOperationException("Tên sản phẩm này đã tồn tại trong danh mục được chọn!");
+        }
+
+        Category newCategory = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Danh mục (Category) không tồn tại."));
+
+        Category oldCategory = existingProduct.getCategory();
+        if (oldCategory != null && !oldCategory.getId().equals(newCategory.getId())) {
+            int oldCount = oldCategory.getProductCount() == null ? 0 : oldCategory.getProductCount();
+            oldCategory.setProductCount(Math.max(0, oldCount - 1));
+            categoryRepository.save(oldCategory);
+
+            int newCount = newCategory.getProductCount() == null ? 0 : newCategory.getProductCount();
+            newCategory.setProductCount(newCount + 1);
+            categoryRepository.save(newCategory);
+        }
 
         ObjectMapper objectMapper = new ObjectMapper();
         List<ProductVariantRequest> variantRequests;
@@ -245,8 +266,6 @@ public class ProductService {
         } catch (Exception e) {
             throw new InvalidOperationException("Dữ liệu biến thể không hợp lệ.");
         }
-
-        // Validate dữ liệu biến thể gửi lên
         for (ProductVariantRequest vReq : variantRequests) {
             if (vReq.getSize() != null && (vReq.getSize().trim().isEmpty() || "null".equalsIgnoreCase(vReq.getSize().trim()))) {
                 vReq.setSize(null);
@@ -257,30 +276,20 @@ public class ProductService {
             }
         }
 
-        // Cập nhật thông tin cơ bản
         existingProduct.setName(request.getName());
         existingProduct.setDescription(request.getDescription());
         existingProduct.setStatus(request.getStatus());
-        existingProduct.setCategory(category);
+        existingProduct.setCategory(newCategory);
         existingProduct.setUpdatedAt(LocalDateTime.now());
 
-        // ==========================================
-        // 1. XỬ LÝ XÓA BIẾN THỂ CŨ (Đã sửa logic chuẩn)
-        // ==========================================
-        if (deletedVariantIds != null && !deletedVariantIds.isEmpty()) {
-            // Loại bỏ khỏi list của Entity để không bị dính vào Response trả về
-            existingProduct.getVariants().removeIf(v -> deletedVariantIds.contains(v.getId()));
 
-            // Xóa cứng dưới Database
+        if (deletedVariantIds != null && !deletedVariantIds.isEmpty()) {
+            existingProduct.getVariants().removeIf(v -> deletedVariantIds.contains(v.getId()));
             productVariantRepository.deleteAllById(deletedVariantIds);
         }
 
-        // ==========================================
-        // 2. THÊM MỚI HOẶC CẬP NHẬT BIẾN THỂ
-        // ==========================================
         for (ProductVariantRequest vReq : variantRequests) {
             if (vReq.getId() != null) {
-                // Cập nhật biến thể đã có
                 existingProduct.getVariants().stream()
                         .filter(v -> v.getId().equals(vReq.getId()))
                         .findFirst()
@@ -291,7 +300,6 @@ public class ProductService {
                             v.setUpdatedAt(LocalDateTime.now());
                         });
             } else {
-                // Thêm mới biến thể
                 ProductVariant newVariant = new ProductVariant();
                 newVariant.setSize(vReq.getSize());
                 newVariant.setPrice(vReq.getPrice());
@@ -303,9 +311,6 @@ public class ProductService {
             }
         }
 
-        // ==========================================
-        // 3. XÓA ẢNH PHỤ
-        // ==========================================
         if (deletedImageIds != null && !deletedImageIds.isEmpty()) {
             List<ProductImage> imagesToRemove = new ArrayList<>();
             for (ProductImage img : existingProduct.getImages()) {
@@ -323,9 +328,6 @@ public class ProductService {
             existingProduct.getImages().removeAll(imagesToRemove);
         }
 
-        // ==========================================
-        // 4. LƯU ẢNH MỚI
-        // ==========================================
         try {
             if (mainImageFile != null && !mainImageFile.isEmpty()) {
                 existingProduct.getImages().stream()
@@ -388,6 +390,13 @@ public class ProductService {
 
             productRepository.save(product);
 
+            Category category = product.getCategory();
+            if (category != null) {
+                int count = category.getProductCount() == null ? 0 : category.getProductCount();
+                category.setProductCount(Math.max(0, count - 1));
+                categoryRepository.save(category);
+            }
+
         } catch (DataAccessException e) {
             System.err.println("Lỗi Database khi xóa mềm sản phẩm ID " + id + ": " + e.getMessage());
             throw new RuntimeException("Lỗi hệ thống khi cập nhật dữ liệu.");
@@ -409,6 +418,13 @@ public class ProductService {
             product.setUpdatedAt(LocalDateTime.now());
 
             productRepository.save(product);
+
+            Category category = product.getCategory();
+            if (category != null) {
+                int count = category.getProductCount() == null ? 0 : category.getProductCount();
+                category.setProductCount(count + 1);
+                categoryRepository.save(category);
+            }
 
         } catch (DataAccessException e) {
             System.err.println("Lỗi Database khi khôi phục sản phẩm ID " + id + ": " + e.getMessage());

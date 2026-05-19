@@ -189,7 +189,6 @@ function AddProductPage() {
       return;
     }
 
-    // Lấy đúng danh sách variant đang hiển thị để gửi đi
     const finalVariants = isSimpleProduct ? variantSimple : variantsWithSize;
 
     const formData = new FormData();
@@ -212,10 +211,27 @@ function AddProductPage() {
         state: { success: true, message: "Thêm sản phẩm mới thành công!" },
       });
     } catch (error) {
-      console.error(error);
-      const errorMsg =
-        error.response?.data?.message || "Có lỗi xảy ra khi lưu sản phẩm!";
-      toast.error(errorMsg);
+      if (error.response && error.response.data) {
+        const errorData = error.response.data;
+        
+        // 1. Lỗi từ @Valid (ví dụ: thiếu giá trị bắt buộc)
+        if (errorData.errors) {
+          setErrors(errorData.errors);
+          toast.error("Vui lòng kiểm tra lại dữ liệu nhập!");
+        } 
+        // 2. Lỗi Custom từ Backend (ví dụ: Trùng tên cùng danh mục)
+        else if (errorData.message) {
+          toast.error(errorData.message);
+          // Gán lỗi vào ô tên sản phẩm để hiện chữ đỏ bên dưới ô input
+          setErrors({ name: errorData.message }); 
+        } 
+        else {
+          toast.error("Có lỗi xảy ra khi lưu sản phẩm!");
+        }
+      } else {
+        toast.error("Lỗi kết nối đến máy chủ");
+      }
+      console.error("Chi tiết lỗi:", error);
     }
   };
 

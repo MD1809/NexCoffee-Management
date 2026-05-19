@@ -2,7 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
-import { LuUser, LuPhone, LuMapPin, LuClock, LuCreditCard } from "react-icons/lu";
+import {
+  LuUser,
+  LuPhone,
+  LuMapPin,
+  LuClock,
+  LuCreditCard,
+} from "react-icons/lu";
 
 import orderApi from "../../../apis/OrderApi";
 import Button from "../../../components/admin/button/Button";
@@ -22,6 +28,28 @@ const OrderDetail = () => {
     documentTitle: `Hoa_Don_${order?.code || "NEX"}`,
     onAfterPrint: () => console.log("In thành công!"),
   });
+
+    const handleCancelOrder = async () => {
+    const reason = window.prompt("Vui lòng nhập lý do hủy đơn hàng:");
+
+    // Nếu người dùng nhấn Cancel hoặc để trống lý do thì không thực hiện tiếp
+    if (reason === null || reason.trim() === "") {
+      alert("Bạn phải nhập lý do để hủy đơn hàng.");
+      return;
+    }
+
+    const isConfirmed = window.confirm("Bạn có chắc chắn muốn HỦY đơn hàng này không?");
+    if (!isConfirmed) return;
+
+    try {
+      const response = await orderApi.updateOrderStatus(id, "Cancelled", reason);
+      setOrder(response.data);
+      alert("Đã hủy đơn hàng thành công!");
+    } catch (error) {
+      console.error("Lỗi khi hủy đơn hàng:", error);
+      alert("Không thể hủy đơn hàng. Vui lòng thử lại!");
+    }
+  };
 
   useEffect(() => {
     const fetchOrderDetail = async () => {
@@ -57,18 +85,16 @@ const OrderDetail = () => {
 
   // Hàm xử lý cập nhật trạng thái đơn hàng
   const handleUpdateStatus = async (newStatus) => {
-    const isConfirmed = window.confirm(
-      `Bạn có chắc chắn muốn chuyển trạng thái đơn hàng sang: ${newStatus}?`,
-    );
+    const isConfirmed = window.confirm(`Xác nhận chuyển sang: ${newStatus}?`);
     if (!isConfirmed) return;
 
     try {
       const response = await orderApi.updateOrderStatus(id, newStatus);
-
       setOrder(response.data);
+
+      alert("Cập nhật trạng thái thành công!");
     } catch (error) {
-      console.error("Lỗi khi cập nhật trạng thái:", error);
-      alert("Có lỗi xảy ra, vui lòng thử lại!");
+      console.error("Lỗi:", error.response?.data || error.message);
     }
   };
 
@@ -104,8 +130,10 @@ const OrderDetail = () => {
         <div className="order-card">
           <h2 className="section-title">Trạng thái đơn hàng: {order.code}</h2>
 
-          {isCancelled && (
-            <span style={{ color: "red" }}>Đã Hủy: {order.cancelReason}</span>
+          {!isCancelled && order.status !== "Completed" && (
+            <div style={{ marginTop: "10px" }}>
+              <Button buttonName="Hủy đơn hàng" onClick={handleCancelOrder} />
+            </div>
           )}
 
           {!isCancelled && (
@@ -288,51 +316,44 @@ const OrderDetail = () => {
               <div>
                 {/* Nút động theo trạng thái */}
                 {!isCancelled && order.status !== "Completed" && (
-                  <>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      marginBottom: "10px",
+                    }}
+                  >
                     {order.status === "Pending" && (
-                      <button
-                        className="btn btn-primary"
-                        style={{ marginRight: "10px" }}
+                      <Button
+                        buttonName="Duyệt & Pha chế"
                         onClick={() => handleUpdateStatus("Processing")}
-                      >
-                        Duyệt & Pha chế
-                      </button>
+                      />
                     )}
 
                     {order.status === "Processing" && (
-                      <button
-                        className="btn btn-primary"
-                        style={{ marginRight: "10px" }}
+                      <Button
+                        buttonName="Giao hàng"
                         onClick={() => handleUpdateStatus("Shipped")}
-                      >
-                        Giao hàng
-                      </button>
+                      />
                     )}
 
                     {order.status === "Shipped" && (
-                      <button
-                        className="btn btn-success"
-                        style={{
-                          marginRight: "10px",
-                          backgroundColor: "#28a745",
-                          color: "white",
-                        }}
+                      <Button
+                        buttonName="Đã giao thành công"
                         onClick={() => handleUpdateStatus("Completed")}
-                      >
-                        Đã giao thành công
-                      </button>
+                      />
                     )}
-                  </>
+                  </div>
                 )}
 
                 <Button buttonName="In hóa đơn" onClick={handlePrint} />
 
-                {/* Nút hủy tạm thời để đó, chưa gắn sự kiện */}
+                {/* Nút hủy tạm thời để đó, chưa gắn sự kiện
                 {!isCancelled && order.status !== "Completed" && (
                   <>
                     <button className="btn btn-secondary">Hủy đơn hàng</button>
                   </>
-                )}
+                )} */}
               </div>
             </div>
 

@@ -69,8 +69,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/categories/**").hasAuthority("ADMIN")
 
                         // Nếu có các controller admin khác đang dùng endpoint hiện tại
-                        .requestMatchers("/api/users/**").hasAuthority("ADMIN")
-                        .requestMatchers("/api/orders/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/admin/users/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/orders/**").permitAll()
 
                         // Customer APIs sau này
                         .requestMatchers("/api/cart/**").hasAuthority("CUSTOMER")
@@ -102,7 +102,7 @@ public class SecurityConfig {
                 CorsConfiguration config = new CorsConfiguration();
 
                 config.setAllowedOrigins(List.of("http://localhost:5173"));
-                config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                 config.setAllowedHeaders(List.of("*"));
                 config.setAllowCredentials(true);
                 config.setExposedHeaders(List.of("Authorization"));
