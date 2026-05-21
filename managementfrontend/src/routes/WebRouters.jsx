@@ -22,6 +22,7 @@ import AdminLayout from "../layouts/admin/AdminLayout";
 // Content AdminPage
 import DashBoardPage from "../pages/admin/dashboard/Dashboard";
 import CategoriesPage from "../pages/admin/category/Categories";
+import CategoryDetailPage from "../pages/admin/category/CategoryDetail";
 import ProductsPage from "../pages/admin/product/Products";
 import AddProductPage from "../pages/admin/product/AddProductPage";
 import EditProductPage from "../pages/admin/product/EditProductPage";
@@ -71,6 +72,7 @@ function WebRouters() {
         >
           <Route index element={<DashBoardPage />} />
           <Route path="categories" element={<CategoriesPage />} />
+          <Route path="categories/detail/:id" element={<CategoryDetailPage />} />
           <Route path="products" element={<ProductsPage />} />
           <Route path="products/add" element={<AddProductPage />} />
           <Route path="products/edit/:id" element={<EditProductPage />} />
