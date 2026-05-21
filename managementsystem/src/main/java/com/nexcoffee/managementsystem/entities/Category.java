@@ -3,6 +3,7 @@ package com.nexcoffee.managementsystem.entities;
 import com.nexcoffee.managementsystem.enums.CategoryStatus;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
 @Entity
 @Data
 @Table(name = "categories")
+@SQLRestriction("deleted = false")
 public class Category {
 
     @Id
@@ -33,4 +35,7 @@ public class Category {
 
     @OneToMany(mappedBy = "category")
     private List<Product> products;
+
+    @Column(name = "deleted")
+    private boolean deleted = false;
 }

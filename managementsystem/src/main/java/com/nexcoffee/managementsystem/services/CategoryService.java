@@ -8,6 +8,7 @@ import com.nexcoffee.managementsystem.dto.response.ProductSimpleResponse;
 import com.nexcoffee.managementsystem.entities.Category;
 import com.nexcoffee.managementsystem.entities.Product;
 import com.nexcoffee.managementsystem.entities.ProductImage;
+import com.nexcoffee.managementsystem.enums.CategoryStatus;
 import com.nexcoffee.managementsystem.exceptions.InvalidOperationException;
 import com.nexcoffee.managementsystem.exceptions.ResourceNotFoundException; // <-- Thêm import này
 import com.nexcoffee.managementsystem.repositories.CategoryRepository;
@@ -75,7 +76,7 @@ public class CategoryService {
 
     public CategoryDetailResponse getCategoryDetail(Integer categoryId) {
         CategoryResponse categoryResponse = this.getCategoryById(categoryId);
-        List<Product> products = productRepository.findByCategoryId(categoryId);
+        List<Product> products = productRepository.findByCategoryIdAndDeletedFalse(categoryId);
 
         List<ProductSimpleResponse> simpleProducts = products.stream()
                 .map(this::toProductSimpleResponse)
@@ -136,9 +137,21 @@ public class CategoryService {
         return toCategoryResponse(updatedCategory);
     }
 
+    @Transactional
     public void deleteCategory(Integer id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy danh mục với ID: " + id));
-        categoryRepository.delete(category);
+
+        List<Product> activeProducts = productRepository.findByCategoryIdAndDeletedFalse(id);
+
+        if (activeProducts != null && !activeProducts.isEmpty()) {
+            throw new InvalidOperationException("Không thể xóa danh mục này vì vẫn đang chứa sản phẩm đang hoạt động!");
+        }
+
+        category.setDeleted(true);
+        category.setCategoryStatus(CategoryStatus.inactive);
+        category.setUpdatedAt(LocalDateTime.now());
+
+        categoryRepository.save(category);
     }
 }

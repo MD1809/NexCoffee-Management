@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom";
 
 import categoryApi from "../../../apis/CategoryApi";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
+import "./Categories.css";
 import SearchBox from "../../../components/admin/searchBox/SearchBox";
 import Button from "../../../components/admin/button/Button";
 import DataTable from "../../../components/admin/dataTable/DataTable";
@@ -28,7 +30,9 @@ function Categories() {
       header: "Trạng thái",
       accessor: "categoryStatus",
       render: (row) => (
-        <span className={`status ${row.categoryStatus === "active" ? "status--active" : "status--locked"}`}>
+        <span
+          className={`status ${row.categoryStatus === "active" ? "status--active" : "status--locked"}`}
+        >
           {row.categoryStatus === "active" ? "Hoạt đông" : "Ngừng hoạt động"}
         </span>
       ),
@@ -44,6 +48,10 @@ function Categories() {
           <i
             className="fa-regular fa-pen-to-square btn-icon btn-icon--edit"
             onClick={() => handleOpenEdit(u)}
+          ></i>
+          <i
+            className="fa-regular fa-trash-can btn-icon btn-icon--delete"
+            onClick={() => handleDelete(u)}
           ></i>
         </div>
       ),
@@ -63,12 +71,44 @@ function Categories() {
   };
 
   const handleOpenDetail = (category) => {
-    navigate(`detail/${category.id}`); 
+    navigate(`detail/${category.id}`);
   };
 
   const handleOpenEdit = (category) => {
     setEditingCategory(category);
     setIsEditModalOpen(true);
+  };
+
+  const handleDelete = (category) => {
+    Swal.fire({
+      title: "Xác nhận xóa",
+      text: `Bạn có chắc chắn muốn xóa danh mục "${category.name}"?`,
+      icon: "warning",
+      showCancelButton: true,
+      width: '500px',
+      padding: '2em',
+      confirmButtonColor: "#dc3545",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Đồng ý, xóa",
+      cancelButtonText: "Hủy bỏ",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await categoryApi.remove(category.id);
+
+          fetchCategories();
+
+          toast.success(`Đã xóa danh mục "${category.name}" thành công!`);
+        } catch (error) {
+          console.error("Lỗi khi xóa:", error);
+          const errorMessage =
+            error.response?.data?.message ||
+            "Có lỗi xảy ra, không thể xóa danh mục này!";
+
+          toast.error(errorMessage);
+        }
+      }
+    });
   };
 
   const handleToggleStatus = async (row) => {

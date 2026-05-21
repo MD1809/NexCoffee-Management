@@ -51,6 +51,6 @@ public class CategoryController {
     @DeleteMapping("/{categoryId}")
     public String deleteCategory(@PathVariable Integer categoryId) {
         categoryService.deleteCategory(categoryId);
-        return "Category has been deleted";
+        return "Xóa danh mục thành công";
     }
 }
