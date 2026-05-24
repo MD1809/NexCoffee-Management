@@ -16,7 +16,7 @@
 
     --btn-primary: linear-gradient(135deg, #1468e3, #3c72b6);
     --btn-text-primary: #ffff;
-    --btn-primary-hover: linear-gradient(135deg, #5a4fd6, #7a6af0);
+    --btn-primary-hover: linear-gradient(135deg, #1362d8, #386dac);
 
     /* button form */
     --btn-submit: #1468e3;
@@ -45,7 +45,7 @@
 
     --btn-primary: linear-gradient(135deg, #1468e3, #3c72b6);
     --btn-text-primary: #ffff;
-    --btn-primary-hover: linear-gradient(135deg, #5a4fd6, #7a6af0);
+    --btn-primary-hover: linear-gradient(135deg, #1362d8, #386dac);
 
     --btn-submit: #1468e3;
     --text-submit: #ffffff;

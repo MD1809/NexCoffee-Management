@@ -74,6 +74,10 @@
     color: #f1c40f;
 }
 
+.btn-icon--delete:hover {
+    color: #e74c3c;
+}
+
 .btn-icon--lock:hover {
     color: #e74c3c;
 }

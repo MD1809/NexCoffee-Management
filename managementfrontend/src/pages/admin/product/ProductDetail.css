@@ -239,11 +239,11 @@
   border-radius: 4px;
   font-size: 13px;
   background-color: var(--bg-secondary);
-  border: 1px solid var(--border-primary-color);
 }
 
 .v-status.avail {
-  color: #4caf50;
+  background-color: rgba(40, 167, 69, 0.1);
+    color: #28a745;
 }
 
 .v-status.unavail {

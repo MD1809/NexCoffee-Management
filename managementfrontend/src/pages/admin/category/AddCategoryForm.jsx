@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import categoryApi from "../../../apis/CategoryApi";
 import FormModal from "../../../components/admin/formModal/FormModal";
+import Dropdown from "../../../components/admin/dropDown/Dropdown";
 import { toast } from "react-toastify";
 
 const AddCategoryForm = ({ isOpen, onClose, onRefresh }) => {
@@ -47,29 +48,26 @@ const AddCategoryForm = ({ isOpen, onClose, onRefresh }) => {
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      return; 
+      return;
     }
 
     try {
       await categoryApi.create(formData);
       toast.success("Thêm danh mục thành công!");
-      
+
       onRefresh();
       setFormData({ name: "", description: "", categoryStatus: "active" });
       setErrors({});
       onClose();
-      
     } catch (error) {
       if (error.response && error.response.data) {
         const errorData = error.response.data;
-        
+
         if (errorData.errors) {
-          setErrors(errorData.errors); 
-        } 
-        
-        else if (errorData.message) {
-          setErrors({ name: errorData.message }); 
-        } 
+          setErrors(errorData.errors);
+        } else if (errorData.message) {
+          setErrors({ name: errorData.message });
+        }
       }
       console.error("Chi tiết lỗi:", error);
     }
@@ -81,6 +79,11 @@ const AddCategoryForm = ({ isOpen, onClose, onRefresh }) => {
     onClose();
   };
 
+  const statusOptions = [
+    { label: "Hoạt động", value: "active" },
+    { label: "Ngừng hoạt động", value: "inactive" },
+  ];
+
   return (
     <FormModal
       isOpen={isOpen}
@@ -90,40 +93,60 @@ const AddCategoryForm = ({ isOpen, onClose, onRefresh }) => {
       submitText="Thêm mới"
     >
       <div className="form-modal__group">
-        <label className="form-modal__label">Tên danh mục <span style={{color: 'red'}}>*</span></label>
+        <label className="form-modal__label">
+          Tên danh mục <span style={{ color: "red" }}>*</span>
+        </label>
         <input
           name="name"
-          className={`form-modal__input ${errors.name ? 'input-error' : ''}`}
+          className={`form-modal__input ${errors.name ? "input-error" : ""}`}
           value={formData.name}
           onChange={handleChange}
           required
         />
         {/* Hiển thị lỗi bên dưới input */}
-        {errors.name && <span className="form-modal__error-text" style={{color: 'red', fontSize: '12px'}}>{errors.name}</span>}
+        {errors.name && (
+          <span
+            className="form-modal__error-text"
+            style={{ color: "red", fontSize: "12px" }}
+          >
+            {errors.name}
+          </span>
+        )}
       </div>
 
       <div className="form-modal__group">
         <label className="form-modal__label">Mô tả</label>
         <textarea
           name="description"
-          className={`form-modal__input ${errors.description ? 'input-error' : ''}`}
+          className={`form-modal__input ${errors.description ? "input-error" : ""}`}
           value={formData.description}
           onChange={handleChange}
         />
-        {errors.description && <span className="form-modal__error-text" style={{color: 'red', fontSize: '12px'}}>{errors.description}</span>}
+        {errors.description && (
+          <span
+            className="form-modal__error-text"
+            style={{ color: "red", fontSize: "12px" }}
+          >
+            {errors.description}
+          </span>
+        )}
       </div>
 
       <div className="form-modal__group">
         <label className="form-modal__label">Trạng thái</label>
-        <select
-          name="categoryStatus"
-          value={formData.categoryStatus}
-          className="form-modal__input"
-          onChange={handleChange}
-        >
-          <option value="active">Hoạt động</option>
-          <option value="inactive">Ngừng hoạt động</option>
-        </select>
+        <Dropdown
+          options={statusOptions}
+          defaultValue={formData.categoryStatus}
+          onChange={(option) => {
+            handleChange({
+              target: {
+                name: "categoryStatus",
+                value: option.value,
+              },
+            });
+          }}
+          placeholder="Chọn trạng thái"
+        />
       </div>
     </FormModal>
   );

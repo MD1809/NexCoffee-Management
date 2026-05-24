@@ -15,6 +15,13 @@ const Dropdown = ({ options, placeholder = "Chọn một tùy chọn", defaultVa
   const dropdownRef = useRef(null);
 
   useEffect(() => {
+    if (defaultValue && options.length > 0) {
+      const matchedOption = options.find(opt => opt.value === defaultValue);
+      setSelectedOption(matchedOption || null);
+    }
+  }, [defaultValue, options]);
+
+  useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);

@@ -8,9 +8,22 @@ import SearchBox from "../../components/admin/searchBox/SearchBox";
 import Button from "../../components/admin/button/Button";
 import DataTable from "../../components/admin/dataTable/DataTable";
 import ConfirmModal from "../../components/admin/confirmModal/ConfirmModal";
+import Dropdown from "../../components/admin/dropDown/Dropdown";
 
 import { formatDateTime } from "../../utils/fomatDateTime";
 import { getAccessToken } from "../../utils/authStorage";
+
+// --- KHAI BÁO MẢNG DỮ LIỆU TĨNH CHO DROPDOWN ---
+const roleOptions = [
+  { label: "Khách hàng", value: "CUSTOMER" },
+  { label: "Nhân viên", value: "STAFF" },
+  { label: "Quản trị viên", value: "ADMIN" }
+];
+
+const statusOptions = [
+  { label: "Hoạt động", value: "ACTIVE" },
+  { label: "Ngừng hoạt động", value: "INACTIVE" }
+];
 
 function Users() {
   const API_BASE_URL = "http://localhost:8080/api/admin/users";
@@ -82,7 +95,6 @@ function Users() {
 
   const fetchUsers = async () => {
     try {
-      // 2. Dùng hàm này, nó sẽ tự tìm ở cả Local và Session Storage cho bạn
       const token = getAccessToken();
 
       if (!token) {
@@ -167,7 +179,8 @@ function Users() {
     const { name, value } = e.target;
     setAddFormData({ ...addFormData, [name]: value });
   };
-const handleAddSubmit = async () => {
+  
+  const handleAddSubmit = async () => {
     const errors = validateForm(addFormData);
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -225,63 +238,65 @@ const handleAddSubmit = async () => {
     setEditFormData(user);
     setIsEditModalOpen(true);
   };
+  
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
     setEditFormData({ ...editFormData, [name]: value });
   };
-const handleEditSubmit = async () => {
-  // 1. Validate ở Frontend
-  const errors = validateForm(editFormData, true);
+  
+  const handleEditSubmit = async () => {
+    // 1. Validate ở Frontend
+    const errors = validateForm(editFormData, true);
 
-  if (Object.keys(errors).length > 0) {
-    setFormErrors(errors);
-    return; // Chặn không cho đóng form nếu có lỗi nhập liệu
-  }
-
-  try {
-    const token = getAccessToken();
-    const dataToSend = {
-      ...editFormData,
-      isVerified: editFormData.isVerified ?? false,
-    };
-
-    const response = await axios.put(`${API_BASE_URL}/${editFormData.id}`, dataToSend, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    // --- CHỈ CHẠY KHI BACKEND TRẢ VỀ THÀNH CÔNG (200 OK) ---
-    setUsers(users.map((u) => (u.id === editFormData.id ? response.data : u)));
-    setIsEditModalOpen(false); // Đóng modal
-    setFormErrors({});       // Xóa sạch thông báo lỗi
-    toast.success("Cập nhật thành công!");
-
-  } catch (error) {
-    // --- XỬ LÝ KHI BACKEND TRẢ VỀ LỖI (400, 404, 403, 500...) ---
-    console.error("Lỗi cập nhật:", error.response?.data);
-
-    const serverError = error.response?.data;
-
-    // Trường hợp 1: Backend trả về danh sách lỗi cụ thể (Validation)
-    if (serverError?.errors) {
-      setFormErrors(serverError.errors);
-    } 
-    // Trường hợp 2: Backend trả về thông báo lỗi logic (ví dụ: Email đã tồn tại)
-    else if (serverError?.message) {
-      const msg = serverError.message;
-      if (msg.includes("Email")) {
-        setFormErrors({ email: msg });
-      } else if (msg.includes("Số điện thoại")) {
-        setFormErrors({ phone: msg });
-      } else {
-        toast.error(msg);
-      }
-    } else {
-      toast.error("Cập nhật thất bại. Vui lòng kiểm tra lại!");
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return; // Chặn không cho đóng form nếu có lỗi nhập liệu
     }
-    
-    // Lưu ý: Không gọi setIsEditModalOpen(false) ở đây để giữ Form mở cho người dùng sửa lại
-  }
-};
+
+    try {
+      const token = getAccessToken();
+      const dataToSend = {
+        ...editFormData,
+        isVerified: editFormData.isVerified ?? false,
+      };
+
+      const response = await axios.put(`${API_BASE_URL}/${editFormData.id}`, dataToSend, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // --- CHỈ CHẠY KHI BACKEND TRẢ VỀ THÀNH CÔNG (200 OK) ---
+      setUsers(users.map((u) => (u.id === editFormData.id ? response.data : u)));
+      setIsEditModalOpen(false); // Đóng modal
+      setFormErrors({});       // Xóa sạch thông báo lỗi
+      toast.success("Cập nhật thành công!");
+
+    } catch (error) {
+      // --- XỬ LÝ KHI BACKEND TRẢ VỀ LỖI (400, 404, 403, 500...) ---
+      console.error("Lỗi cập nhật:", error.response?.data);
+
+      const serverError = error.response?.data;
+
+      // Trường hợp 1: Backend trả về danh sách lỗi cụ thể (Validation)
+      if (serverError?.errors) {
+        setFormErrors(serverError.errors);
+      } 
+      // Trường hợp 2: Backend trả về thông báo lỗi logic (ví dụ: Email đã tồn tại)
+      else if (serverError?.message) {
+        const msg = serverError.message;
+        if (msg.includes("Email")) {
+          setFormErrors({ email: msg });
+        } else if (msg.includes("Số điện thoại")) {
+          setFormErrors({ phone: msg });
+        } else {
+          toast.error(msg);
+        }
+      } else {
+        toast.error("Cập nhật thất bại. Vui lòng kiểm tra lại!");
+      }
+      
+      // Lưu ý: Không gọi setIsEditModalOpen(false) ở đây để giữ Form mở cho người dùng sửa lại
+    }
+  };
 
   const handleToggleStatus = async (user) => {
     const nextStatus = user.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
@@ -414,13 +429,6 @@ const handleEditSubmit = async () => {
                     <span className="label">Số điện thoại:</span>
                     <span className="value">{viewingUser.phone}</span>
                   </div>
-                  {/* <div className="modal-userdetail__info-item">
-                    <span className="label">Ngày tham gia:</span>
-
-                    <span className="value">
-                      {formatDateTime(viewingUser.createdAt)}
-                    </span>
-                  </div> */}
                 </div>
               </div>
             </div>
@@ -454,7 +462,6 @@ const handleEditSubmit = async () => {
         submitText="Tạo tài khoản"
         onSubmit={handleAddSubmit}
       >
-        {/* Họ và tên */}
         <div className="form-modal__group">
           <label className="form-modal__label">Họ và tên</label>
           <input
@@ -474,7 +481,6 @@ const handleEditSubmit = async () => {
           )}
         </div>
 
-        {/* Email */}
         <div className="form-modal__group">
           <label className="form-modal__label">Email</label>
           <input
@@ -493,7 +499,6 @@ const handleEditSubmit = async () => {
           )}
         </div>
 
-        {/* Số điện thoại */}
         <div className="form-modal__group">
           <label className="form-modal__label">Số điện thoại</label>
           <input
@@ -512,7 +517,6 @@ const handleEditSubmit = async () => {
           )}
         </div>
 
-        {/* Mật khẩu */}
         <div className="form-modal__group">
           <label className="form-modal__label">Mật khẩu</label>
           <input
@@ -532,7 +536,6 @@ const handleEditSubmit = async () => {
           )}
         </div>
 
-        {/* Xác nhận mật khẩu */}
         <div className="form-modal__group">
           <label className="form-modal__label">Xác nhận mật khẩu</label>
           <input
@@ -552,23 +555,20 @@ const handleEditSubmit = async () => {
           )}
         </div>
 
-        {/* Hàng Vai trò & Trạng thái */}
         <div className="form-modal__row">
           <div className="form-modal__group">
             <label className="form-modal__label">Vai trò</label>
-            <select
-              className={`form-modal__input ${formErrors.role ? "input--error" : ""}`}
-              name="role"
-              value={addFormData.role}
-              onChange={(e) => {
-                handleInputChange(e, "add");
-                if (formErrors.role) setFormErrors({ ...formErrors, role: "" });
-              }}
-            >
-              <option value="CUSTOMER">Khách hàng</option>
-              <option value="STAFF">Nhân viên</option>
-              <option value="ADMIN">Quản trị viên</option>
-            </select>
+            <div className={`form-control-dropdown ${formErrors.role ? "input--error" : ""}`}>
+              <Dropdown
+                options={roleOptions}
+                defaultValue={addFormData.role}
+                placeholder="Chọn vai trò"
+                onChange={(option) => {
+                  handleInputChange({ target: { name: 'role', value: option.value } }, "add");
+                  if (formErrors.role) setFormErrors({ ...formErrors, role: "" });
+                }}
+              />
+            </div>
             {formErrors.role && (
               <span className="addU-error-text">{formErrors.role}</span>
             )}
@@ -576,15 +576,12 @@ const handleEditSubmit = async () => {
 
           <div className="form-modal__group">
             <label className="form-modal__label">Trạng thái</label>
-            <select
-              className="form-modal__input"
-              name="status"
-              value={addFormData.status}
-              onChange={(e) => handleInputChange(e, "add")}
-            >
-              <option value="ACTIVE">Hoạt động</option>
-              <option value="INACTIVE">Ngừng hoạt động</option>
-            </select>
+            <Dropdown
+              options={statusOptions}
+              defaultValue={addFormData.status}
+              placeholder="Chọn trạng thái"
+              onChange={(option) => handleInputChange({ target: { name: 'status', value: option.value } }, "add")}
+            />
           </div>
         </div>
       </FormModal>
@@ -655,28 +652,29 @@ const handleEditSubmit = async () => {
         <div className="form-modal__row">
           <div className="form-modal__group">
             <label className="form-modal__label">Vai trò</label>
-            <select
-              className="form-modal__input"
-              name="role"
-              value={editFormData.role}
-              onChange={(e) => handleInputChange(e, "edit")}
-            >
-              <option value="CUSTOMER">Khách hàng</option>
-              <option value="STAFF">Nhân viên</option>
-              <option value="ADMIN">Quản trị viên</option>
-            </select>
+            <div className={`form-control-dropdown ${formErrors.role ? "input--error" : ""}`}>
+              <Dropdown
+                options={roleOptions}
+                defaultValue={editFormData.role}
+                placeholder="Chọn vai trò"
+                onChange={(option) => {
+                  handleInputChange({ target: { name: 'role', value: option.value } }, "edit");
+                  if (formErrors.role) setFormErrors({ ...formErrors, role: "" });
+                }}
+              />
+            </div>
+            {formErrors.role && (
+              <span className="addU-error-text">{formErrors.role}</span>
+            )}
           </div>
           <div className="form-modal__group">
             <label className="form-modal__label">Trạng thái</label>
-            <select
-              className="form-modal__input"
-              name="status"
-              value={editFormData.status}
-              onChange={(e) => handleInputChange(e, "edit")}
-            >
-              <option value="ACTIVE">Hoạt động</option>
-              <option value="INACTIVE">Ngừng hoạt động</option>
-            </select>
+            <Dropdown
+              options={statusOptions}
+              defaultValue={editFormData.status}
+              placeholder="Chọn trạng thái"
+              onChange={(option) => handleInputChange({ target: { name: 'status', value: option.value } }, "edit")}
+            />
           </div>
         </div>
       </FormModal>

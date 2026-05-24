@@ -7,6 +7,7 @@ import com.nexcoffee.managementsystem.entities.ProductVariant;
 import com.nexcoffee.managementsystem.entities.User;
 import com.nexcoffee.managementsystem.enums.OrderStatus;
 import com.nexcoffee.managementsystem.enums.PaymentStatus;
+import com.nexcoffee.managementsystem.exceptions.ResourceNotFoundException;
 import com.nexcoffee.managementsystem.repositories.OrderDetailRepository;
 import com.nexcoffee.managementsystem.repositories.OrderRepository;
 import com.nexcoffee.managementsystem.repositories.ProductVariantRepository;
@@ -117,21 +118,22 @@ public class OrderService {
     @Transactional
     public Order updateOrderStatus(Integer orderId, OrderStatus newStatus, String cancelReason) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
-
-        order.setStatus(newStatus);
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn hàng với id: " + orderId));
 
         if (newStatus == OrderStatus.Cancelled) {
+            if (order.getStatus() == OrderStatus.Shipped || order.getStatus() == OrderStatus.Completed) {
+                throw new IllegalStateException("Không thể hủy đơn hàng đang giao hoặc đã hoàn thành.");
+            }
             order.setCancelReason(cancelReason);
         }
-
+        order.setStatus(newStatus);
         return orderRepository.save(order);
     }
 
     @Transactional
     public Order updatePaymentStatus(Integer orderId, PaymentStatus newPaymentStatus) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với id: " + orderId));
 
         order.setPaymentStatus(newPaymentStatus);
 

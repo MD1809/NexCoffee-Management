@@ -1,6 +1,7 @@
 package com.nexcoffee.managementsystem.controllers;
 
 import com.nexcoffee.managementsystem.dto.request.OrderRequest;
+import com.nexcoffee.managementsystem.dto.request.OrderStatusUpdateRequest;
 import com.nexcoffee.managementsystem.dto.response.OrderDetailResponse;
 import com.nexcoffee.managementsystem.dto.response.OrderResponse;
 import com.nexcoffee.managementsystem.entities.Order;
@@ -80,10 +81,15 @@ public class OrderController {
     @PatchMapping("/{id}/status")
     public ResponseEntity<OrderResponse> updateOrderStatus(
             @PathVariable Integer id,
-            @RequestParam OrderStatus status,
-            @RequestParam(required = false) String cancelReason // Chỉ bắt buộc khi status = Cancelled
+            @RequestBody OrderStatusUpdateRequest request
     ) {
-        Order updatedOrder = orderService.updateOrderStatus(id, status, cancelReason);
+        // Lấy status và cancelReason từ object request để truyền vào service
+        Order updatedOrder = orderService.updateOrderStatus(
+                id,
+                request.getStatus(),
+                request.getCancelReason()
+        );
+
         return ResponseEntity.ok(mapToResponse(updatedOrder));
     }
 
