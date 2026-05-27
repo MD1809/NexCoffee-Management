@@ -177,33 +177,51 @@ const Dashboard = () => {
       <h2 className="dashboard-title">Tổng Quan Cửa Hàng</h2>
 
       <div className="overview-cards">
-        <StatCard
-          title="Tổng Doanh Thu"
-          value={formatCurrency(overview.totalRevenue)}
-          IconComponent={FaDollarSign}
-          colorTheme="revenue"
-        />
+        {/* Widget 1: Doanh thu */}
+        <div className="dash-widget">
+          <div className="dash-widget-info">
+            <p className="dash-widget-title">Tổng Doanh Thu</p>
+            <h3 className="dash-widget-val daily-report-val-green">
+              {formatCurrency(overview.totalRevenue)}
+            </h3>
+          </div>
+          <div className="dash-widget-icon icon-revenue">
+            <FaDollarSign />
+          </div>
+        </div>
 
-        <StatCard
-          title="Tổng Đơn Hàng"
-          value={overview.totalOrders}
-          IconComponent={FaShoppingCart}
-          colorTheme="orders"
-        />
+        {/* Widget 2: Đơn hàng */}
+        <div className="dash-widget">
+          <div className="dash-widget-info">
+            <p className="dash-widget-title">Tổng Đơn Hàng</p>
+            <h3 className="dash-widget-val daily-report-val-blue">{overview.totalOrders}</h3>
+          </div>
+          <div className="dash-widget-icon icon-orders">
+            <FaShoppingCart />
+          </div>
+        </div>
 
-        <StatCard
-          title="Tổng sản phẩm"
-          value={overview.productsSold}
-          IconComponent={FaBox}
-          colorTheme="products"
-        />
+        {/* Widget 3: Sản phẩm */}
+        <div className="dash-widget">
+          <div className="dash-widget-info">
+            <p className="dash-widget-title">Tổng sản phẩm</p>
+            <h3 className="dash-widget-val daily-report-val-orange">{overview.productsSold}</h3>
+          </div>
+          <div className="dash-widget-icon icon-products">
+            <FaBox />
+          </div>
+        </div>
 
-        <StatCard
-          title="Khách Hàng"
-          value={overview.totalCustomers}
-          IconComponent={FaUsers}
-          colorTheme="customers"
-        />
+        {/* Widget 4: Khách hàng */}
+        <div className="dash-widget">
+          <div className="dash-widget-info">
+            <p className="dash-widget-title">Khách Hàng</p>
+            <h3 className="dash-widget-val daily-report-val-purple">{overview.totalCustomers}</h3>
+          </div>
+          <div className="dash-widget-icon icon-customers">
+            <FaUsers />
+          </div>
+        </div>
       </div>
 
       {/* Khu vực Biểu đồ và Top Sản phẩm */}
@@ -233,20 +251,24 @@ const Dashboard = () => {
 
             <div style={{ display: "flex", gap: "10px" }}>
               {/* Dropdown chọn Tháng */}
-              <Dropdown
-                options={monthOptions}
-                defaultValue={selectedMonth}
-                onChange={(option) => setSelectedMonth(option.value)}
-                placeholder="Chọn tháng"
-              />
+              <div style={{ width: "140px" }}>
+                <Dropdown
+                  options={monthOptions}
+                  defaultValue={selectedMonth}
+                  onChange={(option) => setSelectedMonth(option.value)}
+                  placeholder="Chọn tháng"
+                />
+              </div>
 
               {/* Dropdown chọn Năm */}
-              <Dropdown
-                options={yearOptions}
-                defaultValue={selectedYear}
-                onChange={(option) => setSelectedYear(option.value)}
-                placeholder="Chọn năm"
-              />
+              <div style={{ width: "140px" }}>
+                <Dropdown
+                  options={yearOptions}
+                  defaultValue={selectedYear}
+                  onChange={(option) => setSelectedYear(option.value)}
+                  placeholder="Chọn năm"
+                />
+              </div>
             </div>
           </div>
 

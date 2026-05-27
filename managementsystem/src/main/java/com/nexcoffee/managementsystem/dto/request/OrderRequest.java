@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 public class OrderRequest {
     private Long userId;
+    private Long staffId;
     private String fullName;
     private String phone;
     private String email;

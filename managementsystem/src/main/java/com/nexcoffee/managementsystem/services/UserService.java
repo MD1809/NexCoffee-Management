@@ -2,6 +2,7 @@ package com.nexcoffee.managementsystem.services;
 
 import com.nexcoffee.managementsystem.dto.response.UserResponse;
 import com.nexcoffee.managementsystem.entities.User;
+import com.nexcoffee.managementsystem.enums.Role;
 import com.nexcoffee.managementsystem.exceptions.InvalidOperationException;
 import com.nexcoffee.managementsystem.exceptions.ResourceNotFoundException;
 import com.nexcoffee.managementsystem.repositories.UserRepository;
@@ -30,6 +31,17 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng với ID: " + id)); // Dùng 404
         return mapToUserResponse(user);
+    }
+
+    public List<UserResponse> getActiveShippers() {
+        List<User> shippers = userRepository.findByRoleAndStatus(Role.SHIPPER, "ACTIVE");
+
+        if (shippers.isEmpty()) {
+            throw new ResourceNotFoundException("Hiện tại không có nhân viên giao hàng nào đang hoạt động!");
+        }
+        return shippers.stream()
+                .map(this::mapToUserResponse)
+                .collect(Collectors.toList());
     }
 
     @Transactional

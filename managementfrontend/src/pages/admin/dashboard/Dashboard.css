@@ -15,11 +15,85 @@
 }
 
 /* Khu vực 4 ô tổng quan */
+/* Container bọc 4 thẻ */
 .overview-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  display: flex;
   gap: 20px;
   margin-bottom: 30px;
+  flex-wrap: wrap; /* Tránh vỡ khung trên màn hình nhỏ */
+}
+
+/* Khung của từng thẻ Widget */
+.dash-widget {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bg-sidebar);
+  border: 1px solid var(--border-primary-color);
+  padding: 24px 20px;
+  border-radius: 12px;
+  flex: 1;
+  min-width: 200px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); 
+}
+
+/* Phần chữ bên trái */
+.dash-widget-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dash-widget-title {
+  font-size: 16px;
+  color: var(--text-primary);
+  margin: 0;
+  font-weight: 500;
+}
+
+.dash-widget-val {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary, #111827);
+  margin: 0;
+}
+
+.daily-report-val-green { color: #10b981; }
+.daily-report-val-blue { color: #3b82f6; }
+.daily-report-val-orange { color: #f97316; }
+.daily-report-val-purple { color: #a855f7; }
+
+/* Phần Icon bên phải */
+.dash-widget-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+/* Phối màu sắc cho từng loại Icon */
+.icon-revenue {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e; /* Màu xanh lá */
+}
+
+.icon-orders {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6; /* Màu xanh dương */
+}
+
+.icon-products {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316; /* Màu cam */
+}
+
+.icon-customers {
+  background: rgba(168, 85, 247, 0.15);
+  color: #a855f7; /* Màu tím */
 }
 
 /* Khu vực biểu đồ và danh sách top */

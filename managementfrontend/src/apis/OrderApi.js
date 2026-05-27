@@ -9,7 +9,7 @@ const orderApi = {
     }
     return axiosClient.get(url);
   },
-  
+
   getToday: () => {
     return axiosClient.get("/orders/today");
   },
@@ -19,15 +19,9 @@ const orderApi = {
     return axiosClient.get(`/orders/${id}`);
   },
 
-  // Cập nhật trạng thái đơn hàng
-  updateOrderStatus: (id, status, cancelReason) => {
-    const payload = {
-      status: status,
-      cancelReason: cancelReason
-    };
-    
+  updateOrderStatus: (id, payload) => {
     return axiosClient.patch(`/orders/${id}/status`, payload);
-  }
+  },
 };
 
 export default orderApi;

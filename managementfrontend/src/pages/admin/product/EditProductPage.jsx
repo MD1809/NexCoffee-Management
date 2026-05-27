@@ -516,7 +516,7 @@ const sizeOptions = [
                     <div key={index} className="variant-wrapper">
                       <div className="variant-row-modern">
                         {!isSimpleProduct ? (
-                          <div className="variant-column-select">
+                          <div style={{ width: "140px" }}>
                             <Dropdown
                               options={sizeOptions}
                               defaultValue={v.size || "S"}

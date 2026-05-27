@@ -81,6 +81,9 @@ function AddProductPage() {
     if (!product.name.trim()) {
       newErrors.name = "Tên sản phẩm không được để trống.";
     }
+    if (product.description.length > 255) {
+      newErrors.description = "Mô tả sản phẩm không được vượt quá 255 ký tự.";
+    }
     if (!product.categoryId) {
       newErrors.categoryId = "Vui lòng chọn danh mục cho sản phẩm.";
     }
@@ -89,7 +92,6 @@ function AddProductPage() {
     }
 
     const variantErrors = [];
-    // Tùy thuộc vào chế độ đang chọn để lấy mảng variants tương ứng đi validate
     const activeVariants = isSimpleProduct ? variantSimple : variantsWithSize;
 
     activeVariants.forEach((v, index) => {
@@ -427,6 +429,9 @@ function AddProductPage() {
                   rows="5"
                   className="form-control"
                 />
+                {errors.description && (
+                  <div className="error-message">{errors.description}</div>
+                )}
               </div>
             </div>
 
@@ -467,14 +472,16 @@ function AddProductPage() {
                     <div key={index} className="variant-wrapper">
                       <div className="variant-row-modern">
                         {!isSimpleProduct ? (
-                          <Dropdown
-                            options={sizeOptions}
-                            defaultValue={v.size || "S"}
-                            placeholder="Chọn Size"
-                            onChange={(option) =>
-                              handleVariantChange(index, "size", option.value)
-                            }
-                          />
+                          <div style={{ width: "140px" }}>
+                            <Dropdown
+                              options={sizeOptions}
+                              defaultValue={v.size || "S"}
+                              placeholder="Chọn Size"
+                              onChange={(option) =>
+                                handleVariantChange(index, "size", option.value)
+                              }
+                            />
+                          </div>
                         ) : (
                           <div
                             style={{

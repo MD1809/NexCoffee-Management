@@ -26,6 +26,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
+    @GetMapping("/shippers")
+    public ResponseEntity<List<UserResponse>> getShippers() {
+        return ResponseEntity.ok(userService.getActiveShippers());
+    }
+
     @PostMapping
     public ResponseEntity<UserResponse> createUser(@RequestBody User user) {
         return ResponseEntity.ok(userService.createUser(user));

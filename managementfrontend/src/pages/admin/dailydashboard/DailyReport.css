@@ -1,0 +1,318 @@
+/* =========================================
+   CONTAINER & LAYOUT
+========================================= */
+.daily-report-container {
+  padding: 24px;
+  background-color: var(--bg-main);
+  min-height: 100vh;
+  color: var(--text-primary);
+  font-family: Arial, sans-serif;
+}
+
+.daily-report-loading {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+}
+
+.daily-report-layoutTop {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--border-primary-color);
+}
+
+.daily-report-col-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.daily-report-col-right {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* =========================================
+   CARDS & WIDGETS
+========================================= */
+.daily-report-card {
+  background-color: var(--bg-sidebar);
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid var(--border-primary-color);
+  display: flex;
+  flex-direction: column;
+}
+
+.daily-report-widgets-wrapper {
+  display: flex;
+  gap: 24px;
+}
+
+.daily-report-widget {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px; 
+  padding: 20px;
+  background-color: var(--bg-sidebar);
+  border: 1px solid var(--border-primary-color);
+  border-radius: 12px;
+  flex: 1;
+}
+
+.widget-main-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Căn giữa theo chiều dọc */
+}
+
+.widget-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.daily-report-widget-title {
+  font-size: 16px;
+  color: var(--text-primary);
+  margin: 0;
+  font-weight: 500;
+}
+
+.daily-report-widget-val {
+  font-size: 26px; 
+  font-weight: 700;
+  margin: 0;
+}
+.daily-report-val-green { color: #10b981; }
+.daily-report-val-blue { color: #3b82f6; }
+.daily-report-val-orange { color: #f97316; }
+
+.widget-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.widget-icon-green {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.widget-icon-blue {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.widget-icon-orange {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
+/* Vùng chứa Trend */
+.widget-trend-container {
+  display: flex;
+  align-items: center;
+}
+
+/* Giữ nguyên class của renderTrend từ trước */
+.widget-trend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.trend-up {
+  color: #22c55e;
+}
+
+.trend-down {
+  color: #c14e4e;
+}
+
+.trend-text-muted {
+  color: var(--text-secondary, #6b7280);
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+/* =========================================
+   CHART & TABLES
+========================================= */
+.daily-report-section-title {
+  margin: 0 0 24px 0;
+  border-bottom: 1px solid var(--bordertable-color);
+  padding-bottom: 12px;
+  font-size: 16px;
+}
+
+.daily-report-chart-wrapper {
+  flex: 1;
+  min-height: 300px;
+}
+
+.daily-report-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--bordertable-color);
+  padding-bottom: 16px;
+}
+
+.daily-report-table-header h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.daily-report-filter-wrapper {
+  display: flex;
+  gap: 40px;
+}
+
+/* =========================================
+   TOP PRODUCTS TABLE
+========================================= */
+.daily-report-top-products {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.daily-report-top-products th {
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--bordertable-color);
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-align: left;
+}
+
+.daily-report-top-products td {
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--bordertable-color);
+}
+
+.daily-report-tp-name { font-weight: 500; }
+.daily-report-tp-size { font-size: 12px; color: var(--text-secondary); }
+.daily-report-tp-qty { font-weight: bold; text-align: center; color: #f97316; }
+
+/* =========================================
+   CALENDAR
+========================================= */
+.daily-report-cal-card {
+  background-color: var(--bg-sidebar);
+  border-radius: 12px;
+  border: 1px solid var(--border-primary-color);
+  overflow: hidden;
+}
+
+.daily-report-cal-header {
+  background-color: #235db5;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #fff;
+}
+
+.daily-report-cal-header span {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.daily-report-cal-controls { display: flex; gap: 16px; }
+
+.daily-report-cal-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.daily-report-cal-body { padding: 16px; }
+
+.daily-report-cal-dow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+  font-size: 14px;
+}
+
+.daily-report-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 8px;
+  column-gap: 8px;
+}
+
+.daily-report-cal-day {
+  padding: 10px 0;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+  background-color: transparent;
+}
+
+.daily-report-cal-day:not(.empty):not(.active):hover {
+  background-color: var(--bg-secondary);
+}
+
+.daily-report-cal-day.active {
+  background-color: #1468e3;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* =========================================
+   BADGES (STATUS)
+========================================= */
+.dr-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.dr-badge-paid, .dr-badge-completed {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.dr-badge-unpaid,
+.dr-badge-refunded,
+.dr-badge-secondary {
+  background-color: rgba(107, 114, 128, 0.1);
+  color: var(--text-primary)
+}
+
+.dr-badge-cancelled {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+

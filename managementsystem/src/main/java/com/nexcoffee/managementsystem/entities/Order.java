@@ -23,9 +23,20 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    // Khách hàng đặt đơn
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    // Nhân viên chốt đơn / thu ngân
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "staff_id")
+    private User staff;
+
+    // Nhân viên giao hàng
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shipper_id")
+    private User shipper;
 
     @Column(unique = true, nullable = false, length = 32)
     private String code;
@@ -71,6 +82,22 @@ public class Order {
 
     @Column(name = "cancel_reason")
     private String cancelReason;
+
+    // Thời điểm khách thanh toán xong (dùng để tính doanh thu ngày)
+    @Column(name = "paid_at")
+    private LocalDateTime paidAt;
+
+    // Thời điểm đơn hàng hoàn tất
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
+
+    // Thời điểm xác nhận đơn / bắt đầu pha chế
+    @Column(name = "processed_at")
+    private LocalDateTime processedAt;
+
+    // Thời điểm bắt đầu giao hàng (shipper lấy hàng đi)
+    @Column(name = "shipped_at")
+    private LocalDateTime shippedAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails;

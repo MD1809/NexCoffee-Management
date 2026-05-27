@@ -95,27 +95,27 @@ function Order() {
         let statusText = "";
         switch (row.status) {
           case "Completed":
-            badgeClass = "badge-success";
+            badgeClass = "ord-badge ord-badge-completed";
             statusText = "Thành công";
             break;
           case "Cancelled":
-            badgeClass = "badge-danger";
+            badgeClass = " ord-badge ord-badge-cancelled";
             statusText = "Đã hủy";
             break;
           case "Pending":
-            badgeClass = "badge-warning";
+            badgeClass = "ord-badge ord-badge-warning";
             statusText = "Chờ xác nhận";
             break;
           case "Processing":
-            badgeClass = "badge-info";
-    statusText = "Đang xử lý";
+            badgeClass = "ord-badge ord-badge-info";
+            statusText = "Đang xử lý";
             break;
           case "Shipped":
-            badgeClass = "badge-primary";
+            badgeClass = "ord-badge ord-badge-primary";
             statusText = "Đang giao";
             break;
           default:
-            badgeClass = "badge-default";
+            badgeClass = "ord-badge ord-badge-default";
             statusText = row.status;
         }
         return (
@@ -129,14 +129,14 @@ function Order() {
       render: (row) => {
         if (row.paymentStatus === "paid")
           return (
-            <span className="text-success font-weight-bold">Đã thanh toán</span>
+            <span className="ord-badge ord-badge-paid">Đã thanh toán</span>
           );
         if (row.paymentStatus === "refunded")
           return (
-            <span className="text-warning font-weight-bold">Đã hoàn tiền</span>
+            <span className="ord-badge ord-badge-refunded">Đã hoàn tiền</span>
           );
         return (
-          <span className="text-danger font-weight-bold">Chưa thanh toán</span>
+          <span className="ord-badge ord-badge-unpaid">Chưa thanh toán</span>
         );
       },
     },
