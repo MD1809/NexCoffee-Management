@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import productApi from "../../../apis/ProductApi";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 import Button from "../../../components/admin/button/Button";
 import SearchBox from "../../../components/admin/searchBox/SearchBox";
@@ -63,13 +64,22 @@ function Products() {
       accessor: "variants",
       render: (row) => (
         <div className="variant-size">
-          {row.variants.map((v) => (
-            <span key={v.id} className="variant-tag">
-              {v.size
-                ? `${v.size}: ${v.price.toLocaleString("vi-VN")}đ`
-                : `${v.price.toLocaleString("vi-VN")}đ`}
+          {row.variants && row.variants.length > 0 ? (
+            row.variants.map((v) => (
+              <span key={v.id} className="variant-tag">
+                {v.size && v.size !== "null" && v.size !== "Mặc định"
+                  ? `${v.size}: ${v.price.toLocaleString("vi-VN")}đ`
+                  : `${v.price.toLocaleString("vi-VN")}đ`}
+              </span>
+            ))
+          ) : (
+            <span
+              className="out-of-stock-tag"
+              style={{ color: "#ef4444", fontSize: "13px" }}
+            >
+              Tạm hết hàng
             </span>
-          ))}
+          )}
         </div>
       ),
     },
@@ -96,6 +106,10 @@ function Products() {
           <i
             className="fa-regular fa-pen-to-square btn-icon btn-icon--edit"
             onClick={() => handleOpenEdit(u)}
+          ></i>
+          <i
+            className="fa-regular fa-trash-can btn-icon btn-icon--delete"
+            onClick={() => handleDelete(u)}
           ></i>
         </div>
       ),
@@ -130,6 +144,38 @@ function Products() {
 
   const handleOpenEdit = (product) => {
     navigate(`edit/${product.id}`);
+  };
+
+  const handleDelete = (product) => {
+    Swal.fire({
+      title: "Xác nhận xóa",
+      text: `Bạn có chắc chắn muốn xóa sản phẩm này không?`,
+      icon: "warning",
+      showCancelButton: true,
+      width: "500px",
+      padding: "2em",
+      confirmButtonColor: "#dc3545",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Đồng ý, xóa",
+      cancelButtonText: "Hủy bỏ",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await productApi.remove(product.id);
+
+          fetchProducts();
+
+          toast.success(`Đã xóa sản phẩm thành công!`);
+        } catch (error) {
+          console.error("Lỗi khi xóa:", error);
+          const errorMessage =
+            error.response?.data?.message ||
+            "Có lỗi xảy ra, không thể xóa sản phẩm này!";
+
+          toast.error(errorMessage);
+        }
+      }
+    });
   };
 
   return (

@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import categoryApi from "../../../apis/CategoryApi";
 import productApi from "../../../apis/ProductApi";
 
+import Dropdown from "../../../components/admin/dropDown/Dropdown";
 import "./AddProductPage.css";
 
 function EditProductPage() {
@@ -37,6 +38,18 @@ function EditProductPage() {
   });
 
   const [errors, setErrors] = useState({});
+
+  const statusOptions = [
+  { label: "Đang kinh doanh", value: "active" },
+  { label: "Ngừng kinh doanh", value: "inactive" }
+];
+
+const sizeOptions = [
+  { label: "Size S", value: "S" },
+  { label: "Size M", value: "M" },
+  { label: "Size L", value: "L" },
+  { label: "Size XL", value: "XL" }
+];
 
   useEffect(() => {
     fetchCategories();
@@ -433,19 +446,13 @@ function EditProductPage() {
               <div className="form-row-flex">
                 <div className="input-group">
                   <label>Danh mục</label>
-                  <select
-                    name="categoryId"
-                    onChange={handleInputChange}
-                    value={product.categoryId}
-                    className={`form-control ${errors.categoryId ? "input-error" : ""}`}
-                  >
-                    <option value="">-- Chọn danh mục --</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className={`form-control-dropdown ${errors.categoryId ? "input-error" : ""}`}>
+                    <Dropdown
+                      options={categories.map(cat => ({ label: cat.name, value: cat.id }))}
+                      defaultValue={product.categoryId}
+                      onChange={(option) => handleInputChange({ target: { name: 'categoryId', value: option.value } })}
+                    />
+                  </div>
                   {errors.categoryId && (
                     <div className="error-message">{errors.categoryId}</div>
                   )}
@@ -453,15 +460,12 @@ function EditProductPage() {
 
                 <div className="input-group">
                   <label>Trạng thái</label>
-                  <select
-                    name="status"
-                    onChange={handleInputChange}
-                    value={product.status}
-                    className="form-control"
-                  >
-                    <option value="active">Đang kinh doanh</option>
-                    <option value="inactive">Ngừng kinh doanh</option>
-                  </select>
+                  <Dropdown
+                    options={statusOptions}
+                    defaultValue={product.status}
+                    placeholder="Chọn trạng thái"
+                    onChange={(option) => handleInputChange({ target: { name: 'status', value: option.value } })}
+                  />
                 </div>
               </div>
 
@@ -512,18 +516,14 @@ function EditProductPage() {
                     <div key={index} className="variant-wrapper">
                       <div className="variant-row-modern">
                         {!isSimpleProduct ? (
-                          <select
-                            value={v.size || "S"}
-                            onChange={(e) =>
-                              handleVariantChange(index, "size", e.target.value)
-                            }
-                            className="variant-column-select"
-                          >
-                            <option value="S">Size S</option>
-                            <option value="M">Size M</option>
-                            <option value="L">Size L</option>
-                            <option value="XL">Size XL</option>
-                          </select>
+                          <div style={{ width: "140px" }}>
+                            <Dropdown
+                              options={sizeOptions}
+                              defaultValue={v.size || "S"}
+                              placeholder="Chọn Size"
+                              onChange={(option) => handleVariantChange(index, "size", option.value)}
+                            />
+                          </div>
                         ) : (
                           <div
                             style={{

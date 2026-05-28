@@ -9,10 +9,11 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
-    List<Product> findByStatus(ProductsStatus status);
-    List<Product> findByStatusNot(ProductsStatus status);
-    List<Product> findByStatusOrderByIdDesc(ProductsStatus status);
+    List<Product> findByDeletedFalseOrderByIdDesc();
+    List<Product> findByDeletedTrueOrderByIdDesc();
     List<Product> findByCategoryId(Integer categoryId);
-    boolean existsByNameAndCategoryId(String name, Integer categoryId);
-    boolean existsByNameAndCategoryIdAndIdNot(String name, Integer categoryId, Integer id);
+    List<Product> findByCategoryIdAndDeletedFalse(Integer categoryId);
+    List<Product> findByStatusAndDeletedFalseOrderByIdDesc(ProductsStatus status);
+    boolean existsByNameAndCategoryIdAndDeletedFalse(String name, Integer categoryId);
+    boolean existsByNameAndCategoryIdAndIdNotAndDeletedFalse(String name, Integer categoryId, Integer id);
 }

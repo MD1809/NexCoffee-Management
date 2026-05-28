@@ -13,6 +13,8 @@ import java.util.List;
 @Builder
 public class OrderResponse {
     private Integer id;
+    private String staffName;
+    private String shipperName;
     private String code;
     private String customerName;
     private String phone;
@@ -30,6 +32,10 @@ public class OrderResponse {
     private String cancelReason;
 
     private LocalDateTime createdAt;
+
+    private LocalDateTime processedAt;
+    private LocalDateTime shippedAt;
+    private LocalDateTime completedAt;
 
     private List<OrderDetailResponse> items;
 }

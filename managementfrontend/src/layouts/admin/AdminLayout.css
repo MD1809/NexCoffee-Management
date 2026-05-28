@@ -16,7 +16,7 @@
 
     --btn-primary: linear-gradient(135deg, #1468e3, #3c72b6);
     --btn-text-primary: #ffff;
-    --btn-primary-hover: linear-gradient(135deg, #5a4fd6, #7a6af0);
+    --btn-primary-hover: linear-gradient(135deg, #1362d8, #386dac);
 
     /* button form */
     --btn-submit: #1468e3;
@@ -45,7 +45,7 @@
 
     --btn-primary: linear-gradient(135deg, #1468e3, #3c72b6);
     --btn-text-primary: #ffff;
-    --btn-primary-hover: linear-gradient(135deg, #5a4fd6, #7a6af0);
+    --btn-primary-hover: linear-gradient(135deg, #1362d8, #386dac);
 
     --btn-submit: #1468e3;
     --text-submit: #ffffff;
@@ -185,6 +185,6 @@
 .admin-main__body {
     display: flex;
     flex-direction: column;
-    padding: 20px 10px 80px;
+    padding: 20px 10px 0;
     margin-top: 70px;
 }

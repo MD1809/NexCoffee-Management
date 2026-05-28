@@ -1,16 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import { useParams, useNavigate } from "react-router-dom";
-import { FaArrowLeft } from "react-icons/fa";
+import { FaArrowLeft, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import {
   LuUser,
   LuPhone,
   LuMapPin,
   LuClock,
   LuCreditCard,
+  LuClipboardList,
+  LuCoffee,
+  LuTruck,
 } from "react-icons/lu";
+import Swal from "sweetalert2";
 
 import orderApi from "../../../apis/OrderApi";
+import userApi from "../../../apis/userApi"; // ĐÃ BỔ SUNG: Import API lấy user
 import Button from "../../../components/admin/button/Button";
 import "./OrderDetail.css";
 
@@ -20,36 +25,6 @@ const OrderDetail = () => {
 
   const [order, setOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-
-  const billRef = useRef();
-
-  const handlePrint = useReactToPrint({
-    contentRef: billRef,
-    documentTitle: `Hoa_Don_${order?.code || "NEX"}`,
-    onAfterPrint: () => console.log("In thành công!"),
-  });
-
-    const handleCancelOrder = async () => {
-    const reason = window.prompt("Vui lòng nhập lý do hủy đơn hàng:");
-
-    // Nếu người dùng nhấn Cancel hoặc để trống lý do thì không thực hiện tiếp
-    if (reason === null || reason.trim() === "") {
-      alert("Bạn phải nhập lý do để hủy đơn hàng.");
-      return;
-    }
-
-    const isConfirmed = window.confirm("Bạn có chắc chắn muốn HỦY đơn hàng này không?");
-    if (!isConfirmed) return;
-
-    try {
-      const response = await orderApi.updateOrderStatus(id, "Cancelled", reason);
-      setOrder(response.data);
-      alert("Đã hủy đơn hàng thành công!");
-    } catch (error) {
-      console.error("Lỗi khi hủy đơn hàng:", error);
-      alert("Không thể hủy đơn hàng. Vui lòng thử lại!");
-    }
-  };
 
   useEffect(() => {
     const fetchOrderDetail = async () => {
@@ -83,22 +58,184 @@ const OrderDetail = () => {
     });
   };
 
-  // Hàm xử lý cập nhật trạng thái đơn hàng
+  const billRef = useRef();
+
+  const handlePrint = useReactToPrint({
+    contentRef: billRef,
+    documentTitle: `Hoa_Don_${order?.code || "NEX"}`,
+    onAfterPrint: () => console.log("In thành công!"),
+  });
+
   const handleUpdateStatus = async (newStatus) => {
-    const isConfirmed = window.confirm(`Xác nhận chuyển sang: ${newStatus}?`);
-    if (!isConfirmed) return;
+    let shipperId = null;
+    let staffId = null;
+    let confirmResult;
 
+    if (newStatus === "Processing") {
+      const userStorage = localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser");
+      
+      if (userStorage) {
+        try {
+          // Dịch chuỗi JSON thành Object và lấy trường id
+          const userObj = JSON.parse(userStorage);
+          staffId = userObj.id; 
+        } catch (error) {
+          console.error("Lỗi khi đọc dữ liệu currentUser:", error);
+        }
+      }
+
+      confirmResult = await Swal.fire({
+        title: "Xác nhận đơn hàng",
+        text: "Bạn sẽ tiếp nhận và tiến hành pha chế đơn hàng này?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#1468e3",
+        cancelButtonColor: "rgb(154, 154, 154)",
+        confirmButtonText: "Xác nhận",
+        cancelButtonText: "Hủy bỏ",
+        reverseButtons: true,
+      });
+
+      if (!confirmResult.isConfirmed) return;
+    } 
+    
+    // TRƯỜNG HỢP 2: GIAO HÀNG (Lấy Shipper từ Database)
+    else if (newStatus === "Shipped") {
+      try {
+        // Gọi API lấy danh sách Shipper
+        const response = await userApi.getShippers();
+        const shippersFromDb = response.data;
+
+        // Chuyển mảng thành Object cho Swal hiển thị Dropdown
+        const shipperOptions = {};
+        shippersFromDb.forEach(shipper => {
+          shipperOptions[shipper.id] = shipper.fullName;
+        });
+
+        // Báo lỗi nếu không có shipper nào online/tồn tại
+        if (Object.keys(shipperOptions).length === 0) {
+          Swal.fire("Thông báo", "Hiện tại không có nhân viên giao hàng nào đang hoạt động!", "warning");
+          return;
+        }
+
+        const result = await Swal.fire({
+          title: "Chọn người giao hàng",
+          input: "select",
+          inputOptions: shipperOptions,
+          inputPlaceholder: "--- Chọn nhân viên ---",
+          showCancelButton: true,
+          confirmButtonColor: "#1468e3",
+          cancelButtonColor: "rgb(154, 154, 154)",
+          confirmButtonText: "Bắt đầu giao",
+          cancelButtonText: "Hủy",
+          reverseButtons: true,
+          inputValidator: (value) => {
+            if (!value) {
+              return "Bạn bắt buộc phải chọn người giao hàng!";
+            }
+          },
+        });
+
+        if (!result.isConfirmed) return;
+        shipperId = result.value;
+
+      } catch (error) {
+        console.error("Lỗi lấy danh sách Shipper:", error);
+        const errorMsg = error.response?.data?.message || "Không thể lấy danh sách nhân viên giao hàng.";
+        Swal.fire("Lỗi", errorMsg, "error");
+        return; 
+      }
+    } 
+    
+    // TRƯỜNG HỢP 3: HOÀN THÀNH (Hoặc các trạng thái khác)
+    else {
+      confirmResult = await Swal.fire({
+        title: "Hoàn thành đơn hàng",
+        text: "Khách hàng đã nhận được nước và thanh toán đầy đủ?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#22c55e",
+        cancelButtonColor: "rgb(154, 154, 154)",
+        confirmButtonText: "Đã hoàn thành",
+        cancelButtonText: "Hủy bỏ",
+        reverseButtons: true,
+      });
+
+      if (!confirmResult.isConfirmed) return;
+    }
+
+    // GỌI API CẬP NHẬT TRẠNG THÁI
     try {
-      const response = await orderApi.updateOrderStatus(id, newStatus);
-      setOrder(response.data);
+      const payload = {
+        status: newStatus,
+        shipperId: shipperId,
+        staffId: staffId
+      };
 
-      alert("Cập nhật trạng thái thành công!");
+      const response = await orderApi.updateOrderStatus(id, payload); 
+      setOrder(response.data);
+      
+      Swal.fire({
+        title: "Thành công!",
+        text: "Đã cập nhật trạng thái đơn hàng.",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false
+      });
+
     } catch (error) {
-      console.error("Lỗi:", error.response?.data || error.message);
+      console.error("Lỗi cập nhật:", error.response?.data || error.message);
+      Swal.fire({
+        title: "Thất bại!",
+        text: "Cập nhật trạng thái thất bại. Vui lòng thử lại.",
+        icon: "error",
+        confirmButtonColor: "#1468e3",
+      });
     }
   };
 
-  // Nếu đang tải dữ liệu
+  // Hàm xử lý hủy đơn hàng
+  const handleCancelOrder = async () => {
+    const { value: reason, isConfirmed } = await Swal.fire({
+      title: "Hủy đơn hàng",
+      input: "textarea",
+      inputLabel: "Vui lòng nhập lý do hủy đơn hàng:",
+      inputPlaceholder: "Nhập lý do tại đây...",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "rgb(154, 154, 154)",
+      confirmButtonText: "Xác nhận Hủy",
+      cancelButtonText: "Đóng",
+      reverseButtons: true,
+      inputValidator: (value) => {
+        if (!value || value.trim() === "") {
+          return "Bạn phải nhập lý do để hủy đơn hàng!";
+        }
+      },
+    });
+    if (!isConfirmed) return;
+
+    try {
+      // Cập nhật cách truyền tham số cho khớp API mới
+      const payload = {
+        status: "Cancelled",
+        cancelReason: reason
+      };
+      
+      const response = await orderApi.updateOrderStatus(id, payload);
+      setOrder(response.data);
+    } catch (error) {
+      console.error("Lỗi khi hủy đơn hàng:", error);
+      Swal.fire({
+        title: "Lỗi!",
+        text: "Không thể hủy đơn hàng. Vui lòng thử lại!",
+        icon: "error",
+        confirmButtonColor: "#1468e3",
+      });
+    }
+  };
+
   if (isLoading)
     return (
       <div style={{ padding: "20px", textAlign: "center" }}>
@@ -106,7 +243,6 @@ const OrderDetail = () => {
       </div>
     );
 
-  // Nếu không tìm thấy đơn hàng
   if (!order)
     return (
       <div style={{ padding: "20px", textAlign: "center" }}>
@@ -114,10 +250,41 @@ const OrderDetail = () => {
       </div>
     );
 
-  // Logic xác định trạng thái Timeline
-  const statusSteps = ["Pending", "Processing", "Shipped", "Completed"];
-  const currentStepIndex = statusSteps.indexOf(order.status);
+  const statusSteps = [
+    { 
+      id: "Pending", 
+      label: "Chờ nhận đơn", 
+      icon: LuClipboardList,
+      actor: order.staffName ? `Người nhận: ${order.staffName}` : "",
+      time: order.processedAt ? formatDate(order.processedAt) : "" 
+    },
+    { 
+      id: "Processing", 
+      label: "Đang pha chế", 
+      icon: LuCoffee,
+      actor: order.staffName ? `Người thực hiện: ${order.staffName}` : "",
+      time: order.processedAt ? formatDate(order.processedAt) : "" 
+    },
+    { 
+      id: "Shipped", 
+      label: "Đang giao hàng", 
+      icon: LuTruck,
+      actor: order.shipperName ? `Người giao: ${order.shipperName}` : "",
+      time: order.shippedAt ? formatDate(order.shippedAt) : ""
+    },
+    { 
+      id: "Completed", 
+      label: "Hoàn thành", 
+      icon: FaCheckCircle,
+      actor: order.shipperName ? `Giao bởi: ${order.shipperName}` : "",
+      // Tạm chờ backend bổ sung trường completedAt
+      time: order.completedAt ? formatDate(order.completedAt) : ""
+    },
+  ];
+
+  const currentStepIndex = statusSteps.findIndex((step) => step.id === order.status);
   const isCancelled = order.status === "Cancelled";
+  const progressWidth = currentStepIndex > 0 ? `${(currentStepIndex / (statusSteps.length - 1)) * 100}%` : "0%";
 
   return (
     <div className="order-container">
@@ -130,103 +297,74 @@ const OrderDetail = () => {
         <div className="order-card">
           <h2 className="section-title">Trạng thái đơn hàng: {order.code}</h2>
 
-          {!isCancelled && order.status !== "Completed" && (
-            <div style={{ marginTop: "10px" }}>
-              <Button buttonName="Hủy đơn hàng" onClick={handleCancelOrder} />
-            </div>
-          )}
+          <div className="modern-timeline">
+            {isCancelled ? (
+              <div className="timeline-cancelled-state">
+                <div className="step-icon-wrapper cancelled">
+                  <FaTimesCircle size={24} />
+                </div>
+                <div className="cancelled-text">
+                  <p className="step-label cancelled">Đơn hàng đã bị hủy</p>
 
-          {!isCancelled && (
-            <div className="timeline">
-              <div className="timeline-line"></div>
-
-              <div
-                className={`timeline-step ${currentStepIndex < 0 ? "step-opacity" : ""}`}
-              >
-                <div
-                  className={`step-icon ${currentStepIndex >= 1 ? "done" : currentStepIndex === 0 ? "active" : "pending"}`}
-                >
-                  {currentStepIndex >= 1 ? (
-                    "✓"
-                  ) : currentStepIndex === 0 ? (
-                    <div className="active-dot"></div>
-                  ) : (
-                    ""
+                  {order.cancelReason && (
+                    <p
+                      className="cancel-reason"
+                      style={{ textAlign: "center" }}
+                    >
+                      Lý do: {order.cancelReason}
+                    </p>
                   )}
                 </div>
-                <div className="step-text">
-                  <p
-                    className={`step-title ${currentStepIndex === 0 ? "active-text" : ""}`}
-                  >
-                    Chờ nhận đơn
-                  </p>
-                </div>
               </div>
-
-              <div
-                className={`timeline-step ${currentStepIndex < 1 ? "step-opacity" : ""}`}
-              >
+            ) : (
+              <div className="timeline-track-container">
+                {/* Thanh tiến trình xám (nền) */}
+                <div className="timeline-progress-bg"></div>
+                {/* Thanh tiến trình màu (chạy theo status) */}
                 <div
-                  className={`step-icon ${currentStepIndex >= 2 ? "done" : currentStepIndex === 1 ? "active" : "pending"}`}
-                >
-                  {currentStepIndex >= 2 ? (
-                    "✓"
-                  ) : currentStepIndex === 1 ? (
-                    <div className="active-dot"></div>
-                  ) : (
-                    ""
-                  )}
-                </div>
-                <div className="step-text">
-                  <p
-                    className={`step-title ${currentStepIndex === 1 ? "active-text" : ""}`}
-                  >
-                    Đang pha chế
-                  </p>
-                </div>
-              </div>
+                  className="timeline-progress-fill"
+                  style={{ width: progressWidth }}
+                ></div>
 
-              <div
-                className={`timeline-step ${currentStepIndex < 2 ? "step-opacity" : ""}`}
-              >
-                <div
-                  className={`step-icon ${currentStepIndex >= 3 ? "done" : currentStepIndex === 2 ? "active" : "pending"}`}
-                >
-                  {currentStepIndex >= 3 ? (
-                    "✓"
-                  ) : currentStepIndex === 2 ? (
-                    <div className="active-dot"></div>
-                  ) : (
-                    ""
-                  )}
-                </div>
-                <div className="step-text">
-                  <p
-                    className={`step-title ${currentStepIndex === 2 ? "active-text" : ""}`}
-                  >
-                    Đang giao hàng
-                  </p>
-                </div>
-              </div>
+                <div className="timeline-steps-wrapper">
+                  {statusSteps.map((step, index) => {
+                    const Icon = step.icon;
+                    const isCompleted = index <= currentStepIndex;
+                    const isActive = index === currentStepIndex;
 
-              <div
-                className={`timeline-step ${currentStepIndex < 3 ? "step-opacity" : ""}`}
-              >
-                <div
-                  className={`step-icon ${currentStepIndex === 3 ? "done" : "pending"}`}
-                >
-                  {currentStepIndex === 3 ? "✓" : ""}
-                </div>
-                <div className="step-text">
-                  <p
-                    className={`step-title ${currentStepIndex === 3 ? "active-text" : ""}`}
-                  >
-                    Hoàn thành
-                  </p>
+                    return (
+                      <div key={step.id} className="timeline-step" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div
+                          className={`step-icon-wrapper ${isCompleted ? "completed" : ""} ${isActive ? "active" : ""}`}
+                        >
+                          <Icon size={22} />
+                        </div>
+                        
+                        {/* Khu vực hiển thị thông tin Text */}
+                        <div style={{ textAlign: 'center', marginTop: '12px' }}>
+                            <p className={`step-label ${isCompleted ? "text-dark" : "text-gray"}`} style={{ margin: 0, fontWeight: isActive ? 'bold' : 'normal' }}>
+                              {step.label}
+                            </p>
+                            
+                            {/* Chỉ hiển thị người thao tác & thời gian khi bước đó đã hoàn thành hoặc đang xử lý */}
+                            {isCompleted && step.actor && (
+                                <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#1468e3', fontWeight: '500' }}>
+                                    {step.actor}
+                                </p>
+                            )}
+                            {isCompleted && step.time && (
+                                <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#888' }}>
+                                    {step.time}
+                                </p>
+                            )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* nội dung */}
@@ -313,47 +451,58 @@ const OrderDetail = () => {
           <div className="order-grid-right">
             <div className="order-card">
               <h2 className="section-title">Thao tác quản trị</h2>
-              <div>
-                {/* Nút động theo trạng thái */}
-                {!isCancelled && order.status !== "Completed" && (
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "10px",
-                      marginBottom: "10px",
-                    }}
-                  >
-                    {order.status === "Pending" && (
+              <div
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <div
+                  style={{
+                    minWidth: "80%",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "20px",
+                  }}
+                >
+                  {!isCancelled && order.status !== "Completed" && (
+                    <>
+                      {order.status === "Pending" && (
+                        <Button
+                          buttonName="Xác nhận đơn hàng"
+                          onClick={() => handleUpdateStatus("Processing")}
+                        />
+                      )}
+
+                      {order.status === "Processing" && (
+                        <Button
+                          buttonName="Giao hàng"
+                          onClick={() => handleUpdateStatus("Shipped")}
+                        />
+                      )}
+
+                      {order.status === "Shipped" && (
+                        <Button
+                          buttonName="Hoàn thành đơn hàng"
+                          onClick={() => handleUpdateStatus("Completed")}
+                        />
+                      )}
+                    </>
+                  )}
+
+                  <Button buttonName="In hóa đơn" onClick={handlePrint} />
+
+                  {!isCancelled && order.status !== "Completed" && (
+                    <>
                       <Button
-                        buttonName="Duyệt & Pha chế"
-                        onClick={() => handleUpdateStatus("Processing")}
+                        buttonName="Hủy đơn hàng"
+                        onClick={handleCancelOrder}
+                        className="dangerButton"
                       />
-                    )}
-
-                    {order.status === "Processing" && (
-                      <Button
-                        buttonName="Giao hàng"
-                        onClick={() => handleUpdateStatus("Shipped")}
-                      />
-                    )}
-
-                    {order.status === "Shipped" && (
-                      <Button
-                        buttonName="Đã giao thành công"
-                        onClick={() => handleUpdateStatus("Completed")}
-                      />
-                    )}
-                  </div>
-                )}
-
-                <Button buttonName="In hóa đơn" onClick={handlePrint} />
-
-                {/* Nút hủy tạm thời để đó, chưa gắn sự kiện
-                {!isCancelled && order.status !== "Completed" && (
-                  <>
-                    <button className="btn btn-secondary">Hủy đơn hàng</button>
-                  </>
-                )} */}
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -411,10 +560,9 @@ const OrderDetail = () => {
                   <div>
                     <p className="info-label">Thanh toán</p>
                     <p className="info-value">
-                      <span className="payment-tag">{order.paymentMethod}</span>
                       {order.paymentStatus === "paid"
-                        ? " (Đã thanh toán)"
-                        : " (Chưa thanh toán)"}
+                        ? " Đã thanh toán"
+                        : " Chưa thanh toán"}
                     </p>
                   </div>
                 </div>

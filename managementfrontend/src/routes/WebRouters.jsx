@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ScrollToTop from "../utils/ScrollToTop";
+
 import UserLayout from "../layouts/user/UserLayout";
 import Home from "../pages/user/Home";
 import Login from "../pages/user/auth/login/Login";
@@ -27,16 +29,19 @@ import ProductsPage from "../pages/admin/product/Products";
 import AddProductPage from "../pages/admin/product/AddProductPage";
 import EditProductPage from "../pages/admin/product/EditProductPage";
 import ProductDetailPage from "../pages/admin/product/ProductDetail";
-import UsersPage from "../pages/admin/Users";
+import UsersPage from "../pages/admin/user/Users";
 import OrderPage from "../pages/admin/order/Order";
 import OrderDetailPage from "../pages/admin/order/OrderDetail";
 import DeliveryAreasPage from "../pages/admin/delivery-area/DeliveryAreasPage";
 import AddDeliveryAreaPage from "../pages/admin/delivery-area/AddDeliveryAreaPage";
 import EditDeliveryAreaPage from "../pages/admin/delivery-area/EditDeliveryAreaPage";
+import DailyReportPage from "../pages/admin/dailydashboard/DailyReport";
+import PosPage from "../pages/admin/pos/Pos";
 
 function WebRouters() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         {/* User routes */}
         <Route path="/" element={<UserLayout />}>
@@ -66,19 +71,24 @@ function WebRouters() {
           element={
             <ProtectedRoute allowedRoles={["ADMIN"]}>
               <AdminLayout />
-              <UserCheckout />
+              {/* <UserCheckout /> */}
             </ProtectedRoute>
           }
         >
           <Route index element={<DashBoardPage />} />
           <Route path="categories" element={<CategoriesPage />} />
-          <Route path="categories/detail/:id" element={<CategoryDetailPage />} />
+          <Route
+            path="categories/detail/:id"
+            element={<CategoryDetailPage />}
+          />
           <Route path="products" element={<ProductsPage />} />
           <Route path="products/add" element={<AddProductPage />} />
           <Route path="products/edit/:id" element={<EditProductPage />} />
           <Route path="products/detail/:id" element={<ProductDetailPage />} />
-          <Route path="users" element={<UsersPage />} />
+          <Route path="pos" element={<PosPage />} />
           <Route path="orders" element={<OrderPage />} />
+          <Route path="daily-report" element={<DailyReportPage />} />
+          <Route path="users" element={<UsersPage />} />
           <Route path="orders/detail/:id" element={<OrderDetailPage />} />
           <Route path="delivery-areas" element={<DeliveryAreasPage />} />
           <Route path="delivery-areas/add" element={<AddDeliveryAreaPage />} />

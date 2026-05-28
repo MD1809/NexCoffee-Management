@@ -27,15 +27,23 @@
 }
 
 .cg-info-title {
-    font-size: 1.5rem;
+    font-size: 24px;
     color: var(--text-primary);
     margin: 0;
 }
 
 .cg-info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
+    display: flex;
+    padding: 0 80px;
+    gap: 60px;
+}
+
+.cg-info-grid__left,
+.cg-info-grid__right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
 }
 
 .cg-info-item {
@@ -45,13 +53,12 @@
 }
 
 .cg-info-label {
-    font-size: 16px;
+    font-size: 18px;
     color: var(--text-primary);
-    font-weight: 500;
 }
 
 .cg-info-value {
-    font-size: 1rem;
+    font-size: 16px;
     color: var(--text-primary);
 }
 
@@ -66,40 +73,34 @@
 
 .products-title {
     margin: 0;
-    font-size: 1.25rem;
+    font-size: 24px;
     color: var(--text-primary);
 }
 
-
-/* .search-input:focus {
-  border-color: var(--sidebar-active-dark);
-  box-shadow: 0 0 0 3px var(--sidebar-active-blur);
-} */
-
-.status-badge {
+.cg-status-badge {
     display: inline-block;
     padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.85rem;
+    border-radius: 6px;
+    font-size: 14px;
     font-weight: 600;
     width: fit-content;
 }
 
-.status-badge.active {
+.cg-status-badge.active {
     background-color: rgba(40, 167, 69, 0.1);
     color: #28a745;
 }
 
-.status-badge.inactive {
+.cg-status-badge.inactive {
     background-color: rgba(220, 53, 69, 0.1);
     color: #dc3545;
 }
 
-[data-theme='light'] .status-badge.active {
+[data-theme='light'] .cg-status-badge.active {
     background-color: #d4edda;
 }
 
-[data-theme='light'] .status-badge.inactive {
+[data-theme='light'] .cg-status-badge.inactive {
     background-color: #f8d7da;
 }
 

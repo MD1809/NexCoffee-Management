@@ -28,6 +28,10 @@
     background-color: transparent;
 }
 
+.search-box:focus-within {
+    border-color: var(--sidebar-active-dark);
+    box-shadow: 0 0 0 3px var(--sidebar-active-blur);
+}
 
 .search-box__icon:hover {
     cursor: pointer;

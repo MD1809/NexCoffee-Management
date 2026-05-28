@@ -40,4 +40,7 @@ public class Product {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "deleted", nullable = false)
+    private boolean deleted = false;
 }

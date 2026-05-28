@@ -75,6 +75,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/orders/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/delivery-areas/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/pos/**").permitAll()
 
                         // Customer APIs sau này
                         .requestMatchers("/api/cart/**").permitAll()

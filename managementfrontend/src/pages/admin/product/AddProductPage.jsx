@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import categoryApi from "../../../apis/CategoryApi";
 import productApi from "../../../apis/ProductApi";
 
+import Dropdown from "../../../components/admin/dropDown/Dropdown";
 import "./AddProductPage.css";
 
 function AddProductPage() {
@@ -35,6 +36,18 @@ function AddProductPage() {
   });
 
   const [errors, setErrors] = useState({});
+
+  const statusOptions = [
+    { label: "Đang kinh doanh", value: "active" },
+    { label: "Ngừng kinh doanh", value: "inactive" },
+  ];
+
+  const sizeOptions = [
+    { label: "Size S", value: "S" },
+    { label: "Size M", value: "M" },
+    { label: "Size L", value: "L" },
+    { label: "Size XL", value: "XL" },
+  ];
 
   useEffect(() => {
     fetchCategories();
@@ -68,6 +81,9 @@ function AddProductPage() {
     if (!product.name.trim()) {
       newErrors.name = "Tên sản phẩm không được để trống.";
     }
+    if (product.description.length > 255) {
+      newErrors.description = "Mô tả sản phẩm không được vượt quá 255 ký tự.";
+    }
     if (!product.categoryId) {
       newErrors.categoryId = "Vui lòng chọn danh mục cho sản phẩm.";
     }
@@ -76,7 +92,6 @@ function AddProductPage() {
     }
 
     const variantErrors = [];
-    // Tùy thuộc vào chế độ đang chọn để lấy mảng variants tương ứng đi validate
     const activeVariants = isSimpleProduct ? variantSimple : variantsWithSize;
 
     activeVariants.forEach((v, index) => {
@@ -213,19 +228,18 @@ function AddProductPage() {
     } catch (error) {
       if (error.response && error.response.data) {
         const errorData = error.response.data;
-        
+
         // 1. Lỗi từ @Valid (ví dụ: thiếu giá trị bắt buộc)
         if (errorData.errors) {
           setErrors(errorData.errors);
           toast.error("Vui lòng kiểm tra lại dữ liệu nhập!");
-        } 
+        }
         // 2. Lỗi Custom từ Backend (ví dụ: Trùng tên cùng danh mục)
         else if (errorData.message) {
           toast.error(errorData.message);
           // Gán lỗi vào ô tên sản phẩm để hiện chữ đỏ bên dưới ô input
-          setErrors({ name: errorData.message }); 
-        } 
-        else {
+          setErrors({ name: errorData.message });
+        } else {
           toast.error("Có lỗi xảy ra khi lưu sản phẩm!");
         }
       } else {
@@ -369,18 +383,23 @@ function AddProductPage() {
               <div className="form-row-flex">
                 <div className="input-group">
                   <label>Danh mục</label>
-                  <select
-                    name="categoryId"
-                    onChange={handleInputChange}
-                    className={`form-control ${errors.categoryId ? "input-error" : ""}`}
+                  <div
+                    className={`form-control-dropdown ${errors.categoryId ? "input-error" : ""}`}
                   >
-                    <option value="">-- Chọn danh mục --</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
+                    <Dropdown
+                      options={categories.map((cat) => ({
+                        label: cat.name,
+                        value: cat.id,
+                      }))}
+                      defaultValue={product.categoryId}
+                      placeholder="-- Chọn danh mục --"
+                      onChange={(option) =>
+                        handleInputChange({
+                          target: { name: "categoryId", value: option.value },
+                        })
+                      }
+                    />
+                  </div>
                   {errors.categoryId && (
                     <div className="error-message">{errors.categoryId}</div>
                   )}
@@ -388,14 +407,16 @@ function AddProductPage() {
 
                 <div className="input-group">
                   <label>Trạng thái</label>
-                  <select
-                    name="status"
-                    onChange={handleInputChange}
-                    className="form-control"
-                  >
-                    <option value="active">Đang kinh doanh</option>
-                    <option value="inactive">Ngừng kinh doanh</option>
-                  </select>
+                  <Dropdown
+                    options={statusOptions}
+                    defaultValue={product.status}
+                    placeholder="Chọn trạng thái"
+                    onChange={(option) =>
+                      handleInputChange({
+                        target: { name: "status", value: option.value },
+                      })
+                    }
+                  />
                 </div>
               </div>
 
@@ -408,6 +429,9 @@ function AddProductPage() {
                   rows="5"
                   className="form-control"
                 />
+                {errors.description && (
+                  <div className="error-message">{errors.description}</div>
+                )}
               </div>
             </div>
 
@@ -448,18 +472,16 @@ function AddProductPage() {
                     <div key={index} className="variant-wrapper">
                       <div className="variant-row-modern">
                         {!isSimpleProduct ? (
-                          <select
-                            value={v.size || "S"}
-                            onChange={(e) =>
-                              handleVariantChange(index, "size", e.target.value)
-                            }
-                            className="variant-column-select"
-                          >
-                            <option value="S">Size S</option>
-                            <option value="M">Size M</option>
-                            <option value="L">Size L</option>
-                            <option value="XL">Size XL</option>
-                          </select>
+                          <div style={{ width: "140px" }}>
+                            <Dropdown
+                              options={sizeOptions}
+                              defaultValue={v.size || "S"}
+                              placeholder="Chọn Size"
+                              onChange={(option) =>
+                                handleVariantChange(index, "size", option.value)
+                              }
+                            />
+                          </div>
                         ) : (
                           <div
                             style={{

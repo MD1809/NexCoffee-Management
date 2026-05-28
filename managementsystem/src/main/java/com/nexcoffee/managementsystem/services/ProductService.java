@@ -110,15 +110,60 @@ public class ProductService {
         return res;
     }
 
+    private ProductResponse toProductResponseActiveVariant(Product product) {
+        ProductResponse res = new ProductResponse();
+        res.setId(product.getId());
+        res.setName(product.getName());
+        res.setDescription(product.getDescription());
+        res.setStatus(product.getStatus());
+
+        if (product.getCategory() != null) {
+            res.setCategoryId(product.getCategory().getId());
+            res.setCategoryName(product.getCategory().getName());
+        }
+
+        // Lấy ảnh chính (giữ nguyên logic)
+        if (product.getImages() != null) {
+            product.getImages().stream()
+                    .filter(ProductImage::getIsMain)
+                    .findFirst()
+                    .ifPresent(img -> res.setMainImage(new ImageProductResponse(img.getId(), img.getImageUrl())));
+        }
+
+        // 2. LOGIC LỌC RIÊNG CHO POS: Chỉ lấy variant "available"
+        if (product.getVariants() != null) {
+            List<ProductVariantResponse> variantResponses = product.getVariants().stream()
+                    .filter(v -> v.getStatus() == ProductVariantStatus.available) // Lọc ở đây
+                    .map(v -> {
+                        ProductVariantResponse vr = new ProductVariantResponse();
+                        vr.setId(v.getId());
+                        vr.setSize(v.getSize());
+                        vr.setPrice(v.getPrice());
+                        vr.setStatus(v.getStatus());
+                        return vr;
+                    }).collect(Collectors.toList());
+            res.setVariants(variantResponses);
+        }
+
+        return res;
+    }
+
     public List<ProductResponse> getProductsForAdmin() {
-        return productRepository.findByStatusNot(ProductsStatus.deleted).stream()
-                .map(this::toProductResponse)
+        return productRepository.findByDeletedFalseOrderByIdDesc().stream()
+                .map(this::toProductResponseActiveVariant)
                 .collect(Collectors.toList());
     }
 
     public List<ProductResponse> getTrashedProducts() {
-        return productRepository.findByStatusOrderByIdDesc(ProductsStatus.deleted).stream()
+        return productRepository.findByDeletedTrueOrderByIdDesc().stream()
                 .map(this::toProductResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductResponse> getAllActiveProductsVariant() {
+        return productRepository.findByStatusAndDeletedFalseOrderByIdDesc(ProductsStatus.active)
+                .stream()
+                .map(this::toProductResponseActiveVariant)
                 .collect(Collectors.toList());
     }
 
@@ -134,7 +179,7 @@ public class ProductService {
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Danh mục (Category) không tồn tại "));
 
-        if (productRepository.existsByNameAndCategoryId(request.getName(), request.getCategoryId())) {
+        if (productRepository.existsByNameAndCategoryIdAndDeletedFalse(request.getName(), request.getCategoryId())) {
             throw new InvalidOperationException("Tên sản phẩm này đã tồn tại trong danh mục được chọn!");
         }
 
@@ -234,7 +279,7 @@ public class ProductService {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm với ID: " + id));
 
-        if (productRepository.existsByNameAndCategoryIdAndIdNot(request.getName(), request.getCategoryId(), id)) {
+        if (productRepository.existsByNameAndCategoryIdAndIdNotAndDeletedFalse(request.getName(), request.getCategoryId(), id)) {
             throw new InvalidOperationException("Tên sản phẩm này đã tồn tại trong danh mục được chọn!");
         }
 
@@ -380,16 +425,20 @@ public class ProductService {
             Product product = productRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm với ID: " + id));
 
-            if (product.getStatus() == ProductsStatus.deleted) {
+            // Kiểm tra xem đã bị xóa mềm chưa
+            if (product.isDeleted()) {
                 System.err.println("Thao tác lỗi: Cố gắng xóa sản phẩm đã bị xóa trước đó. ID: " + id);
                 throw new InvalidOperationException("Sản phẩm này đã nằm trong thùng rác.");
             }
 
-            product.setStatus(ProductsStatus.deleted);
+            // Bật cờ deleted thay vì đổi status
+            product.setDeleted(true);
+            // product.setStatus(...) // BỎ ĐI, giữ nguyên status hiện tại để sau này khôi phục lại đúng trạng thái cũ
             product.setUpdatedAt(LocalDateTime.now());
 
             productRepository.save(product);
 
+            // Giảm số lượng sản phẩm của Category
             Category category = product.getCategory();
             if (category != null) {
                 int count = category.getProductCount() == null ? 0 : category.getProductCount();
@@ -409,16 +458,27 @@ public class ProductService {
             Product product = productRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm với ID: " + id));
 
-            if (product.getStatus() != ProductsStatus.deleted) {
-                System.err.println("Thao tác lỗi: Cố gắng khôi phục sản phẩm đang không ở trạng thái DELETED. ID: " + id);
+            // Kiểm tra xem sản phẩm có thực sự ở trong thùng rác không
+            if (!product.isDeleted()) {
+                System.err.println("Thao tác lỗi: Cố gắng khôi phục sản phẩm không bị xóa. ID: " + id);
                 throw new InvalidOperationException("Sản phẩm này không nằm trong thùng rác.");
             }
 
-            product.setStatus(ProductsStatus.inactive);
+            if (product.getCategory() != null) {
+                boolean isNameTaken = productRepository.existsByNameAndCategoryIdAndDeletedFalse(
+                        product.getName(), product.getCategory().getId()
+                );
+                if (isNameTaken) {
+                    throw new InvalidOperationException("Không thể khôi phục vì đã có một sản phẩm khác mang tên '" + product.getName() + "' đang hoạt động trong danh mục này!");
+                }
+            }
+
+            product.setDeleted(false);
             product.setUpdatedAt(LocalDateTime.now());
 
             productRepository.save(product);
 
+            // Tăng lại số lượng sản phẩm của Category
             Category category = product.getCategory();
             if (category != null) {
                 int count = category.getProductCount() == null ? 0 : category.getProductCount();

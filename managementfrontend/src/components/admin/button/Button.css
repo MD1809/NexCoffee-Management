@@ -1,13 +1,64 @@
-.button {
-  background: var(--btn-primary);
-  color: var(--btn-text-primary);
-  border: none;
+
+/* --- Style Mặc Định Cho Component Button --- */
+
+.Button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   padding: 10px 16px;
   border-radius: 6px;
+  border: none;
+  background: var(--btn-primary);
+  color: var(--btn-text-primary);
+  font-size: 16px;
   cursor: pointer;
-  font-weight: 600;
+  outline: none;
+  transition: all 0.2s ease-in-out;
 }
 
-.button:hover {
+.Button:hover {
   background-color: var(--btn-primary-hover);
 }
+
+.Button:active {
+  transform: scale(0.96);
+}
+
+.icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.textButton {
+  line-height: 1;
+}
+
+
+/* --- CÁC CLASS MỞ RỘNG (Dùng qua prop className) --- */
+
+/* Ví dụ: <Button className="addButton" /> */
+.Button {
+  background: var(--btn-primary);
+  color: var(--btn-text-primary);
+}
+
+.Button:hover {
+  background: var(--btn-primary-hover);
+}
+
+.Button.dangerButton {
+  background: #ef4444 !important;  
+  color: var(--btn-text-primary) !important;
+}
+
+.Button.dangerButton:hover {
+  background: #dc2626 !important;
+}
+
+/* .Button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+} */

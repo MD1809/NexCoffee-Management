@@ -3,7 +3,12 @@
   user-select: none;
 }
 
+.dropdown-menu::-webkit-scrollbar {
+  display: none;
+}
+
 .dropdown-toggle {
+  width: 100%;
   padding: 10px 16px;
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-primary-color);
@@ -12,7 +17,6 @@
   font-size: 14px;
   text-align: left;
   display: flex;
-  gap: 80px;
   justify-content: space-between;
   align-items: center;
   cursor: pointer;

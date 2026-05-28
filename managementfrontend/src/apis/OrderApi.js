@@ -1,7 +1,7 @@
 import axiosClient from "./axiosClient";
 
 const orderApi = {
-  // Lấy danh sách category
+  // Lấy danh sách đơn hàng
   getAll: (date) => {
     let url = "/orders";
     if (date) {
@@ -9,7 +9,7 @@ const orderApi = {
     }
     return axiosClient.get(url);
   },
-  
+
   getToday: () => {
     return axiosClient.get("/orders/today");
   },
@@ -19,11 +19,9 @@ const orderApi = {
     return axiosClient.get(`/orders/${id}`);
   },
 
-  // Cập nhập trạng thánh đơn hàng
-  
-  updateOrderStatus: (id, status) => {
-  return axiosClient.patch(`/orders/${id}/status?status=${status}`);
-}
+  updateOrderStatus: (id, payload) => {
+    return axiosClient.patch(`/orders/${id}/status`, payload);
+  },
 };
 
 export default orderApi;

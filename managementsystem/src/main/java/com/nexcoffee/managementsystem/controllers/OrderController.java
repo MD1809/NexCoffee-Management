@@ -1,11 +1,12 @@
 package com.nexcoffee.managementsystem.controllers;
 
 import com.nexcoffee.managementsystem.dto.request.OrderRequest;
+import com.nexcoffee.managementsystem.dto.request.OrderStatusUpdateRequest;
 import com.nexcoffee.managementsystem.dto.response.OrderDetailResponse;
 import com.nexcoffee.managementsystem.dto.response.OrderResponse;
 import com.nexcoffee.managementsystem.entities.Order;
-import com.nexcoffee.managementsystem.enums.OrderStatus;
 import com.nexcoffee.managementsystem.enums.PaymentStatus;
+import com.nexcoffee.managementsystem.repositories.OrderDetailRepository;
 import com.nexcoffee.managementsystem.services.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -24,14 +25,62 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    // ==============================================================================
+    // PHẦN 1: CÁC API MỚI DÀNH RIÊNG CHO TRANG DASHBOARD THỐNG KÊ
+    // ==============================================================================
+
+    // 1. Lấy tổng doanh thu trong ngày
+    @GetMapping("/dashboard/revenue")
+    public ResponseEntity<Long> getDashboardRevenue(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        Long revenue = orderService.getRevenueByDate(date);
+        return ResponseEntity.ok(revenue != null ? revenue : 0L);
+    }
+
+    // 2. Lấy thống kê số lượng từng món bán được trong ngày
+    @GetMapping("/dashboard/sales-stats")
+    public ResponseEntity<List<OrderDetailRepository.ProductSaleStats>> getDashboardProductSales(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return ResponseEntity.ok(orderService.getProductSalesStatsByDate(date));
+    }
+
+    // 3. Lấy danh sách đơn hàng chi tiết (Kèm thông tin ai bán, ai giao)
+    @GetMapping("/dashboard/list")
+    public ResponseEntity<List<OrderResponse>> getDashboardOrders(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        List<Order> orders = orderService.getOrdersWithStaffInfoByDate(date);
+
+        List<OrderResponse> response = orders.stream()
+                .map(this::mapToDashboardResponseSummary)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
+    }
+
+    // Mapper riêng cho Dashboard để lấy thêm tên nhân viên và shipper
+    private OrderResponse mapToDashboardResponseSummary(Order order) {
+        OrderResponse response = mapToResponseSummary(order);
+        // Bổ sung thông tin nhân sự (Yêu cầu bạn thêm 2 trường này vào class OrderResponse)
+        if (order.getStaff() != null) {
+            response.setStaffName(order.getStaff().getFullName()); // Giả sử entity User có getFullName()
+        }
+        if (order.getShipper() != null) {
+            response.setShipperName(order.getShipper().getFullName());
+        }
+        return response;
+    }
+
+
+    // ==============================================================================
+    // PHẦN 2: CÁC API HIỆN TẠI (GIỮ NGUYÊN ĐỂ KHÔNG ẢNH HƯỞNG TRANG CŨ)
+    // ==============================================================================
+
     @GetMapping("/today")
     public ResponseEntity<List<OrderResponse>> getTodayOrders() {
         List<Order> orders = orderService.getOrdersToday();
-
         List<OrderResponse> response = orders.stream()
                 .map(this::mapToResponseSummary)
                 .collect(Collectors.toList());
-
         return ResponseEntity.ok(response);
     }
 
@@ -40,16 +89,14 @@ public class OrderController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
         List<Order> orders = orderService.getAllOrders(date);
-
         List<OrderResponse> response = orders.stream()
                 .map(this::mapToResponseSummary)
                 .collect(Collectors.toList());
-
         return ResponseEntity.ok(response);
     }
 
     private OrderResponse mapToResponseSummary(Order order) {
-        return OrderResponse.builder()
+        OrderResponse response = OrderResponse.builder()
                 .id(order.getId())
                 .code(order.getCode())
                 .customerName(order.getFullName())
@@ -60,7 +107,21 @@ public class OrderController {
                 .paymentStatus(order.getPaymentStatus())
                 .status(order.getStatus())
                 .createdAt(order.getCreatedAt())
+                // 👇 BỔ SUNG 3 MỐC THỜI GIAN
+                .processedAt(order.getProcessedAt())
+                .shippedAt(order.getShippedAt())
+                .completedAt(order.getCompletedAt())
                 .build();
+
+        // Bổ sung tên nhân viên & shipper cho các API dạng danh sách
+        if (order.getStaff() != null) {
+            response.setStaffName(order.getStaff().getFullName());
+        }
+        if (order.getShipper() != null) {
+            response.setShipperName(order.getShipper().getFullName());
+        }
+
+        return response;
     }
 
     @GetMapping("/{id}")
@@ -76,18 +137,23 @@ public class OrderController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    // API Cập nhật trạng thái đơn (Ví dụ: Chuyển từ Pending sang Processing)
     @PatchMapping("/{id}/status")
     public ResponseEntity<OrderResponse> updateOrderStatus(
             @PathVariable Integer id,
-            @RequestParam OrderStatus status,
-            @RequestParam(required = false) String cancelReason // Chỉ bắt buộc khi status = Cancelled
+            @RequestBody OrderStatusUpdateRequest request
     ) {
-        Order updatedOrder = orderService.updateOrderStatus(id, status, cancelReason);
+        // Truyền đầy đủ shipperId và staffId vào service
+        Order updatedOrder = orderService.updateOrderStatus(
+                id,
+                request.getStatus(),
+                request.getCancelReason(),
+                request.getShipperId(),
+                request.getStaffId()
+        );
+
         return ResponseEntity.ok(mapToResponse(updatedOrder));
     }
 
-    // API Cập nhật trạng thái thanh toán (Ví dụ: Đã trả tiền, Đã hoàn tiền)
     @PatchMapping("/{id}/payment-status")
     public ResponseEntity<OrderResponse> updatePaymentStatus(
             @PathVariable Integer id,
@@ -98,7 +164,7 @@ public class OrderController {
     }
 
     private OrderResponse mapToResponse(Order order) {
-        return OrderResponse.builder()
+        OrderResponse response = OrderResponse.builder()
                 .id(order.getId())
                 .code(order.getCode())
                 .customerName(order.getFullName())
@@ -113,9 +179,11 @@ public class OrderController {
                 .status(order.getStatus())
                 .cancelReason(order.getCancelReason())
                 .createdAt(order.getCreatedAt())
+                // 👇 BỔ SUNG 3 MỐC THỜI GIAN VÀO API CHI TIẾT
+                .processedAt(order.getProcessedAt())
+                .shippedAt(order.getShippedAt())
+                .completedAt(order.getCompletedAt())
                 .items(order.getOrderDetails().stream().map(detail -> {
-
-                    // LẤY URL CỦA ẢNH CHÍNH
                     String mainImageUrl = detail.getProductVariant().getProduct().getImages().stream()
                             .filter(img -> img.getIsMain() != null && img.getIsMain())
                             .map(img -> img.getImageUrl())
@@ -133,5 +201,15 @@ public class OrderController {
                             .build();
                 }).collect(Collectors.toList()))
                 .build();
+
+        // Bổ sung tên nhân viên & shipper
+        if (order.getStaff() != null) {
+            response.setStaffName(order.getStaff().getFullName());
+        }
+        if (order.getShipper() != null) {
+            response.setShipperName(order.getShipper().getFullName());
+        }
+
+        return response;
     }
 }

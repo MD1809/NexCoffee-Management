@@ -13,6 +13,7 @@ public class ProductRequest {
     @Size(max = 255, message = "Tên sản phẩm không được vượt quá 255 ký tự")
     private String name;
 
+    @Size(max = 255, message = "Mô tả sản phẩm không được vượt quá 255 ký tự")
     private String description;
 
     @NotNull(message = "Danh mục không được để trống")

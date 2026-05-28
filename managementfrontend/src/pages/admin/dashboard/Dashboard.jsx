@@ -15,6 +15,7 @@ import {
 
 import "./Dashboard.css";
 import dashboardApi from "../../../apis/DashboardApi";
+import Dropdown from "../../../components/admin/dropDown/Dropdown";
 import StatCard from "../../../components/admin/statCard/StatCard";
 
 const Dashboard = () => {
@@ -33,7 +34,7 @@ const Dashboard = () => {
   const [selectedYear, setSelectedYear] = useState(
     new Date().getFullYear().toString(),
   ); // Mặc định năm nay
-  const [selectedMonth, setSelectedMonth] = useState("all"); 
+  const [selectedMonth, setSelectedMonth] = useState("all");
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -74,7 +75,10 @@ const Dashboard = () => {
       if (selectedMonth === "all") {
         response = await dashboardApi.getRevenueByYear(selectedYear);
       } else {
-        response = await dashboardApi.getRevenueByMonth(selectedYear, selectedMonth);
+        response = await dashboardApi.getRevenueByMonth(
+          selectedYear,
+          selectedMonth,
+        );
         isDaily = true;
       }
 
@@ -101,7 +105,11 @@ const Dashboard = () => {
               isFuture = true;
             } else if (selYear === currentYear && selMonth > currentMonth) {
               isFuture = true;
-            } else if (selYear === currentYear && selMonth === currentMonth && item.day > currentDay) {
+            } else if (
+              selYear === currentYear &&
+              selMonth === currentMonth &&
+              item.day > currentDay
+            ) {
               isFuture = true; // Ngày lớn hơn ngày hôm nay
             }
           } else {
@@ -120,12 +128,11 @@ const Dashboard = () => {
             revenue: isFuture ? null : item.revenue,
           };
         });
-        
+
         setRevenueData(formattedData);
       } else {
         setRevenueData([]);
       }
-      
     } catch (error) {
       console.error("Lỗi tải dữ liệu biểu đồ:", error);
     } finally {
@@ -144,38 +151,77 @@ const Dashboard = () => {
       </div>
     );
 
+  const monthOptions = [
+    { label: "Cả năm", value: "all" },
+    ...Array.from({ length: 12 }, (_, i) => ({
+      label: `Tháng ${i + 1}`,
+      value: (i + 1).toString(),
+    })),
+  ];
+
+  // Mảng dữ liệu Năm (Tự động cập nhật theo năm hiện tại)
+  const currentYear = new Date().getFullYear();
+  const startYear = 2024;
+  const numberOfYears = currentYear - startYear + 1; // +1 để bao gồm cả năm bắt đầu
+
+  const yearOptions = Array.from({ length: numberOfYears }, (_, i) => {
+    const year = startYear + i;
+    return {
+      label: `Năm ${year}`,
+      value: year.toString(),
+    };
+  });
+
   return (
     <div className="dashboard-container">
       <h2 className="dashboard-title">Tổng Quan Cửa Hàng</h2>
 
       <div className="overview-cards">
-        <StatCard
-          title="Tổng Doanh Thu"
-          value={formatCurrency(overview.totalRevenue)}
-          IconComponent={FaDollarSign}
-          colorTheme="revenue"
-        />
+        {/* Widget 1: Doanh thu */}
+        <div className="dash-widget">
+          <div className="dash-widget-info">
+            <p className="dash-widget-title">Tổng Doanh Thu</p>
+            <h3 className="dash-widget-val daily-report-val-green">
+              {formatCurrency(overview.totalRevenue)}
+            </h3>
+          </div>
+          <div className="dash-widget-icon icon-revenue">
+            <FaDollarSign />
+          </div>
+        </div>
 
-        <StatCard
-          title="Tổng Đơn Hàng"
-          value={overview.totalOrders}
-          IconComponent={FaShoppingCart}
-          colorTheme="orders"
-        />
+        {/* Widget 2: Đơn hàng */}
+        <div className="dash-widget">
+          <div className="dash-widget-info">
+            <p className="dash-widget-title">Tổng Đơn Hàng</p>
+            <h3 className="dash-widget-val daily-report-val-blue">{overview.totalOrders}</h3>
+          </div>
+          <div className="dash-widget-icon icon-orders">
+            <FaShoppingCart />
+          </div>
+        </div>
 
-        <StatCard
-          title="Tổng sản phẩm" 
-          value={overview.productsSold}
-          IconComponent={FaBox}
-          colorTheme="products"
-        />
-        
-        <StatCard
-          title="Khách Hàng"
-          value={overview.totalCustomers}
-          IconComponent={FaUsers}
-          colorTheme="customers"
-        />
+        {/* Widget 3: Sản phẩm */}
+        <div className="dash-widget">
+          <div className="dash-widget-info">
+            <p className="dash-widget-title">Tổng sản phẩm</p>
+            <h3 className="dash-widget-val daily-report-val-orange">{overview.productsSold}</h3>
+          </div>
+          <div className="dash-widget-icon icon-products">
+            <FaBox />
+          </div>
+        </div>
+
+        {/* Widget 4: Khách hàng */}
+        <div className="dash-widget">
+          <div className="dash-widget-info">
+            <p className="dash-widget-title">Khách Hàng</p>
+            <h3 className="dash-widget-val daily-report-val-purple">{overview.totalCustomers}</h3>
+          </div>
+          <div className="dash-widget-icon icon-customers">
+            <FaUsers />
+          </div>
+        </div>
       </div>
 
       {/* Khu vực Biểu đồ và Top Sản phẩm */}
@@ -205,43 +251,24 @@ const Dashboard = () => {
 
             <div style={{ display: "flex", gap: "10px" }}>
               {/* Dropdown chọn Tháng */}
-              <select
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(e.target.value)}
-                style={{
-                  padding: "6px 12px",
-                  borderRadius: "6px",
-                  backgroundColor: "var(--bg-secondary)",
-                  color: "var(--text-primary)",
-                  border: "1px solid var(--border-primary-color)",
-                  outline: "none",
-                }}
-              >
-                <option value="all">Cả năm</option>
-                {[...Array(12).keys()].map((i) => (
-                  <option key={i + 1} value={i + 1}>
-                    Tháng {i + 1}
-                  </option>
-                ))}
-              </select>
+              <div style={{ width: "140px" }}>
+                <Dropdown
+                  options={monthOptions}
+                  defaultValue={selectedMonth}
+                  onChange={(option) => setSelectedMonth(option.value)}
+                  placeholder="Chọn tháng"
+                />
+              </div>
 
               {/* Dropdown chọn Năm */}
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                style={{
-                  padding: "6px 12px",
-                  borderRadius: "6px",
-                  backgroundColor: "var(--bg-secondary)",
-                  color: "var(--text-primary)",
-                  border: "1px solid var(--border-primary-color)",
-                  outline: "none",
-                }}
-              >
-                <option value="2024">Năm 2024</option>
-                <option value="2025">Năm 2025</option>
-                <option value="2026">Năm 2026</option>
-              </select>
+              <div style={{ width: "140px" }}>
+                <Dropdown
+                  options={yearOptions}
+                  defaultValue={selectedYear}
+                  onChange={(option) => setSelectedYear(option.value)}
+                  placeholder="Chọn năm"
+                />
+              </div>
             </div>
           </div>
 

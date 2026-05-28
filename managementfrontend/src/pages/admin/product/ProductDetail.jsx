@@ -11,7 +11,7 @@ function ProductDetailPage() {
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+
   const [activeImageUrl, setActiveImageUrl] = useState("");
 
   useEffect(() => {
@@ -23,7 +23,7 @@ function ProductDetailPage() {
       const response = await productApi.getById(id);
       const data = response.data;
       setProduct(data);
-      
+
       if (data.mainImage && data.mainImage.url) {
         setActiveImageUrl(`http://localhost:8080/images/${data.mainImage.url}`);
       }
@@ -52,12 +52,13 @@ function ProductDetailPage() {
 
   const handleToggleVariantStatus = async (variantId, currentStatus) => {
     // 1. Đảo ngược trạng thái hiện tại
-    const newStatus = currentStatus === "available" ? "unavailable" : "available";
-    
+    const newStatus =
+      currentStatus === "available" ? "unavailable" : "available";
+
     try {
       // 2. Gọi API gửi yêu cầu xuống Backend
       await productApi.updateVariantStatus(variantId, newStatus);
-      
+
       // 3. Nếu API gọi thành công, cập nhật lại state để giao diện thay đổi ngay lập tức
       setProduct((prevProduct) => {
         const updatedVariants = prevProduct.variants.map((v) => {
@@ -81,13 +82,16 @@ function ProductDetailPage() {
       {/* HEADER */}
       <div className="page-header flex-between">
         <div className="header-left">
-          <button className="btn-back" onClick={() => navigate("/admin/products")}>
+          <button
+            className="btn-back"
+            onClick={() => navigate("/admin/products")}
+          >
             <i className="fa-solid fa-arrow-left"></i> Quay lại
           </button>
           <h2>Chi tiết sản phẩm</h2>
         </div>
         <div className="header-right">
-          <button 
+          <button
             className="btn-edit-action"
             onClick={() => navigate(`/admin/products/edit/${product.id}`)}
           >
@@ -98,7 +102,6 @@ function ProductDetailPage() {
 
       <div className="detail-card">
         <div className="layout-grid">
-          
           {/* CỘT TRÁI: THƯ VIỆN ẢNH */}
           <div className="left-column">
             <div className="main-image-viewer">
@@ -115,14 +118,14 @@ function ProductDetailPage() {
                   const fullUrl = `http://localhost:8080/images/${img.url}`;
                   const isActive = activeImageUrl === fullUrl;
                   return (
-                    <div 
-                      key={img.id} 
+                    <div
+                      key={img.id}
                       className={`thumbnail-item ${isActive ? "active" : ""}`}
                       onClick={() => setActiveImageUrl(fullUrl)}
                     >
                       <img src={fullUrl} alt="thumbnail" />
                       {img.id === product.mainImage?.id && (
-                         <span className="main-badge">Chính</span>
+                        <span className="main-badge">Chính</span>
                       )}
                     </div>
                   );
@@ -134,20 +137,26 @@ function ProductDetailPage() {
           {/* CỘT PHẢI: THÔNG TIN CHI TIẾT */}
           <div className="right-column">
             <h1 className="product-title">{product.name}</h1>
-            
+
             <div className="badges-wrapper">
               <span className="badge category-badge">
                 <i className="fa-solid fa-tag"></i> {product.categoryName}
               </span>
-              <span className={`badge status-badge ${product.status === 'active' ? 'active' : 'inactive'}`}>
-                {product.status === 'active' ? 'Đang kinh doanh' : 'Ngừng kinh doanh'}
+              <span
+                className={`badge status-badge ${product.status === "active" ? "active" : "inactive"}`}
+              >
+                {product.status === "active"
+                  ? "Đang kinh doanh"
+                  : "Ngừng kinh doanh"}
               </span>
             </div>
 
             <div className="info-section">
               <h3>Mô tả sản phẩm</h3>
               <p className="product-description">
-                {product.description || <span className="empty-text">Không có mô tả.</span>}
+                {product.description || (
+                  <span className="empty-text">Không có mô tả.</span>
+                )}
               </p>
             </div>
 
@@ -167,35 +176,46 @@ function ProductDetailPage() {
                     {product.variants && product.variants.length > 0 ? (
                       product.variants.map((v) => (
                         <tr key={v.id}>
-                          <td className="size-col"><strong>{v.size ? v.size : "Không có"}</strong></td>
-                          <td className="price-col">{v.price.toLocaleString("vi-VN")} đ</td>
+                          <td className="size-col">
+                            <strong>{v.size ? v.size : "Không có"}</strong>
+                          </td>
+                          <td className="price-col">
+                            {v.price.toLocaleString("vi-VN")} đ
+                          </td>
                           <td>
-                            <span className={`v-status ${v.status === 'available' ? 'avail' : 'unavail'}`}>
-                              {v.status === 'available' ? 'Còn hàng' : 'Hết hàng'}
+                            <span
+                              className={`v-status ${v.status === "available" ? "avail" : "unavail"}`}
+                            >
+                              {v.status === "available"
+                                ? "Đang kinh doanh"
+                                : "Tạm ngừng kinh doanh"}
                             </span>
                           </td>
                           <td>
-                            <button
-                            className={`v-status-toggle-btn ${v.status === 'available' ? 'active' : 'hidden'}`}
-                            onClick={() => handleToggleVariantStatus(v.id, v.status)}
-                            title="Nhấp để thay đổi trạng thái"
-                          >
-                            <i className={`fa-solid ${v.status === 'available' ? 'fa-check-circle' : 'fa-circle-xmark'}`}></i>
-                            {v.status === 'available' ? ' Đang bán' : ' Tạm ngưng'}
-                          </button>
+                            <label className="switch">
+                              <input
+                                type="checkbox"
+                                checked={v.status === "available"}
+                                onChange={() =>
+                                  handleToggleVariantStatus(v.id, v.status)
+                                }
+                              />
+                              <span className="slider round"></span>
+                            </label>
                           </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="3" className="text-center">Chưa có biến thể nào</td>
+                        <td colSpan="3" className="text-center">
+                          Chưa có biến thể nào
+                        </td>
                       </tr>
                     )}
                   </tbody>
                 </table>
               </div>
             </div>
-
           </div>
         </div>
       </div>
