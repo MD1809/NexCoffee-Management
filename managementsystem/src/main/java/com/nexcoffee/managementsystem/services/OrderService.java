@@ -226,6 +226,69 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    // --- PHẦN 3: XỬ LÝ ĐƠN HÀNG TẠI QUẦY (POS) ---
+
+    @Transactional
+    public Order createPosOrder(com.nexcoffee.managementsystem.dto.request.posOrder.OrderPosRequest request) {
+
+        // 1. Lấy thông tin nhân viên thu ngân (nếu có truyền lên)
+        User staff = null;
+        if (request.getStaffId() != null) {
+            staff = userRepository.findById(Long.valueOf(request.getStaffId()))
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin nhân viên thu ngân"));
+        }
+
+        // 2. Tạo đơn hàng mới. Đặc thù của POS là mặc định khách mua tại quầy.
+        Order order = Order.builder()
+                .staff(staff)
+                .code(generateUniqueOrderCode())
+                .fullName("Khách lẻ (Tại quầy)")
+                .shipping(request.getShipping() != null ? request.getShipping().longValue() : 0L)
+                .discount(request.getDiscount() != null ? request.getDiscount().longValue() : 0L)
+                .paymentMethod(com.nexcoffee.managementsystem.enums.PaymentMethod.valueOf(request.getPaymentMethod()))
+                .paymentStatus(PaymentStatus.paid)
+                .status(OrderStatus.Completed)
+                .paidAt(LocalDateTime.now())
+                .completedAt(LocalDateTime.now())
+                .subtotal(request.getSubtotal().longValue())
+                .total(request.getTotal().longValue())
+                .build();
+
+        Order savedOrder = orderRepository.save(order);
+
+        // 3. Xử lý lưu chi tiết đơn hàng (OrderDetails)
+        List<OrderDetail> orderDetails = new ArrayList<>();
+        long calculatedSubtotal = 0L;
+
+        for (com.nexcoffee.managementsystem.dto.request.posOrder.OrderItemPosRequest item : request.getItems()) {
+            ProductVariant variant = productVariantRepository.findById(item.getProductVariantId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy biến thể sản phẩm có ID: " + item.getProductVariantId()));
+
+            long dbUnitPrice = variant.getPrice().longValue();
+            long totalPrice = dbUnitPrice * item.getQuantity();
+            calculatedSubtotal += totalPrice;
+
+            OrderDetail detail = OrderDetail.builder()
+                    .order(savedOrder)
+                    .productVariant(variant)
+                    .quantity(item.getQuantity())
+                    .unitPrice(dbUnitPrice)
+                    .totalPrice(totalPrice)
+                    .build();
+
+            orderDetails.add(detail);
+        }
+
+        if (calculatedSubtotal != request.getSubtotal().longValue()) {
+            throw new RuntimeException("Lỗi dữ liệu: Tổng tiền giỏ hàng không khớp với hệ thống!");
+        }
+
+        orderDetailRepository.saveAll(orderDetails);
+        savedOrder.setOrderDetails(orderDetails);
+
+        return savedOrder;
+    }
+
     private String generateUniqueOrderCode() {
         String uuid = UUID.randomUUID().toString().replace("-", "").substring(0, 6).toUpperCase();
         return "NEX-" + uuid;

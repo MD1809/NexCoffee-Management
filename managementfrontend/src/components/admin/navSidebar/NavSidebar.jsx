@@ -3,14 +3,15 @@ import "./navSidebar.css";
 import { NavLink } from "react-router-dom";
 const menuSidebarTop = [
   { to: "/admin", icon: "fa-solid fa-house", label: "Trang chủ", end: true },
+  { to: "/admin/daily-report", icon: "fa-solid fa-chart-simple", label: "Thống kê"},
+  { to: "/admin/pos", icon: "fa-solid fa-cash-register", label: "Pos" },
+  { to: "/admin/orders", icon: "fa-solid fa-cart-shopping", label: "Đơn hàng" },
   {
     to: "/admin/categories",
     icon: "fa-solid fa-shapes",
     label: "Danh mục",
   },
   { to: "/admin/products", icon: "fa-solid fa-box", label: "Sản phẩm" },
-  { to: "/admin/orders", icon: "fa-solid fa-cart-shopping", label: "Đơn hàng" },
-  { to: "/admin/daily-report", icon: "fa-solid fa-chart-simple", label: "Thống kê"},
   { to: "/admin/users", icon: "fa-solid fa-users", label: "Người dùng" },
   {
     to: "/admin/delivery-areas",

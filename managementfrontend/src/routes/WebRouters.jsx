@@ -36,6 +36,7 @@ import DeliveryAreasPage from "../pages/admin/delivery-area/DeliveryAreasPage";
 import AddDeliveryAreaPage from "../pages/admin/delivery-area/AddDeliveryAreaPage";
 import EditDeliveryAreaPage from "../pages/admin/delivery-area/EditDeliveryAreaPage";
 import DailyReportPage from "../pages/admin/dailydashboard/DailyReport";
+import PosPage from "../pages/admin/pos/Pos";
 
 function WebRouters() {
   return (
@@ -84,6 +85,7 @@ function WebRouters() {
           <Route path="products/add" element={<AddProductPage />} />
           <Route path="products/edit/:id" element={<EditProductPage />} />
           <Route path="products/detail/:id" element={<ProductDetailPage />} />
+          <Route path="pos" element={<PosPage />} />
           <Route path="orders" element={<OrderPage />} />
           <Route path="daily-report" element={<DailyReportPage />} />
           <Route path="users" element={<UsersPage />} />

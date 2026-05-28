@@ -13,6 +13,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     List<Product> findByDeletedTrueOrderByIdDesc();
     List<Product> findByCategoryId(Integer categoryId);
     List<Product> findByCategoryIdAndDeletedFalse(Integer categoryId);
+    List<Product> findByStatusAndDeletedFalseOrderByIdDesc(ProductsStatus status);
     boolean existsByNameAndCategoryIdAndDeletedFalse(String name, Integer categoryId);
     boolean existsByNameAndCategoryIdAndIdNotAndDeletedFalse(String name, Integer categoryId, Integer id);
 }

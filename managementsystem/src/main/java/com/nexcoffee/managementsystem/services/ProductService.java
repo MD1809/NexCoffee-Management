@@ -110,15 +110,60 @@ public class ProductService {
         return res;
     }
 
+    private ProductResponse toProductResponseActiveVariant(Product product) {
+        ProductResponse res = new ProductResponse();
+        res.setId(product.getId());
+        res.setName(product.getName());
+        res.setDescription(product.getDescription());
+        res.setStatus(product.getStatus());
+
+        if (product.getCategory() != null) {
+            res.setCategoryId(product.getCategory().getId());
+            res.setCategoryName(product.getCategory().getName());
+        }
+
+        // Lấy ảnh chính (giữ nguyên logic)
+        if (product.getImages() != null) {
+            product.getImages().stream()
+                    .filter(ProductImage::getIsMain)
+                    .findFirst()
+                    .ifPresent(img -> res.setMainImage(new ImageProductResponse(img.getId(), img.getImageUrl())));
+        }
+
+        // 2. LOGIC LỌC RIÊNG CHO POS: Chỉ lấy variant "available"
+        if (product.getVariants() != null) {
+            List<ProductVariantResponse> variantResponses = product.getVariants().stream()
+                    .filter(v -> v.getStatus() == ProductVariantStatus.available) // Lọc ở đây
+                    .map(v -> {
+                        ProductVariantResponse vr = new ProductVariantResponse();
+                        vr.setId(v.getId());
+                        vr.setSize(v.getSize());
+                        vr.setPrice(v.getPrice());
+                        vr.setStatus(v.getStatus());
+                        return vr;
+                    }).collect(Collectors.toList());
+            res.setVariants(variantResponses);
+        }
+
+        return res;
+    }
+
     public List<ProductResponse> getProductsForAdmin() {
         return productRepository.findByDeletedFalseOrderByIdDesc().stream()
-                .map(this::toProductResponse)
+                .map(this::toProductResponseActiveVariant)
                 .collect(Collectors.toList());
     }
 
     public List<ProductResponse> getTrashedProducts() {
         return productRepository.findByDeletedTrueOrderByIdDesc().stream()
                 .map(this::toProductResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductResponse> getAllActiveProductsVariant() {
+        return productRepository.findByStatusAndDeletedFalseOrderByIdDesc(ProductsStatus.active)
+                .stream()
+                .map(this::toProductResponseActiveVariant)
                 .collect(Collectors.toList());
     }
 

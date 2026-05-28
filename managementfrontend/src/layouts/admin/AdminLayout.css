@@ -185,6 +185,6 @@
 .admin-main__body {
     display: flex;
     flex-direction: column;
-    padding: 20px 10px 80px;
+    padding: 20px 10px 0;
     margin-top: 70px;
 }

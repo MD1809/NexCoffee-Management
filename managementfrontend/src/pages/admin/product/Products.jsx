@@ -64,13 +64,22 @@ function Products() {
       accessor: "variants",
       render: (row) => (
         <div className="variant-size">
-          {row.variants.map((v) => (
-            <span key={v.id} className="variant-tag">
-              {v.size
-                ? `${v.size}: ${v.price.toLocaleString("vi-VN")}đ`
-                : `${v.price.toLocaleString("vi-VN")}đ`}
+          {row.variants && row.variants.length > 0 ? (
+            row.variants.map((v) => (
+              <span key={v.id} className="variant-tag">
+                {v.size && v.size !== "null" && v.size !== "Mặc định"
+                  ? `${v.size}: ${v.price.toLocaleString("vi-VN")}đ`
+                  : `${v.price.toLocaleString("vi-VN")}đ`}
+              </span>
+            ))
+          ) : (
+            <span
+              className="out-of-stock-tag"
+              style={{ color: "#ef4444", fontSize: "13px" }}
+            >
+              Tạm hết hàng
             </span>
-          ))}
+          )}
         </div>
       ),
     },
@@ -143,8 +152,8 @@ function Products() {
       text: `Bạn có chắc chắn muốn xóa sản phẩm này không?`,
       icon: "warning",
       showCancelButton: true,
-      width: '500px',
-      padding: '2em',
+      width: "500px",
+      padding: "2em",
       confirmButtonColor: "#dc3545",
       cancelButtonColor: "#6c757d",
       confirmButtonText: "Đồng ý, xóa",

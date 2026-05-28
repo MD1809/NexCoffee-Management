@@ -44,7 +44,7 @@ public class Order {
     @Column(name = "full_name", nullable = false, length = 120)
     private String fullName;
 
-    @Column(nullable = false, length = 20)
+    @Column(name = "phone", length = 20)
     private String phone;
 
     @Column(length = 120)
