@@ -4,7 +4,7 @@ import { FaSun, FaMoon, FaBars } from "react-icons/fa";
 
 import "./AdminLayout.css";
 import NavSidebar from "../../components/admin/navSidebar/NavSidebar";
-import HeaderActions from "../../components/user/header/HeaderActions";
+import AccountOptions from "../../components/user/header/AccountOptions";
 
 function AdminLayout() {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
@@ -51,18 +51,7 @@ function AdminLayout() {
                 <FaMoon size={20} color="#2c3e50" />
               )}
             </button>
-            <HeaderActions />
-            <div className="user-profile">
-              <div className="user-info">
-                <div className="user-role">Quản trị viên</div>
-                <div className="user-email">dung2k5k58lx@gmail.com</div>
-              </div>
-              <img
-                src="https://i.pinimg.com/236x/5e/e0/82/5ee082781b8c41406a2a50a0f32d6aa6.jpg"
-                alt="Avatar"
-                className="user-avatar"
-              />
-            </div>
+            <AccountOptions variant="admin" accountPath="/admin" />
           </div>
         </header>
         <main className="admin-main__body">

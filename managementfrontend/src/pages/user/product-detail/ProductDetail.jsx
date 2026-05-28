@@ -145,6 +145,7 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
 
   const [loading, setLoading] = useState(true);
+  const [buyNowLoading, setBuyNowLoading] = useState(false);
 
   useEffect(() => {
     window.scrollTo({
@@ -298,16 +299,28 @@ const ProductDetail = () => {
     }
   };
 
-  const handleBuyNow = () => {
+  const handleBuyNow = async () => {
     if (!canBuy) {
       toast.warning("Sản phẩm hiện không khả dụng.");
       return;
     }
 
-    const payload = buildCartPayload();
+    try {
+      setBuyNowLoading(true);
 
-    console.log("Buy now payload:", payload);
-    toast.success("Sản phẩm đã được chọn. Chức năng thanh toán sẽ nối sau.");
+      await addCartItem({
+        variantId: selectedVariant.id,
+        quantity,
+      });
+
+      window.dispatchEvent(new Event("cart-changed"));
+
+      navigate("/checkout");
+    } catch (error) {
+      toast.error("Không thể mua ngay sản phẩm này. Vui lòng thử lại.");
+    } finally {
+      setBuyNowLoading(false);
+    }
   };
 
   if (loading) {
@@ -470,9 +483,9 @@ const ProductDetail = () => {
                 type="button"
                 className="product-detail-buy-btn"
                 onClick={handleBuyNow}
-                disabled={!canBuy}
+                disabled={!canBuy || buyNowLoading}
               >
-                Mua ngay
+                {buyNowLoading ? "Đang xử lý..." : "Mua ngay"}
               </button>
 
               <button

@@ -10,7 +10,7 @@ import {
   getCurrentUser,
 } from "../../../utils/authStorage";
 
-const AccountOptions = () => {
+const AccountOptions = ({ variant = "user", accountPath = "/account" }) => {
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
@@ -55,15 +55,24 @@ const AccountOptions = () => {
 
   if (!currentUser) {
     return (
-      <Link to="/login" className="header-login-link">
-        <FaUserCircle className="icon" />
+      <Link
+        to="/login"
+        className={`header-login-link account-options-login ${
+          variant === "admin" ? "account-options--admin" : ""
+        }`}
+      >
         <span>Đăng nhập</span>
       </Link>
     );
   }
 
   return (
-    <div className="header-user-menu" ref={dropdownRef}>
+    <div
+      className={`header-user-menu account-options ${
+        variant === "admin" ? "account-options--admin" : ""
+      }`}
+      ref={dropdownRef}
+    >
       <button
         type="button"
         className="header-user-button"
@@ -77,9 +86,9 @@ const AccountOptions = () => {
       </button>
 
       {openDropdown && (
-        <div className="header-user-dropdown">
+        <div className="header-user-dropdown user-role">
           <Link
-            to="/account"
+            to={accountPath}
             className="header-user-dropdown-item"
             onClick={() => setOpenDropdown(false)}
           >

@@ -1,0 +1,223 @@
+.user-portal .user-search-box {
+  position: relative;
+  width: min(42rem, 42vw);
+  z-index: 100;
+}
+
+.user-portal .user-search-form {
+  width: 100%;
+  height: 4.2rem;
+  display: flex;
+  align-items: center;
+  background: #f3f0ed;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(57, 27, 9, 0.08);
+}
+
+.user-portal .user-search-form input {
+  flex: 1;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0 1.8rem;
+  color: var(--primary-brown);
+  font-family: var(--font-main);
+  font-size: 1.4rem;
+  min-width: 0;
+}
+
+.user-portal .user-search-form input::placeholder {
+  color: #8b7b72;
+}
+
+.user-portal .user-search-form button {
+  width: 5.6rem;
+  height: 100%;
+  border: none;
+  background: #eadfd6;
+  color: var(--primary-orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.user-portal .user-search-form button:hover {
+  background: var(--primary-orange);
+  color: #ffffff;
+}
+
+.user-portal .user-search-dropdown {
+  position: absolute;
+  top: calc(100% + 1rem);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  color: var(--primary-brown);
+  border-radius: 1.4rem;
+  box-shadow: 0 1.8rem 4rem rgba(0, 0, 0, 0.16);
+  overflow: hidden;
+  border: 1px solid rgba(57, 27, 9, 0.08);
+}
+
+.user-portal .user-search-title {
+  padding: 1.4rem 1.6rem;
+  font-size: 1.45rem;
+  color: #8b7b72;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.user-portal .user-search-title strong {
+  color: var(--primary-orange);
+}
+
+.user-portal .user-search-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 44rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.user-portal .user-search-list::-webkit-scrollbar {
+  width: 0.6rem;
+}
+
+.user-portal .user-search-list::-webkit-scrollbar-track {
+  background: #fff7ef;
+}
+
+.user-portal .user-search-list::-webkit-scrollbar-thumb {
+  background: var(--primary-orange);
+  border-radius: 999px;
+}
+
+.user-portal .user-search-item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 6.4rem 1fr;
+  gap: 1.2rem;
+  align-items: center;
+  padding: 1.2rem 1.6rem;
+  border: none;
+  border-bottom: 1px solid #eeeeee;
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.user-portal .user-search-item:last-child {
+  border-bottom: none;
+}
+
+.user-portal .user-search-item:hover {
+  background: #fff7ef;
+}
+
+.user-portal .user-search-item img,
+.user-portal .user-search-placeholder {
+  width: 6.4rem;
+  height: 6.4rem;
+  border-radius: 1rem;
+  object-fit: cover;
+  background: #f5eee8;
+}
+
+.user-portal .user-search-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-brown);
+  font-weight: 900;
+}
+
+.user-portal .user-search-info {
+  min-width: 0;
+}
+
+.user-portal .user-search-info h4 {
+  margin: 0 0 0.6rem;
+  color: var(--primary-brown);
+  font-size: 1.5rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-portal .user-search-info p {
+  margin: 0;
+  color: var(--primary-orange);
+  font-size: 1.45rem;
+  font-weight: 900;
+}
+
+.user-portal .user-search-empty {
+  padding: 2.4rem 1.6rem;
+  text-align: center;
+  color: #6b5a50;
+  font-size: 1.45rem;
+}
+
+@media (max-width: 992px) {
+  .user-portal .user-search-box {
+    width: min(34rem, 48vw);
+  }
+}
+
+@media (max-width: 768px) {
+  .user-portal .user-search-box {
+    width: 100%;
+  }
+}
+@media (max-width: 768px) {
+  .user-portal .user-search-form {
+    height: 3.6rem;
+  }
+
+  .user-portal .user-search-form input {
+    font-size: 1.2rem;
+    padding: 0 1.3rem;
+  }
+
+  .user-portal .user-search-form button {
+    width: 4.6rem;
+  }
+
+  .user-portal .user-search-dropdown {
+    top: calc(100% + 0.7rem);
+    border-radius: 1rem;
+  }
+
+  .user-portal .user-search-title {
+    padding: 1.1rem 1.2rem;
+    font-size: 1.25rem;
+  }
+
+  .user-portal .user-search-list {
+    max-height: 34rem;
+  }
+
+  .user-portal .user-search-item {
+    grid-template-columns: 5.4rem 1fr;
+    padding: 1rem 1.2rem;
+  }
+
+  .user-portal .user-search-item img,
+  .user-portal .user-search-placeholder {
+    width: 5.4rem;
+    height: 5.4rem;
+  }
+
+  .user-portal .user-search-info h4 {
+    font-size: 1.3rem;
+  }
+
+  .user-portal .user-search-info p {
+    font-size: 1.25rem;
+  }
+}

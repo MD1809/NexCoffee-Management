@@ -227,7 +227,7 @@ const UserCheckout = () => {
       window.dispatchEvent(new Event("cart-changed"));
 
       toast.success(`Đặt hàng thành công. Mã đơn: ${response.orderCode}`);
-      navigate("/cart", { replace: true });
+      navigate("/account/orders", { replace: true });
     } catch (error) {
       const message =
         error.response?.data?.message ||

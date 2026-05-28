@@ -1,5 +1,5 @@
 .user-portal .product-detail-page {
-  min-height: calc(100vh - 90px);
+  min-height: calc(100vh - 180px);
   padding: 5.6rem 0 7rem;
   background: #ffffff;
   color: var(--primary-brown);
@@ -11,13 +11,13 @@
   gap: 0.8rem;
   margin-bottom: 2.4rem;
   color: rgba(57, 27, 9, 0.55);
-  font-size: 1.45rem;
-  font-weight: 600;
+  font-size: 2.4rem;
+  font-weight: 400;
 }
 
 .user-portal .product-breadcrumb a {
   color: var(--primary-orange);
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .user-portal .product-breadcrumb a:hover {
@@ -30,7 +30,7 @@
 
 .user-portal .product-breadcrumb strong {
   color: var(--primary-brown);
-  font-weight: 800;
+  font-weight: 600;
 }
 .user-portal .product-detail-shell {
   display: grid;
@@ -50,7 +50,7 @@
   height: 53rem;
   border-radius: 1.2rem;
   overflow: hidden;
-  background: #f7f4f1;
+  background: #d3d3d3;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -145,7 +145,7 @@
   top: 11rem;
   min-width: 0;
   background: #ffffff;
-  border: 1px solid rgba(57, 27, 9, 0.08);
+  /* border: 1px solid rgba(57, 27, 9, 0.08); */
   border-radius: 1.4rem;
   padding: 0.6rem 0 0;
 }
@@ -157,31 +157,31 @@
   width: fit-content;
   padding: 0.45rem 0.9rem;
   border-radius: 999px;
-  background: rgba(255, 137, 20, 0.1);
-  color: var(--primary-orange);
-  font-size: 1.2rem;
-  font-weight: 800;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 1.6rem;
+  font-weight: 700;
   margin-bottom: 1.2rem;
 }
 
 .user-portal .product-detail-title {
   color: var(--primary-brown);
-  font-size: 3rem;
+  font-size: 3.4rem;
   line-height: 1.25;
-  font-weight: 800;
+  font-weight: 600;
   margin-bottom: 0.8rem;
   letter-spacing: -0.02em;
 }
 
 .user-portal .product-detail-price {
   color: var(--primary-orange);
-  font-size: 2.4rem;
+  font-size: 2.8rem;
   font-weight: 900;
   margin-bottom: 2rem;
 }
 
 .user-portal .product-detail-summary {
-  border-top: 1px solid rgba(57, 27, 9, 0.1);
+  border-top: 1px solid #d3d3d3;
   padding-top: 1.6rem;
   margin-bottom: 1.8rem;
 }
@@ -189,7 +189,7 @@
 .user-portal .product-detail-summary p {
   color: #4b403a;
   font-size: 1.45rem;
-  line-height: 1.65;
+  line-height: 1.4;
   margin-bottom: 0.4rem;
 }
 
@@ -208,7 +208,7 @@
 }
 
 .user-portal .product-detail-benefits svg {
-  color: var(--primary-orange);
+  color: #166434;
   flex: 0 0 auto;
 }
 
@@ -218,8 +218,8 @@
 
 .user-portal .product-detail-option-title {
   color: var(--primary-brown);
-  font-size: 1.45rem;
-  font-weight: 800;
+  font-size: 2rem;
+  font-weight: 600;
   margin-bottom: 1rem;
 }
 
@@ -242,14 +242,14 @@
 
 .user-portal .product-detail-size span {
   display: block;
-  font-size: 1.5rem;
-  font-weight: 900;
+  font-size: 2.4rem;
+  font-weight: 700;
 }
 
 .user-portal .product-detail-size small {
   display: block;
   color: #75645a;
-  font-size: 1.15rem;
+  font-size: 1.3rem;
   font-weight: 600;
   margin-top: 0.3rem;
 }
@@ -319,7 +319,7 @@
 .user-portal .product-detail-actions {
   display: grid;
   gap: 1rem;
-  border-top: 1px solid rgba(57, 27, 9, 0.1);
+  border-top: 1px solid #d3d3d3;
   padding-top: 2rem;
 }
 
@@ -329,8 +329,8 @@
   height: 4.6rem;
   border-radius: 0.9rem;
   font-family: var(--font-main);
-  font-size: 1.45rem;
-  font-weight: 900;
+  font-size: 2rem;
+  font-weight: 700;
   cursor: pointer;
   transition: 0.25s ease;
 }
@@ -407,8 +407,8 @@
 .user-portal .product-detail-description h2,
 .user-portal .product-detail-related-heading h2 {
   color: var(--primary-brown);
-  font-size: 2.4rem;
-  font-weight: 900;
+  font-size: 2.8rem;
+  font-weight: 700;
   margin-bottom: 1.6rem;
 }
 
@@ -426,7 +426,7 @@
 
 .user-portal .product-detail-related-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
   gap: 1.8rem;
 }
 

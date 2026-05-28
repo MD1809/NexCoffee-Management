@@ -76,6 +76,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/orders/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/delivery-areas/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/pos/**").permitAll()
+                        .requestMatchers(
+                                "/api/delivery-areas",
+                                "/api/delivery-areas/**"
+                        ).hasAuthority("ADMIN")
 
                         // Customer APIs sau này
                         .requestMatchers("/api/cart/**").permitAll()

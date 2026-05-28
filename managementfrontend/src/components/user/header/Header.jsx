@@ -5,6 +5,7 @@ import logoNex from "../../../assets/logo/Logo.svg";
 
 import Navbar from "./Navbar";
 import HeaderActions from "./HeaderActions";
+import SearchButton from "./SearchButton";
 import "./Header.css";
 
 const Header = () => {
@@ -18,6 +19,10 @@ const Header = () => {
         </div>
 
         <Navbar />
+
+        <div className="header-search-slot">
+          <SearchButton />
+        </div>
 
         <HeaderActions />
       </div>

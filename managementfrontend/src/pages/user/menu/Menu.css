@@ -4,7 +4,7 @@
   background-color: #ffffff;
   color: var(--primary-brown);
   padding: 6rem 0;
-  min-height: calc(100vh - 90px);
+  min-height: calc(100vh - 180px);
 }
 
 .user-portal .menu-container {

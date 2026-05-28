@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import ScrollToTop from "../utils/ScrollToTop";
 
 import UserLayout from "../layouts/user/UserLayout";
@@ -17,6 +17,10 @@ import GuestOnlyRoute from "./GuestOnlyRoute";
 import ProductDetail from "../pages/user/product-detail/ProductDetail";
 import Cart from "../pages/user/cart/Cart";
 import UserCheckout from "../pages/user/checkout/UserCheckout";
+import UserAccountLayout from "../pages/user/account/UserAccountLayout";
+import UserAccountOrders from "../pages/user/account/UserAccountOrders";
+import UserAccountOrderDetail from "../pages/user/account/UserAccountOrderDetail";
+import UserChangePassword from "../pages/user/account/UserChangePassword";
 
 // Layout Page
 import AdminLayout from "../layouts/admin/AdminLayout";
@@ -45,7 +49,6 @@ function WebRouters() {
       <Routes>
         {/* User routes */}
         <Route path="/" element={<UserLayout />}>
-          {/* Guest + CUSTOMER được xem, ADMIN bị đá về /admin */}
           <Route element={<BlockAdminRoute />}>
             <Route index element={<Home />} />
             <Route path="menu" element={<Menu />} />
@@ -53,13 +56,33 @@ function WebRouters() {
             <Route path="cart" element={<Cart />} />
           </Route>
 
-          {/* Chỉ người chưa đăng nhập mới được vào */}
+          <Route
+            path="checkout"
+            element={
+              <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+                <UserCheckout />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="account"
+            element={
+              <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+                <UserAccountLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="orders" replace />} />
+            <Route path="orders" element={<UserAccountOrders />} />
+            <Route path="orders/:id" element={<UserAccountOrderDetail />} />
+            <Route path="password" element={<UserChangePassword />} />
+          </Route>
+
           <Route element={<GuestOnlyRoute />}>
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
           </Route>
 
-          {/* Các route xác thực email vẫn để public */}
           <Route path="verify" element={<VerifyAccount />} />
           <Route path="register-success" element={<RegisterSuccess />} />
           <Route path="resend-verification" element={<ResendVerification />} />

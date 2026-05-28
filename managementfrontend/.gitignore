@@ -11,6 +11,10 @@ node_modules
 dist
 dist-ssr
 *.local
+.idea/
+managementsystem/uploads/
+managementsystem/target/
+managementfrontend/node_modules/
 
 # Editor directories and files
 .vscode/*

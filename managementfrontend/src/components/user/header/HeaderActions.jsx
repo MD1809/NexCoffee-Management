@@ -7,7 +7,6 @@ import AccountOptions from "./AccountOptions";
 const HeaderActions = () => {
   return (
     <div className="header-actions">
-      <SearchButton />
       <CartButton />
       <AccountOptions />
     </div>

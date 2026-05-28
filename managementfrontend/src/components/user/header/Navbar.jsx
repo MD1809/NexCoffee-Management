@@ -83,7 +83,7 @@ const Navbar = () => {
         className={activeSection === "hero" ? "active" : ""}
         onClick={() => handleGoToSection("hero")}
       >
-        Home
+        Trang chủ
       </button>
 
       <button
@@ -91,7 +91,7 @@ const Navbar = () => {
         className={activeSection === "about" ? "active" : ""}
         onClick={() => handleGoToSection("about")}
       >
-        About
+        Giới thiệu
       </button>
 
       <NavLink
@@ -106,7 +106,7 @@ const Navbar = () => {
         className={activeSection === "contact" ? "active" : ""}
         onClick={() => handleGoToSection("contact")}
       >
-        Contacts
+        Liên hệ
       </button>
     </nav>
   );

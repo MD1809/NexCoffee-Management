@@ -34,9 +34,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.3rem 1.6rem;
-  background: rgba(255, 137, 20, 0.12);
-  color: var(--primary-orange);
-  font-weight: 800;
+  background: #e6f4ea;
+  color: #166434;
+  font-weight: 700;
 }
 
 .user-portal .toast-head.error {
@@ -45,13 +45,13 @@
 }
 
 .user-portal .toast-title {
-  font-size: 1.5rem;
+  font-size: 2rem;
 }
 
 .user-portal .toast-close {
   background: none;
   border: 0;
-  font-size: 2.4rem;
+  font-size: 3rem;
   line-height: 1;
   cursor: pointer;
   color: inherit;
@@ -69,8 +69,8 @@
 
 .user-portal .toast-body img,
 .user-portal .cart-toast-placeholder {
-  width: 6.4rem;
-  height: 6.4rem;
+  width: 10rem;
+  height: 10rem;
   border-radius: 1rem;
   object-fit: cover;
   flex: 0 0 auto;
@@ -88,14 +88,14 @@
 
 .user-portal .toast-body h4 {
   color: var(--primary-brown);
-  font-size: 1.6rem;
-  font-weight: 800;
+  font-size: 2.4rem;
+  font-weight: 700;
   margin-bottom: 0.4rem;
 }
 
 .user-portal .toast-body p {
   color: #66564c;
-  font-size: 1.35rem;
+  font-size: 1.4rem;
   font-weight: 600;
   margin-bottom: 0.2rem;
 }
@@ -118,8 +118,8 @@
   background: #ffffff;
   color: var(--primary-brown);
   text-decoration: none;
-  font-size: 1.35rem;
-  font-weight: 800;
+  font-size: 1.6rem;
+  font-weight: 700;
   transition: 0.25s ease;
 }
 

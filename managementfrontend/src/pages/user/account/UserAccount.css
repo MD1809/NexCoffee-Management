@@ -1,0 +1,525 @@
+.user-portal .user-account-section {
+  background: #ffffff;
+  color: var(--primary-brown);
+  min-height: calc(100vh - 180px);
+  padding: 5rem 0 7rem;
+}
+
+.user-portal .user-account-wrap {
+  display: grid;
+  grid-template-columns: 28rem 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+.user-portal .user-account-sidebar {
+  background: #fafafa;
+  border: 1px solid rgba(57, 27, 9, 0.1);
+  border-radius: 1.4rem;
+  padding: 2.4rem;
+  position: sticky;
+  top: 11rem;
+}
+
+.user-portal .user-account-sidebar h3 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.user-portal .user-account-sidebar p {
+  font-size: 1.6rem;
+  color: #6b5a50;
+  margin-bottom: 2rem;
+}
+
+.user-portal .user-account-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.user-portal .user-account-sidebar a {
+  padding: 1.2rem 1.4rem;
+  border-radius: 1rem;
+  color: var(--primary-brown);
+  font-weight: 700;
+  background: transparent;
+}
+
+.user-portal .user-account-sidebar a.active,
+.user-portal .user-account-sidebar a:hover {
+  background: rgba(255, 137, 20, 0.06);
+  color: var(--primary-orange);
+  border: 1px dashed var(--primary-orange);
+}
+
+.user-portal .user-account-content {
+  background: #ffffff;
+  border: 1px solid #d3d3d3;
+  border-radius: 1.4rem;
+  padding: 2.8rem;
+  min-width: 0;
+}
+
+.user-portal .user-account-content h2 {
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: var(--primary-brown);
+  margin-bottom: 2rem;
+}
+
+.user-portal .user-account-muted {
+  color: #8b7b72;
+  font-size: 1.5rem;
+}
+
+.user-portal .user-account-empty {
+  padding: 4rem 2rem;
+  text-align: center;
+  background: #fafafa;
+  border-radius: 1.2rem;
+}
+
+.user-portal .user-account-empty p {
+  color: #7a6a60;
+  margin-bottom: 2rem;
+}
+
+.user-portal .user-account-empty a {
+  color: var(--primary-orange);
+  font-weight: 700;
+}
+
+.user-portal .user-account-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.user-portal .user-account-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 90rem;
+}
+
+.user-portal .user-account-table th,
+.user-portal .user-account-table td {
+  border-bottom: 1px solid #eeeeee;
+  padding: 1.4rem 1.2rem;
+  text-align: left;
+  vertical-align: middle;
+  font-size: 1.4rem;
+}
+
+.user-portal .user-account-table th {
+  background: #fffaf6;
+  color: var(--primary-brown);
+  font-weight: 700;
+}
+
+.user-portal .user-account-table a {
+  color: var(--primary-orange);
+  font-weight: 700;
+}
+
+.user-portal .user-account-price {
+  color: #e74c3c;
+  font-weight: 700;
+}
+
+.user-portal .user-account-badge {
+  display: inline-flex;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.user-portal .user-account-badge.warn,
+.user-portal .user-account-status-text.warn {
+  color: #1e88e5;
+  background: #e3f2fd;
+}
+
+.user-portal .user-account-badge.shipping,
+.user-portal .user-account-status-text.shipping {
+  color: #fb8c00;
+  background: #fff3e0;
+}
+
+.user-portal .user-account-badge.success,
+.user-portal .user-account-status-text.success {
+  color: #2e7d32;
+  background: #e8f5e9;
+}
+
+.user-portal .user-account-badge.cancelled,
+.user-portal .user-account-status-text.cancelled {
+  color: #e53935;
+  background: #ffebee;
+}
+
+.user-portal .user-account-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.user-portal .user-account-action-link,
+.user-portal .user-account-cancel-btn {
+  border: none;
+  background: transparent;
+  color: var(--primary-orange);
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.user-portal .user-account-cancel-btn {
+  color: #e53935;
+}
+
+.user-portal .user-account-detail-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.6rem;
+  margin-bottom: 2rem;
+}
+
+.user-portal .user-account-detail-head h2 {
+  margin-bottom: 0;
+}
+
+.user-portal .user-account-detail-head h2 span {
+  font-weight: 700;
+}
+
+.user-portal .user-account-detail-head a {
+  color: var(--primary-orange);
+  font-weight: 700;
+}
+
+.user-portal .user-account-status-box {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.6rem;
+  padding: 1.6rem;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 1rem;
+  margin-bottom: 1.6rem;
+  font-size: 1.45rem;
+}
+
+.user-portal .user-account-status-text {
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+}
+
+.user-portal .user-account-cancel-box {
+  background: #fff1f2;
+  color: #be123c;
+  padding: 1.4rem;
+  border-radius: 1rem;
+  margin-bottom: 1.6rem;
+}
+
+.user-portal .user-account-cancel-box p {
+  margin: 0.4rem 0;
+}
+
+.user-portal .user-account-cancel-area {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.6rem;
+}
+
+.user-portal .user-account-cancel-area button {
+  background: #e53935;
+  color: #ffffff;
+  padding: 1rem 1.6rem;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.user-portal .user-account-cancel-area button:hover {
+  background: #e53935;
+  color: #ffffff;
+  border: 1px solid #e53935;
+  background: #ffffff;
+  color: #e53935;
+}
+
+.user-portal .user-account-info-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr 0.8fr;
+  gap: 1.6rem;
+  margin-bottom: 2rem;
+}
+
+.user-portal .user-account-info-card {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 1rem;
+  padding: 1.6rem;
+  font-size: 1.4rem;
+}
+
+.user-portal .user-account-info-card h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--primary-brown);
+  margin-bottom: 1rem;
+}
+
+.user-portal .user-account-info-card p {
+  margin: 0.6rem 0;
+  color: #5d4b42;
+}
+
+.user-portal .user-account-uppercase {
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.user-portal .user-account-product-list {
+  border: 1px solid #eeeeee;
+  border-radius: 1.2rem;
+  overflow: hidden;
+}
+
+.user-portal .user-account-product-title {
+  padding: 1.4rem 1.6rem;
+  font-weight: 700;
+  border-bottom: 1px solid #eeeeee;
+  background: rgba(0, 0, 0, 0.03);
+  font-size: 1.8rem;
+}
+
+.user-portal .user-account-product-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.user-portal .user-account-product-list th,
+.user-portal .user-account-product-list td {
+  padding: 1.2rem 1.6rem;
+  border-bottom: 1px solid #f1f1f1;
+  font-size: 1.4rem;
+}
+
+.user-portal .user-account-product-list th {
+  text-align: left;
+  color: var(--primary-brown);
+}
+
+.user-portal .user-account-product-list th:not(:first-child),
+.user-portal .user-account-product-list td:not(:first-child) {
+  text-align: right;
+}
+
+.user-portal .user-account-product-cell {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.user-portal .user-account-product-cell img,
+.user-portal .user-account-product-placeholder {
+  width: 6.4rem;
+  height: 6.4rem;
+  border-radius: 0.8rem;
+  object-fit: cover;
+  background: #f5eee8;
+}
+
+.user-portal .user-account-product-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+}
+
+.user-portal .user-account-product-cell p {
+  margin-top: 0.4rem;
+  color: #89786e;
+}
+
+.user-portal .user-account-line-total {
+  color: #2e7d32;
+  font-weight: 900;
+}
+
+.user-portal .user-account-totals {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.user-portal .user-account-totals > div {
+  width: min(36rem, 100%);
+}
+
+.user-portal .user-account-totals div div {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.8rem 0;
+  font-size: 1.8rem;
+}
+
+.user-portal .user-account-grand-total {
+  border-top: 1px dashed #bebebe;
+  padding-top: 1.2rem;
+  margin-top: 1.2rem !important;
+  font-weight: 700;
+}
+
+.user-portal .user-account-grand-total strong {
+  color: #e74c3c;
+  font-size: 1.8rem;
+}
+
+.user-portal .user-account-password header {
+  margin-bottom: 2.4rem;
+}
+
+.user-portal .user-account-password header p {
+  color: #7a6a60;
+  font-size: 1.45rem;
+}
+
+.user-portal .user-account-password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+  max-width: 52rem;
+}
+
+.user-portal .user-account-password-form label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+  color: var(--primary-brown);
+}
+
+.user-portal .user-account-password-form input {
+  width: 100%;
+  border: 1px solid #d3d3d3;
+  border-radius: 0.8rem;
+  padding: 1.2rem 1.4rem;
+  font-size: 1.45rem;
+  outline: none;
+}
+
+.user-portal .user-account-password-form input:focus {
+  border-color: var(--primary-orange);
+  box-shadow: 0 0 0 0.3rem rgba(255, 137, 20, 0.15);
+}
+
+.user-portal .user-account-password-form button {
+  width: fit-content;
+  border: none;
+  background: var(--primary-orange);
+  color: #ffffff;
+  padding: 1.2rem 2.4rem;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.user-portal .user-account-password-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.user-portal .user-account-password-form input.input-error {
+  border-color: #e53935;
+  box-shadow: 0 0 0 0.3rem rgba(229, 57, 53, 0.12);
+}
+
+.user-portal .user-account-error-text {
+  display: block;
+  margin-top: 0.7rem;
+  color: #e53935;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.user-portal .user-account-password-error-list {
+  margin-top: 0.8rem;
+  padding: 1rem 1.2rem;
+  border-radius: 0.8rem;
+  background: #fff1f2;
+  color: #be123c;
+}
+
+.user-portal .user-account-password-error-list p {
+  margin: 0.3rem 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.user-portal .user-account-error-message {
+  margin-bottom: 1.6rem;
+  padding: 1.2rem 1.4rem;
+  border-radius: 0.8rem;
+  background: #fff1f2;
+  color: #be123c;
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+.user-portal .user-account-pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1.4rem;
+  margin-top: 2rem;
+}
+
+.user-portal .user-account-pagination button {
+  min-width: 8rem;
+  height: 3.8rem;
+  border: 1px solid rgba(57, 27, 9, 0.14);
+  border-radius: 0.8rem;
+  background: #ffffff;
+  color: var(--primary-brown);
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.user-portal .user-account-pagination button:hover:not(:disabled) {
+  background: var(--primary-orange);
+  border-color: var(--primary-orange);
+  color: #ffffff;
+}
+
+.user-portal .user-account-pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.user-portal .user-account-pagination span {
+  color: var(--primary-brown);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+@media (max-width: 992px) {
+  .user-portal .user-account-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .user-portal .user-account-sidebar {
+    position: static;
+  }
+
+  .user-portal .user-account-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .user-portal .user-account-status-box,
+  .user-portal .user-account-detail-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

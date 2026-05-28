@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaMinus, FaPlus, FaTrashAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
-
+import noCartImage from "../../../assets/logo/no-cart.png";
 import "./Cart.css";
 import { getCart, removeCartItem, updateCartItem } from "../../../apis/cartApi";
 import { getAccessToken, getCurrentUser } from "../../../utils/authStorage";
@@ -195,7 +195,6 @@ const Cart = () => {
       <div className="main-content">
         <div className="cart-header">
           <div>
-            <p className="cart-eyebrow">NexCoffee</p>
             <h1 className="cart-title">Giỏ hàng của bạn</h1>
           </div>
 
@@ -206,7 +205,9 @@ const Cart = () => {
 
         {items.length === 0 ? (
           <div className="cart-empty">
-            <div className="cart-empty-icon">🛒</div>
+            <div className="cart-empty-icon">
+              <img src={noCartImage} alt="Giỏ hàng trống" />
+            </div>
             <h2>Giỏ hàng trống</h2>
             <p>Hãy chọn món cà phê yêu thích và thêm vào giỏ hàng.</p>
 
@@ -298,10 +299,10 @@ const Cart = () => {
                 <strong>{formatCurrency(cart.totalAmount)}</strong>
               </div>
 
-              <div className="summary-note">
+              {/* <div className="summary-note">
                 Phí giao hàng và thông tin thanh toán sẽ được xử lý ở bước
                 checkout.
-              </div>
+              </div> */}
 
               <div className="total">
                 <span>TỔNG CỘNG</span>
