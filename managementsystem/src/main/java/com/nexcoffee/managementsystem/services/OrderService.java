@@ -31,6 +31,7 @@ public class OrderService {
     private final OrderDetailRepository orderDetailRepository;
     private final UserRepository userRepository;
     private final ProductVariantRepository productVariantRepository;
+    private final EmailService emailService;
 
     // --- PHẦN 1: CÁC HÀM MỚI PHỤC VỤ DASHBOARD THỐNG KÊ ---
 
@@ -209,7 +210,38 @@ public class OrderService {
         }
 
         order.setStatus(newStatus);
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+
+        if ((newStatus == OrderStatus.Shipped || newStatus == OrderStatus.Completed || newStatus == OrderStatus.Cancelled)
+                && savedOrder.getEmail() != null
+                && !savedOrder.getEmail().trim().isEmpty()) {
+
+            // Xác định nhãn trạng thái dựa trên newStatus
+            String statusLabel;
+            if (newStatus == OrderStatus.Shipped) {
+                statusLabel = "ĐƠN HÀNG ĐANG ĐƯỢC GIAO";
+            } else if (newStatus == OrderStatus.Completed) {
+                statusLabel = "ĐÃ GIAO HÀNG THÀNH CÔNG";
+            } else {
+                // Trạng thái Hủy - Kèm theo lý do nếu có
+                statusLabel = "ĐƠN HÀNG ĐÃ BỊ HỦY";
+                if (cancelReason != null && !cancelReason.trim().isEmpty()) {
+                    statusLabel += "<br/><span style='font-size:14px; color:#ef4444; font-weight:normal;'>Lý do: " + cancelReason + "</span>";
+                }
+            }
+
+            // BẠN ĐÃ THIẾU ĐOẠN NÀY DẪN ĐẾN VIỆC KHÔNG GỬI ĐƯỢC MAIL
+            // Gọi service để thực sự gửi email đi
+            emailService.sendOrderStatusEmail(
+                    savedOrder.getEmail(),
+                    savedOrder.getFullName(),
+                    savedOrder.getCode(),
+                    newStatus.name(),
+                    cancelReason
+            );
+        }
+
+        return savedOrder;
     }
 
     @Transactional
