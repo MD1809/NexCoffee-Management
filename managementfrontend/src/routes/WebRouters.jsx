@@ -120,6 +120,24 @@ function WebRouters() {
             element={<EditDeliveryAreaPage />}
           />
         </Route>
+
+        <Route
+          path="/staff"
+          element={
+            <ProtectedRoute allowedRoles={["STAFF"]}>
+              {/* Dùng chung bộ khung Layout với Admin cho đỡ phải code lại */}
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          {/* Mặc định nhân viên vào /staff sẽ tự động chuyển hướng sang trang POS */}
+          <Route index element={<Navigate to="pos" replace />} />
+
+          {/* Pos và Order của Nhân viên (đường dẫn: /staff/pos) */}
+          <Route path="pos" element={<PosPage />} />
+          <Route path="orders" element={<OrderPage />} />
+          <Route path="orders/detail/:id" element={<OrderDetailPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

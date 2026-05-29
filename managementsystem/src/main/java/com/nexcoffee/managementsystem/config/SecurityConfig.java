@@ -73,9 +73,9 @@ public class SecurityConfig {
 
                         // Nếu có các controller admin khác đang dùng endpoint hiện tại
                         .requestMatchers("/api/users/**").hasAuthority("ADMIN")
-                        .requestMatchers("/api/orders/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/orders/**").hasAnyAuthority("ADMIN", "STAFF")
                         .requestMatchers("/api/delivery-areas/**").hasAuthority("ADMIN")
-                        .requestMatchers("/api/pos/**").permitAll()
+                        .requestMatchers("/api/pos/**").hasAnyAuthority("ADMIN", "STAFF")
                         .requestMatchers(
                                 "/api/delivery-areas",
                                 "/api/delivery-areas/**"
