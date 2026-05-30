@@ -18,7 +18,8 @@
     "react-to-print": "^3.3.0",
     "react-toastify": "^11.1.0",
     "recharts": "^3.8.1",
-    "sweetalert2": "^11.26.24"
+    "sweetalert2": "^11.26.24",
+    "trackasia-gl": "^2.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import Hero from "../../components/user/hero/Hero";
 import About from "../../components/user/about/About";
 import Contact from "../../components/user/contact/Contact";
+import HomeAdPopup from "../../components/user/home-ad-popup/HomeAdPopup";
 
 const scrollToSection = (sectionId) => {
   const target = document.getElementById(sectionId);
@@ -38,6 +39,7 @@ const Home = () => {
 
   return (
     <div className="home-page">
+      <HomeAdPopup />
       <div id="hero" className="home-scroll-section">
         <Hero />
       </div>

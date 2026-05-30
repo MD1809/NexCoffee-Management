@@ -109,4 +109,22 @@ public class Order {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "formatted_address", length = 500)
+    private String formattedAddress;
+
+    @Column(name = "customer_latitude")
+    private Double customerLatitude;
+
+    @Column(name = "customer_longitude")
+    private Double customerLongitude;
+
+    @Column(name = "delivery_distance_meters")
+    private Integer deliveryDistanceMeters;
+
+    @Column(name = "delivery_duration_seconds")
+    private Integer deliveryDurationSeconds;
+
+    @Column(name = "nearest_store_id")
+    private Long nearestStoreId;
 }

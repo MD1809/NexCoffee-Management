@@ -123,7 +123,7 @@ export default function Pos() {
 
     // 1. Lấy thông tin user từ sessionStorage
     const userString = sessionStorage.getItem("currentUser");
-    
+
     if (!userString) {
       toast.error("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!");
       return;
@@ -288,7 +288,7 @@ export default function Pos() {
         {/* Khối Header Giỏ hàng (Cố định) */}
         <div className="cart-header">
           <div className="cart-title">
-            <i class="fa-solid fa-bag-shopping"></i>
+            <i className="fa-solid fa-bag-shopping"></i>
             Giỏ Hàng ({cart.reduce((a, b) => a + b.quantity, 0)})
           </div>
           {cart.length > 0 && (

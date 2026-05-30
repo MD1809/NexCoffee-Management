@@ -41,6 +41,8 @@ import AddDeliveryAreaPage from "../pages/admin/delivery-area/AddDeliveryAreaPag
 import EditDeliveryAreaPage from "../pages/admin/delivery-area/EditDeliveryAreaPage";
 import DailyReportPage from "../pages/admin/dailydashboard/DailyReport";
 import PosPage from "../pages/admin/pos/Pos";
+import DeliverySettingPage from "../pages/admin/delivery-setting/DeliverySettingPage";
+import AdvertisementPage from "../pages/admin/advertisement/AdvertisementPage";
 
 function WebRouters() {
   return (
@@ -119,6 +121,8 @@ function WebRouters() {
             path="delivery-areas/edit/:id"
             element={<EditDeliveryAreaPage />}
           />
+          <Route path="delivery-setting" element={<DeliverySettingPage />} />
+          <Route path="advertisements" element={<AdvertisementPage />} />
         </Route>
 
         <Route

@@ -6,10 +6,10 @@ import { toast } from "react-toastify";
 import "./UserCheckout.css";
 
 import { getCart } from "../../../apis/cartApi";
-import { checkDeliveryArea, placeOrder } from "../../../apis/checkoutApi";
-import { getProvinces, getWardsByProvince } from "../../../apis/locationApi";
+import { placeOrder } from "../../../apis/checkoutApi";
 import { clearGuestCartToken } from "../../../utils/cartSession";
 import { getCurrentUser } from "../../../utils/authStorage";
+import CheckoutAddressMap from "./CheckoutAddressMap";
 
 const BACKEND_URL = "http://localhost:8080";
 
@@ -35,7 +35,6 @@ const getImageUrl = (imagePath) => {
 
 const UserCheckout = () => {
   const navigate = useNavigate();
-
   const currentUser = getCurrentUser();
 
   const [cart, setCart] = useState({
@@ -44,22 +43,16 @@ const UserCheckout = () => {
     totalQuantity: 0,
   });
 
-  const [provinces, setProvinces] = useState([]);
-  const [wards, setWards] = useState([]);
-
-  const [shippingFee, setShippingFee] = useState(0);
-  const [deliveryMessage, setDeliveryMessage] = useState("");
-  const [deliverable, setDeliverable] = useState(false);
-
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [deliveryPreview, setDeliveryPreview] = useState(null);
 
   const [formData, setFormData] = useState({
     fullName: currentUser?.fullName || "",
     phone: currentUser?.phone || "",
     email: currentUser?.email || "",
-    provinceCode: "",
-    wardCode: "",
     addressDetail: "",
     note: "",
     paymentMethod: "COD",
@@ -69,8 +62,16 @@ const UserCheckout = () => {
     return Array.isArray(cart.items) ? cart.items : [];
   }, [cart.items]);
 
+  const shippingFee = useMemo(() => {
+    if (!selectedAddress || !deliveryPreview?.deliverable) {
+      return 0;
+    }
+
+    return Number(deliveryPreview.finalShippingFee || 0);
+  }, [selectedAddress, deliveryPreview]);
+
   const total = useMemo(() => {
-    return Number(cart.totalAmount || 0) + Number(shippingFee || 0);
+    return Number(cart.totalAmount || 0) + shippingFee;
   }, [cart.totalAmount, shippingFee]);
 
   useEffect(() => {
@@ -78,18 +79,13 @@ const UserCheckout = () => {
       try {
         setLoading(true);
 
-        const [cartData, provinceData] = await Promise.all([
-          getCart(),
-          getProvinces(),
-        ]);
+        const cartData = await getCart();
 
         setCart({
           items: Array.isArray(cartData?.items) ? cartData.items : [],
           totalAmount: cartData?.totalAmount || 0,
           totalQuantity: cartData?.totalQuantity || 0,
         });
-
-        setProvinces(Array.isArray(provinceData) ? provinceData : []);
       } catch (error) {
         toast.error("Không thể tải dữ liệu thanh toán.");
       } finally {
@@ -101,68 +97,12 @@ const UserCheckout = () => {
     initCheckout();
   }, []);
 
-  useEffect(() => {
-    const loadWards = async () => {
-      if (!formData.provinceCode) {
-        setWards([]);
-        setFormData((prev) => ({ ...prev, wardCode: "" }));
-        setDeliverable(false);
-        setDeliveryMessage("");
-        setShippingFee(0);
-        return;
-      }
-
-      try {
-        const wardData = await getWardsByProvince(formData.provinceCode);
-        setWards(Array.isArray(wardData) ? wardData : []);
-      } catch (error) {
-        toast.error("Không thể tải danh sách phường/xã.");
-      }
-    };
-
-    loadWards();
-  }, [formData.provinceCode]);
-
-  useEffect(() => {
-    const validateDeliveryArea = async () => {
-      if (!formData.provinceCode || !formData.wardCode) {
-        setDeliverable(false);
-        setDeliveryMessage("");
-        setShippingFee(0);
-        return;
-      }
-
-      try {
-        const result = await checkDeliveryArea({
-          provinceCode: formData.provinceCode,
-          wardCode: formData.wardCode,
-        });
-
-        setDeliverable(Boolean(result.deliverable));
-        setDeliveryMessage(result.message || "");
-
-        if (result.deliverable) {
-          setShippingFee(Number(result.shippingFee || 0));
-        } else {
-          setShippingFee(0);
-        }
-      } catch (error) {
-        setDeliverable(false);
-        setShippingFee(0);
-        setDeliveryMessage("Không thể kiểm tra khu vực giao hàng.");
-      }
-    };
-
-    validateDeliveryArea();
-  }, [formData.provinceCode, formData.wardCode]);
-
   const handleChange = (event) => {
     const { name, value } = event.target;
 
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-      ...(name === "provinceCode" ? { wardCode: "" } : {}),
     }));
   };
 
@@ -183,20 +123,15 @@ const UserCheckout = () => {
       return false;
     }
 
-    if (!formData.provinceCode || !formData.wardCode) {
-      toast.warning("Vui lòng chọn tỉnh/thành phố và phường/xã.");
+    if (!selectedAddress) {
+      toast.warning("Vui lòng chọn địa chỉ giao hàng từ gợi ý.");
       return false;
     }
 
-    if (!formData.addressDetail.trim()) {
-      toast.warning("Vui lòng nhập địa chỉ chi tiết.");
-      return false;
-    }
-
-    if (!deliverable) {
+    if (!deliveryPreview?.deliverable) {
       toast.warning(
-        deliveryMessage ||
-          "NexCoffee hiện chưa hỗ trợ giao hàng tại khu vực này.",
+        deliveryPreview?.message ||
+          "Địa chỉ này không nằm trong phạm vi giao hàng.",
       );
       return false;
     }
@@ -216,9 +151,10 @@ const UserCheckout = () => {
         fullName: formData.fullName.trim(),
         phone: formData.phone.trim(),
         email: formData.email.trim(),
-        provinceCode: formData.provinceCode,
-        wardCode: formData.wardCode,
+        formattedAddress: selectedAddress.formattedAddress,
         addressDetail: formData.addressDetail.trim(),
+        customerLatitude: selectedAddress.customerLatitude,
+        customerLongitude: selectedAddress.customerLongitude,
         note: formData.note.trim(),
         paymentMethod: formData.paymentMethod,
       });
@@ -294,58 +230,20 @@ const UserCheckout = () => {
               />
             </div>
 
-            <div className="user-checkout-address-select">
-              <select
-                name="provinceCode"
-                value={formData.provinceCode}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Chọn tỉnh/thành phố</option>
-                {provinces.map((province) => (
-                  <option key={province.code} value={province.code}>
-                    {province.fullName}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                name="wardCode"
-                value={formData.wardCode}
-                onChange={handleChange}
-                disabled={!formData.provinceCode}
-                required
-              >
-                <option value="">Chọn phường/xã</option>
-                {wards.map((ward) => (
-                  <option key={ward.code} value={ward.code}>
-                    {ward.fullName}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {formData.provinceCode && formData.wardCode && (
-              <div
-                className={`user-checkout-delivery-message ${
-                  deliverable ? "is-success" : "is-error"
-                }`}
-              >
-                {deliveryMessage}
-              </div>
-            )}
-
-            <div className="user-checkout-field">
-              <label>Địa chỉ chi tiết</label>
-              <input
-                name="addressDetail"
-                type="text"
-                placeholder="Số nhà, tên đường..."
-                value={formData.addressDetail}
-                onChange={handleChange}
-                required
-              />
-            </div>
+            <CheckoutAddressMap
+              subtotal={cart.totalAmount || 0}
+              selectedAddress={selectedAddress}
+              setSelectedAddress={setSelectedAddress}
+              deliveryPreview={deliveryPreview}
+              setDeliveryPreview={setDeliveryPreview}
+              addressDetail={formData.addressDetail}
+              onAddressDetailChange={(value) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  addressDetail: value,
+                }))
+              }
+            />
 
             <div className="user-checkout-field">
               <label>Ghi chú</label>
@@ -428,15 +326,24 @@ const UserCheckout = () => {
                   <div className="user-checkout-total-row">
                     <span>Phí ship:</span>
                     <span>
-                      {!formData.wardCode
+                      {!selectedAddress
                         ? "-- Chọn địa chỉ --"
-                        : deliverable
+                        : deliveryPreview?.deliverable
                           ? shippingFee === 0
                             ? "Miễn phí"
                             : formatCurrency(shippingFee)
                           : "Không hỗ trợ"}
                     </span>
                   </div>
+
+                  {deliveryPreview?.distanceMeters && (
+                    <div className="user-checkout-total-row">
+                      <span>Khoảng cách:</span>
+                      <span>
+                        {(deliveryPreview.distanceMeters / 1000).toFixed(1)} km
+                      </span>
+                    </div>
+                  )}
 
                   <div className="user-checkout-grand">
                     <span>Tổng cộng</span>
@@ -452,7 +359,12 @@ const UserCheckout = () => {
                   <button
                     className="user-checkout-primary-btn"
                     type="button"
-                    disabled={submitting || !deliverable || items.length === 0}
+                    disabled={
+                      submitting ||
+                      items.length === 0 ||
+                      !selectedAddress ||
+                      !deliveryPreview?.deliverable
+                    }
                     onClick={handleSubmit}
                   >
                     {submitting ? "Đang xử lý..." : "Thanh toán"}

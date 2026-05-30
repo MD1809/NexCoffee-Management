@@ -1,0 +1,147 @@
+.user-portal .checkout-map-block {
+  margin-bottom: 1.8rem;
+}
+
+.user-portal .checkout-map-block > label {
+  display: block;
+  font-size: 1.45rem;
+  color: #383838;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+}
+
+.user-portal .checkout-map-input-wrap {
+  position: relative;
+  margin-bottom: 1rem;
+  z-index: 20;
+}
+
+.user-portal .checkout-map-input-wrap input {
+  width: 100%;
+  border: 1px solid #eeeeee;
+  border-radius: 0.8rem;
+  padding: 1.2rem 1.4rem;
+  font-size: 1.45rem;
+  outline: none;
+  color: #333333;
+  background: #ffffff;
+}
+
+.user-portal .checkout-map-input-wrap input:focus {
+  border-color: var(--primary-orange);
+  box-shadow: 0 0 0 0.3rem rgba(255, 137, 20, 0.15);
+}
+
+.user-portal .checkout-map-loading {
+  position: absolute;
+  right: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  color: #8b7b72;
+}
+
+.user-portal .checkout-map-suggestions {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #eeeeee;
+  border-radius: 1rem;
+  box-shadow: 0 1.4rem 3rem rgba(0, 0, 0, 0.14);
+  overflow: hidden;
+  z-index: 9999;
+  max-height: 26rem;
+  overflow-y: auto;
+}
+
+.user-portal .checkout-map-suggestions button {
+  width: 100%;
+  border: none;
+  background: #ffffff;
+  padding: 1.1rem 1.4rem;
+  text-align: left;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.user-portal .checkout-map-suggestions button:hover {
+  background: #fff7ef;
+}
+
+.user-portal .checkout-map-suggestions strong {
+  display: block;
+  color: var(--primary-brown);
+  font-size: 1.35rem;
+  margin-bottom: 0.3rem;
+}
+
+.user-portal .checkout-map-suggestions span {
+  display: block;
+  color: #7a6a60;
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
+
+.user-portal .checkout-small-map {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 22rem;
+  border-radius: 1.2rem;
+  overflow: hidden;
+  border: 1px solid #eeeeee;
+  background: #f8f8f8;
+}
+
+.user-portal .checkout-delivery-preview {
+  margin-top: 1rem;
+  padding: 1rem 1.2rem;
+  border-radius: 0.8rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.user-portal .checkout-delivery-preview span {
+  display: block;
+  margin-top: 0.4rem;
+}
+
+.user-portal .checkout-delivery-preview.is-ok {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.user-portal .checkout-delivery-preview.is-error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.user-portal .checkout-map-detail-field {
+  margin-bottom: 1rem;
+}
+
+.user-portal .checkout-map-detail-field label {
+  display: block;
+  font-size: 1.35rem;
+  color: #383838;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+}
+
+.user-portal .checkout-map-detail-field input {
+  width: 100%;
+  border: 1px solid #eeeeee;
+  border-radius: 0.8rem;
+  padding: 1.2rem 1.4rem;
+  font-size: 1.4rem;
+  outline: none;
+  color: #333333;
+  background: #ffffff;
+}
+
+.user-portal .checkout-map-detail-field input:focus {
+  border-color: var(--primary-orange);
+  box-shadow: 0 0 0 0.3rem rgba(255, 137, 20, 0.15);
+}

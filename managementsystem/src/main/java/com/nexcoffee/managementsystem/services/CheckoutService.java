@@ -3,7 +3,6 @@ package com.nexcoffee.managementsystem.services;
 import com.nexcoffee.managementsystem.dto.request.checkout.CheckoutRequest;
 import com.nexcoffee.managementsystem.dto.response.checkout.CheckoutItemResponse;
 import com.nexcoffee.managementsystem.dto.response.checkout.CheckoutResponse;
-import com.nexcoffee.managementsystem.dto.response.delivery.DeliveryCheckResponse;
 import com.nexcoffee.managementsystem.entities.*;
 import com.nexcoffee.managementsystem.enums.CartStatus;
 import com.nexcoffee.managementsystem.enums.OrderStatus;
@@ -16,6 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.nexcoffee.managementsystem.dto.request.delivery.DeliveryPreviewRequest;
+import com.nexcoffee.managementsystem.dto.response.delivery.DeliveryPreviewResponse;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,9 +31,8 @@ public class CheckoutService {
     private final CartRepository cartRepository;
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
-    private final ProvinceRepository provinceRepository;
-    private final WardRepository wardRepository;
-    private final DeliveryAreaService deliveryAreaService;
+    private final DeliveryPreviewService deliveryPreviewService;
+    private final OrderMailService orderMailService;
 
     public CheckoutResponse placeOrder(CheckoutRequest request) {
         User currentUser = getCurrentUserOrNull();
@@ -48,35 +48,29 @@ public class CheckoutService {
             throw new RuntimeException("Giỏ hàng của bạn đang trống.");
         }
 
-        Province province = provinceRepository.findById(request.getProvinceCode())
-                .orElseThrow(() -> new RuntimeException("Tỉnh/thành phố không hợp lệ."));
-
-        Ward ward = wardRepository.findById(request.getWardCode())
-                .orElseThrow(() -> new RuntimeException("Phường/xã không hợp lệ."));
-
-        if (!ward.getProvinceCode().equals(province.getCode())) {
-            throw new RuntimeException("Phường/xã không thuộc tỉnh/thành phố đã chọn.");
-        }
-
-        DeliveryCheckResponse deliveryCheck = deliveryAreaService.checkDelivery(
-                request.getProvinceCode(),
-                request.getWardCode()
-        );
-
-        if (!Boolean.TRUE.equals(deliveryCheck.getDeliverable())) {
-            throw new RuntimeException(deliveryCheck.getMessage());
-        }
-
         long subtotal = calculateSubtotal(cart);
-        long shipping = Math.round(deliveryCheck.getShippingFee() == null ? 0.0 : deliveryCheck.getShippingFee());
+
+        DeliveryPreviewRequest previewRequest = new DeliveryPreviewRequest();
+        previewRequest.setCustomerLatitude(request.getCustomerLatitude());
+        previewRequest.setCustomerLongitude(request.getCustomerLongitude());
+        previewRequest.setSubtotal(subtotal);
+
+        DeliveryPreviewResponse deliveryPreview = deliveryPreviewService.preview(previewRequest);
+
+        if (!Boolean.TRUE.equals(deliveryPreview.getDeliverable())) {
+            throw new RuntimeException(deliveryPreview.getMessage());
+        }
+
+        long shipping = deliveryPreview.getFinalShippingFee();
         long discount = 0L;
         long total = subtotal + shipping - discount;
 
-        String fullAddress = buildFullAddress(
-                request.getAddressDetail(),
-                ward.getFullName(),
-                province.getFullName()
-        );
+        String mapAddress = request.getFormattedAddress().trim();
+        String extraAddressDetail = normalizeBlank(request.getAddressDetail());
+
+        String fullAddress = extraAddressDetail == null
+                ? mapAddress
+                : extraAddressDetail + ", " + mapAddress;
 
         Order order = Order.builder()
                 .user(currentUser)
@@ -85,6 +79,12 @@ public class CheckoutService {
                 .phone(request.getPhone().trim())
                 .email(normalizeBlank(request.getEmail()))
                 .address(fullAddress)
+                .formattedAddress(mapAddress)
+                .customerLatitude(request.getCustomerLatitude())
+                .customerLongitude(request.getCustomerLongitude())
+                .nearestStoreId(deliveryPreview.getNearestStoreId())
+                .deliveryDistanceMeters(deliveryPreview.getDistanceMeters())
+                .deliveryDurationSeconds(deliveryPreview.getDurationSeconds())
                 .subtotal(subtotal)
                 .shipping(shipping)
                 .discount(discount)
@@ -120,6 +120,8 @@ public class CheckoutService {
 
         clearCartAfterCheckout(cart);
 
+        sendOrderSuccessEmailSafely(savedOrder, currentUser);
+
         return toCheckoutResponse(savedOrder);
     }
 
@@ -128,6 +130,21 @@ public class CheckoutService {
                 .stream()
                 .mapToLong(item -> Math.round(item.getUnitPrice()) * item.getQuantity())
                 .sum();
+    }
+
+    private void sendOrderSuccessEmailSafely(Order order, User currentUser) {
+        try {
+            String receiverEmail = normalizeBlank(order.getEmail());
+
+            if (receiverEmail == null && currentUser != null) {
+                receiverEmail = normalizeBlank(currentUser.getEmail());
+            }
+
+            orderMailService.sendOrderSuccessEmail(order, receiverEmail);
+        } catch (Exception exception) {
+            System.err.println("Đặt hàng thành công nhưng gửi email thất bại: "
+                    + exception.getMessage());
+        }
     }
 
     private void clearCartAfterCheckout(Cart cart) {

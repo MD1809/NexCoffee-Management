@@ -1,7 +1,6 @@
 package com.nexcoffee.managementsystem.services;
 
 import com.nexcoffee.managementsystem.dto.request.delivery.DeliveryAreaRequest;
-import com.nexcoffee.managementsystem.dto.response.delivery.DeliveryAreaResponse;
 import com.nexcoffee.managementsystem.dto.response.delivery.DeliveryCheckResponse;
 import com.nexcoffee.managementsystem.entities.DeliveryArea;
 import com.nexcoffee.managementsystem.enums.DeliveryAreaStatus;
@@ -13,6 +12,7 @@ import com.nexcoffee.managementsystem.entities.Province;
 import com.nexcoffee.managementsystem.entities.Ward;
 import com.nexcoffee.managementsystem.repositories.ProvinceRepository;
 import com.nexcoffee.managementsystem.repositories.WardRepository;
+import com.nexcoffee.managementsystem.dto.response.delivery.DeliveryAreaResponse;
 
 import java.util.List;
 
@@ -216,7 +216,7 @@ public class DeliveryAreaService {
                 .wardName(wardName)
                 .scopeLabel(scopeLabel)
                 .shippingFee(area.getShippingFee())
-                .status(area.getStatus())
+                .status(area.getStatus() == null ? null : area.getStatus().name())
                 .note(area.getNote())
                 .createdAt(area.getCreatedAt())
                 .updatedAt(area.getUpdatedAt())

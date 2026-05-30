@@ -70,6 +70,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/categories/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/admin/delivery-setting/**").hasAuthority("ADMIN")
 
                         // Nếu có các controller admin khác đang dùng endpoint hiện tại
                         .requestMatchers("/api/users/**").hasAuthority("ADMIN")
@@ -85,6 +86,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/cart/**").permitAll()
                         .requestMatchers("/api/checkout/**").hasAuthority("CUSTOMER")
                         .requestMatchers("/api/customer/**").hasAuthority("CUSTOMER")
+                        .requestMatchers("/api/maps/**").hasAuthority("CUSTOMER")
+                        .requestMatchers(HttpMethod.GET, "/api/advertisements/**").permitAll()
+                        .requestMatchers("/api/admin/advertisements/**").hasAuthority("ADMIN")
 
                         // Các API còn lại bắt buộc đăng nhập
                         .anyRequest().authenticated()
