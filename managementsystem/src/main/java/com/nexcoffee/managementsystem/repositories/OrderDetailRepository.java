@@ -32,4 +32,20 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Intege
     List<ProductSaleStats> getProductSalesByDate(@Param("startOfDay") LocalDateTime startOfDay,
                                                  @Param("endOfDay") LocalDateTime endOfDay,
                                                  @Param("targetStatus") OrderStatus targetStatus);
+    @Query("SELECT p.name AS productName, pv.size AS size, SUM(od.quantity) AS totalQuantity " +
+            "FROM OrderDetail od " +
+            "JOIN od.order o " +
+            "JOIN od.productVariant pv " +
+            "JOIN pv.product p " +
+            "WHERE o.createdAt >= :startOfDay AND o.createdAt <= :endOfDay " +
+            "AND o.status = :targetStatus " +
+            "AND o.nearestStoreId = :storeId " +
+            "GROUP BY p.name, pv.size " +
+            "ORDER BY totalQuantity DESC")
+    List<ProductSaleStats> getProductSalesByDateAndStoreId(
+            @Param("startOfDay") LocalDateTime startOfDay,
+            @Param("endOfDay") LocalDateTime endOfDay,
+            @Param("targetStatus") OrderStatus targetStatus,
+            @Param("storeId") Long storeId
+    );
 }

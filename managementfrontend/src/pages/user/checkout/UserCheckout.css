@@ -318,3 +318,86 @@
     justify-content: center;
   }
 }
+.user-portal .checkout-map-note {
+  margin: 0.8rem 0 0;
+  color: #7a6a60;
+  font-size: 1.25rem;
+  line-height: 1.45;
+}
+
+.user-portal .checkout-small-map-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.6rem;
+  text-align: center;
+  color: #7a6a60;
+  font-size: 1.35rem;
+}
+.user-portal .checkout-map-actions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.user-portal .checkout-map-actions button {
+  border: 1px solid var(--primary-orange);
+  border-radius: 0.8rem;
+  background: #ffffff;
+  color: var(--primary-orange);
+  padding: 1rem 1.4rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.user-portal .checkout-map-actions button:hover {
+  background: var(--primary-orange);
+  color: #ffffff;
+}
+.user-portal .checkout-store-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  transform: translateY(4px);
+}
+
+.user-portal .checkout-store-marker-pin {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50% 50% 50% 0;
+  background: var(--primary-brown);
+  border: 0.3rem solid #ffffff;
+  transform: rotate(-45deg);
+  box-shadow: 0 0.4rem 1rem rgba(0, 0, 0, 0.25);
+  position: relative;
+}
+
+.user-portal .checkout-store-marker-pin::after {
+  content: "";
+  position: absolute;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: #ffffff;
+  top: 0.42rem;
+  left: 0.42rem;
+}
+
+.user-portal .checkout-store-marker-label {
+  margin-top: 0.6rem;
+  max-width: 14rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--primary-brown);
+  border: 1px solid rgba(57, 27, 9, 0.15);
+  box-shadow: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.15);
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -1,17 +1,14 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { getCurrentUser } from "../utils/authStorage";
+import { getRedirectPathByRole, isBackOfficeRole } from "../utils/roleRedirect";
 
 const BlockAdminRoute = ({ children }) => {
   const currentUser = getCurrentUser();
 
-  if (currentUser?.role === "ADMIN") {
-    return <Navigate to="/admin" replace />;
+  if (currentUser && isBackOfficeRole(currentUser.role)) {
+    return <Navigate to={getRedirectPathByRole(currentUser.role)} replace />;
   }
-
-  //   if (currentUser?.role === "STAFF") {
-  //   return <Navigate to="/staff" replace />;
-  // }
 
   return children || <Outlet />;
 };

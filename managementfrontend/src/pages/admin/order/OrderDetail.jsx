@@ -18,6 +18,7 @@ import orderApi from "../../../apis/OrderApi";
 import userApi from "../../../apis/userApi"; // ĐÃ BỔ SUNG: Import API lấy user
 import Button from "../../../components/admin/button/Button";
 import "./OrderDetail.css";
+import OrderRouteMap from "../../../components/admin/order/OrderRouteMap";
 
 const OrderDetail = () => {
   const { id } = useParams();
@@ -72,13 +73,15 @@ const OrderDetail = () => {
     let confirmResult;
 
     if (newStatus === "Processing") {
-      const userStorage = localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser");
-      
+      const userStorage =
+        localStorage.getItem("currentUser") ||
+        sessionStorage.getItem("currentUser");
+
       if (userStorage) {
         try {
           // Dịch chuỗi JSON thành Object và lấy trường id
           const userObj = JSON.parse(userStorage);
-          staffId = userObj.id; 
+          staffId = userObj.id;
         } catch (error) {
           console.error("Lỗi khi đọc dữ liệu currentUser:", error);
         }
@@ -97,8 +100,8 @@ const OrderDetail = () => {
       });
 
       if (!confirmResult.isConfirmed) return;
-    } 
-    
+    }
+
     // TRƯỜNG HỢP 2: GIAO HÀNG (Lấy Shipper từ Database)
     else if (newStatus === "Shipped") {
       try {
@@ -108,13 +111,17 @@ const OrderDetail = () => {
 
         // Chuyển mảng thành Object cho Swal hiển thị Dropdown
         const shipperOptions = {};
-        shippersFromDb.forEach(shipper => {
+        shippersFromDb.forEach((shipper) => {
           shipperOptions[shipper.id] = shipper.fullName;
         });
 
         // Báo lỗi nếu không có shipper nào online/tồn tại
         if (Object.keys(shipperOptions).length === 0) {
-          Swal.fire("Thông báo", "Hiện tại không có nhân viên giao hàng nào đang hoạt động!", "warning");
+          Swal.fire(
+            "Thông báo",
+            "Hiện tại không có nhân viên giao hàng nào đang hoạt động!",
+            "warning",
+          );
           return;
         }
 
@@ -138,15 +145,16 @@ const OrderDetail = () => {
 
         if (!result.isConfirmed) return;
         shipperId = result.value;
-
       } catch (error) {
         console.error("Lỗi lấy danh sách Shipper:", error);
-        const errorMsg = error.response?.data?.message || "Không thể lấy danh sách nhân viên giao hàng.";
+        const errorMsg =
+          error.response?.data?.message ||
+          "Không thể lấy danh sách nhân viên giao hàng.";
         Swal.fire("Lỗi", errorMsg, "error");
-        return; 
+        return;
       }
-    } 
-    
+    }
+
     // TRƯỜNG HỢP 3: HOÀN THÀNH (Hoặc các trạng thái khác)
     else {
       confirmResult = await Swal.fire({
@@ -169,20 +177,19 @@ const OrderDetail = () => {
       const payload = {
         status: newStatus,
         shipperId: shipperId,
-        staffId: staffId
+        staffId: staffId,
       };
 
-      const response = await orderApi.updateOrderStatus(id, payload); 
+      const response = await orderApi.updateOrderStatus(id, payload);
       setOrder(response.data);
-      
+
       Swal.fire({
         title: "Thành công!",
         text: "Đã cập nhật trạng thái đơn hàng.",
         icon: "success",
         timer: 1500,
-        showConfirmButton: false
+        showConfirmButton: false,
       });
-
     } catch (error) {
       console.error("Lỗi cập nhật:", error.response?.data || error.message);
       Swal.fire({
@@ -220,9 +227,9 @@ const OrderDetail = () => {
       // Cập nhật cách truyền tham số cho khớp API mới
       const payload = {
         status: "Cancelled",
-        cancelReason: reason
+        cancelReason: reason,
       };
-      
+
       const response = await orderApi.updateOrderStatus(id, payload);
       setOrder(response.data);
     } catch (error) {
@@ -251,40 +258,45 @@ const OrderDetail = () => {
     );
 
   const statusSteps = [
-    { 
-      id: "Pending", 
-      label: "Chờ nhận đơn", 
+    {
+      id: "Pending",
+      label: "Chờ nhận đơn",
       icon: LuClipboardList,
       actor: order.staffName ? `Người nhận: ${order.staffName}` : "",
-      time: order.processedAt ? formatDate(order.processedAt) : "" 
+      time: order.processedAt ? formatDate(order.processedAt) : "",
     },
-    { 
-      id: "Processing", 
-      label: "Đang pha chế", 
+    {
+      id: "Processing",
+      label: "Đang pha chế",
       icon: LuCoffee,
       actor: order.staffName ? `Người thực hiện: ${order.staffName}` : "",
-      time: order.processedAt ? formatDate(order.processedAt) : "" 
+      time: order.processedAt ? formatDate(order.processedAt) : "",
     },
-    { 
-      id: "Shipped", 
-      label: "Đang giao hàng", 
+    {
+      id: "Shipped",
+      label: "Đang giao hàng",
       icon: LuTruck,
       actor: order.shipperName ? `Người giao: ${order.shipperName}` : "",
-      time: order.shippedAt ? formatDate(order.shippedAt) : ""
+      time: order.shippedAt ? formatDate(order.shippedAt) : "",
     },
-    { 
-      id: "Completed", 
-      label: "Hoàn thành", 
+    {
+      id: "Completed",
+      label: "Hoàn thành",
       icon: FaCheckCircle,
       actor: order.shipperName ? `Giao bởi: ${order.shipperName}` : "",
       // Tạm chờ backend bổ sung trường completedAt
-      time: order.completedAt ? formatDate(order.completedAt) : ""
+      time: order.completedAt ? formatDate(order.completedAt) : "",
     },
   ];
 
-  const currentStepIndex = statusSteps.findIndex((step) => step.id === order.status);
+  const currentStepIndex = statusSteps.findIndex(
+    (step) => step.id === order.status,
+  );
   const isCancelled = order.status === "Cancelled";
-  const progressWidth = currentStepIndex > 0 ? `${(currentStepIndex / (statusSteps.length - 1)) * 100}%` : "0%";
+  const progressWidth =
+    currentStepIndex > 0
+      ? `${(currentStepIndex / (statusSteps.length - 1)) * 100}%`
+      : "0%";
 
   return (
     <div className="order-container">
@@ -333,30 +345,57 @@ const OrderDetail = () => {
                     const isActive = index === currentStepIndex;
 
                     return (
-                      <div key={step.id} className="timeline-step" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <div
+                        key={step.id}
+                        className="timeline-step"
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                        }}
+                      >
                         <div
                           className={`step-icon-wrapper ${isCompleted ? "completed" : ""} ${isActive ? "active" : ""}`}
                         >
                           <Icon size={22} />
                         </div>
-                        
+
                         {/* Khu vực hiển thị thông tin Text */}
-                        <div style={{ textAlign: 'center', marginTop: '12px' }}>
-                            <p className={`step-label ${isCompleted ? "text-dark" : "text-gray"}`} style={{ margin: 0, fontWeight: isActive ? 'bold' : 'normal' }}>
-                              {step.label}
+                        <div style={{ textAlign: "center", marginTop: "12px" }}>
+                          <p
+                            className={`step-label ${isCompleted ? "text-dark" : "text-gray"}`}
+                            style={{
+                              margin: 0,
+                              fontWeight: isActive ? "bold" : "normal",
+                            }}
+                          >
+                            {step.label}
+                          </p>
+
+                          {/* Chỉ hiển thị người thao tác & thời gian khi bước đó đã hoàn thành hoặc đang xử lý */}
+                          {isCompleted && step.actor && (
+                            <p
+                              style={{
+                                margin: "4px 0 0 0",
+                                fontSize: "13px",
+                                color: "#1468e3",
+                                fontWeight: "500",
+                              }}
+                            >
+                              {step.actor}
                             </p>
-                            
-                            {/* Chỉ hiển thị người thao tác & thời gian khi bước đó đã hoàn thành hoặc đang xử lý */}
-                            {isCompleted && step.actor && (
-                                <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#1468e3', fontWeight: '500' }}>
-                                    {step.actor}
-                                </p>
-                            )}
-                            {isCompleted && step.time && (
-                                <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#888' }}>
-                                    {step.time}
-                                </p>
-                            )}
+                          )}
+                          {isCompleted && step.time && (
+                            <p
+                              style={{
+                                margin: "2px 0 0 0",
+                                fontSize: "12px",
+                                color: "#888",
+                              }}
+                            >
+                              {step.time}
+                            </p>
+                          )}
                         </div>
                       </div>
                     );
@@ -566,6 +605,7 @@ const OrderDetail = () => {
                     </p>
                   </div>
                 </div>
+                <OrderRouteMap order={order} />
               </div>
             </div>
           </div>

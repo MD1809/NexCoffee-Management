@@ -43,6 +43,7 @@ import DailyReportPage from "../pages/admin/dailydashboard/DailyReport";
 import PosPage from "../pages/admin/pos/Pos";
 import DeliverySettingPage from "../pages/admin/delivery-setting/DeliverySettingPage";
 import AdvertisementPage from "../pages/admin/advertisement/AdvertisementPage";
+import StorePage from "../pages/admin/store/StorePage";
 
 function WebRouters() {
   return (
@@ -94,7 +95,7 @@ function WebRouters() {
         <Route
           path="/admin"
           element={
-            <ProtectedRoute allowedRoles={["ADMIN"]}>
+            <ProtectedRoute allowedRoles={["ADMIN", "SUPER_ADMIN"]}>
               <AdminLayout />
               {/* <UserCheckout /> */}
             </ProtectedRoute>
@@ -123,6 +124,14 @@ function WebRouters() {
           />
           <Route path="delivery-setting" element={<DeliverySettingPage />} />
           <Route path="advertisements" element={<AdvertisementPage />} />
+          <Route
+            path="stores"
+            element={
+              <ProtectedRoute allowedRoles={["SUPER_ADMIN"]}>
+                <StorePage />
+              </ProtectedRoute>
+            }
+          />
         </Route>
 
         <Route

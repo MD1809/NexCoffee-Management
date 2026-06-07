@@ -272,6 +272,8 @@ public class AuthService {
                 .email(user.getEmail())
                 .phone(user.getPhone())
                 .role(user.getRole())
+                .storeId(user.getStore() == null ? null : user.getStore().getId())
+                .storeName(user.getStore() == null ? null : user.getStore().getName())
                 .tokenType("Bearer")
                 .token(token)
                 .build();

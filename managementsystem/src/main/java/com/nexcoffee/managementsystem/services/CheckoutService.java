@@ -77,7 +77,7 @@ public class CheckoutService {
                 .code(generateOrderCode())
                 .fullName(request.getFullName().trim())
                 .phone(request.getPhone().trim())
-                .email(normalizeBlank(request.getEmail()))
+                .email(currentUser.getEmail())
                 .address(fullAddress)
                 .formattedAddress(mapAddress)
                 .customerLatitude(request.getCustomerLatitude())
@@ -134,11 +134,9 @@ public class CheckoutService {
 
     private void sendOrderSuccessEmailSafely(Order order, User currentUser) {
         try {
-            String receiverEmail = normalizeBlank(order.getEmail());
-
-            if (receiverEmail == null && currentUser != null) {
-                receiverEmail = normalizeBlank(currentUser.getEmail());
-            }
+            String receiverEmail = currentUser == null
+                    ? null
+                    : normalizeBlank(currentUser.getEmail());
 
             orderMailService.sendOrderSuccessEmail(order, receiverEmail);
         } catch (Exception exception) {

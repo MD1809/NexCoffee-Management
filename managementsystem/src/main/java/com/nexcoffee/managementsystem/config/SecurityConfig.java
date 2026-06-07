@@ -46,7 +46,7 @@ public class SecurityConfig {
                         // Auth public
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        .requestMatchers("/images/**").permitAll()
+                        .requestMatchers("/images/**", "/api/maps/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/locations/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/delivery/check").permitAll()
 
@@ -57,38 +57,39 @@ public class SecurityConfig {
                         .requestMatchers("/api/checkout/**").hasAuthority("CUSTOMER")
 
                         // Dashboard: chỉ ADMIN
-                        .requestMatchers("/api/dashboard/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/dashboard/**").hasAnyAuthority("ADMIN", "SUPER_ADMIN")
 
                         // Product management: chỉ ADMIN
-                        .requestMatchers(HttpMethod.POST, "/api/products/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/products/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/products/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/products/**").hasAuthority("SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/products/**").hasAuthority("SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAuthority("SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/products/**").hasAuthority("SUPER_ADMIN")
 
                         // Category management: chỉ ADMIN
-                        .requestMatchers(HttpMethod.POST, "/api/categories/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/categories/**").hasAuthority("ADMIN")
-                        .requestMatchers("/api/admin/delivery-setting/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/categories/**").hasAuthority("SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasAuthority("SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasAuthority("SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/categories/**").hasAuthority("SUPER_ADMIN")
+                        .requestMatchers("/api/admin/delivery-setting/**").hasAuthority("SUPER_ADMIN")
 
                         // Nếu có các controller admin khác đang dùng endpoint hiện tại
-                        .requestMatchers("/api/users/**").hasAuthority("ADMIN")
-                        .requestMatchers("/api/orders/**").hasAnyAuthority("ADMIN", "STAFF")
-                        .requestMatchers("/api/delivery-areas/**").hasAuthority("ADMIN")
-                        .requestMatchers("/api/pos/**").hasAnyAuthority("ADMIN", "STAFF")
+                        .requestMatchers("/api/users/**").hasAnyAuthority("ADMIN" , "SUPER_ADMIN")
+                        .requestMatchers("/api/orders/**").hasAnyAuthority("SUPER_ADMIN","ADMIN", "STAFF")
+                        .requestMatchers("/api/delivery-areas/**").hasAnyAuthority("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers("/api/pos/**").hasAnyAuthority("SUPER_ADMIN", "ADMIN", "STAFF")
                         .requestMatchers(
                                 "/api/delivery-areas",
                                 "/api/delivery-areas/**"
-                        ).hasAuthority("ADMIN")
+                        ).hasAnyAuthority("ADMIN" , "SUPER_ADMIN")
+                        .requestMatchers("/api/admin/stores/**").hasAuthority("SUPER_ADMIN")
 
                         // Customer APIs sau này
                         .requestMatchers("/api/cart/**").permitAll()
                         .requestMatchers("/api/checkout/**").hasAuthority("CUSTOMER")
                         .requestMatchers("/api/customer/**").hasAuthority("CUSTOMER")
-                        .requestMatchers("/api/maps/**").hasAuthority("CUSTOMER")
                         .requestMatchers(HttpMethod.GET, "/api/advertisements/**").permitAll()
-                        .requestMatchers("/api/admin/advertisements/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/admin/advertisements/**").hasAuthority("SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/stores/active").permitAll()
 
                         // Các API còn lại bắt buộc đăng nhập
                         .anyRequest().authenticated()

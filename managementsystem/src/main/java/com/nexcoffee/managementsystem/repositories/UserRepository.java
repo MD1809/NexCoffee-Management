@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Collection;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
@@ -18,4 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByPhone(String phone);
 
     List<User> findByRoleAndStatus(Role role, String status);
+    List<User> findByStoreIdAndRoleIn(Long storeId, Collection<Role> roles);
+
+    List<User> findByRoleAndStatusAndStoreId(Role role, String status, Long storeId);
 }

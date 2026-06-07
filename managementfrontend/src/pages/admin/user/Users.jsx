@@ -8,12 +8,15 @@ import "./Users.css";
 import SearchBox from "../../../components/admin/searchBox/SearchBox";
 import Button from "../../../components/admin/button/Button";
 import DataTable from "../../../components/admin/dataTable/DataTable";
+import { getCurrentUser } from "../../../utils/authStorage";
+import { getAllStores } from "../../../apis/storeApi";
 
 const roleTranslations = {
+  SUPER_ADMIN: "Super Admin",
   ADMIN: "Quản trị viên",
   STAFF: "Nhân viên",
   CUSTOMER: "Khách hàng",
-  SHIPPER: "Người giao hàng", // Bổ sung role mới
+  SHIPPER: "Người giao hàng",
 };
 
 const initialFormData = {
@@ -24,13 +27,15 @@ const initialFormData = {
   confirmPassword: "",
   role: "CUSTOMER",
   status: "ACTIVE",
+  storeId: "",
 };
 
 function Users() {
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState("ALL");
   const [formErrors, setFormErrors] = useState({});
-  
+
   // State quản lý Modal
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -40,9 +45,49 @@ function Users() {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [viewingUser, setViewingUser] = useState(null);
 
+  const currentUser = getCurrentUser();
+  const currentRole = currentUser?.role;
+  const isSuperAdmin = currentRole === "SUPER_ADMIN";
+  const isAdmin = currentRole === "ADMIN";
+
+  const roleFilterOptions = isAdmin
+    ? [
+        { label: "Tất cả vai trò", value: "ALL" },
+        { label: "Nhân viên", value: "STAFF" },
+        { label: "Người giao hàng", value: "SHIPPER" },
+      ]
+    : [
+        { label: "Tất cả vai trò", value: "ALL" },
+        { label: "Super Admin", value: "SUPER_ADMIN" },
+        { label: "Quản trị viên", value: "ADMIN" },
+        { label: "Nhân viên", value: "STAFF" },
+        { label: "Người giao hàng", value: "SHIPPER" },
+        { label: "Khách hàng", value: "CUSTOMER" },
+      ];
+
+  const filteredUsers = users.filter((user) => {
+    if (roleFilter === "ALL") return true;
+    return user.role === roleFilter;
+  });
+
+  const [stores, setStores] = useState([]);
+
   useEffect(() => {
     fetchUsers();
+    if (isSuperAdmin) {
+      fetchStores();
+    }
   }, []);
+
+  const fetchStores = async () => {
+    try {
+      const data = await getAllStores();
+      setStores(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Lỗi tải cửa hàng:", error);
+      toast.error("Không thể tải danh sách cửa hàng.");
+    }
+  };
 
   const fetchUsers = async () => {
     try {
@@ -59,34 +104,61 @@ function Users() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^[0-9]{10}$/;
 
-    if (!data.fullName?.trim()) errors.fullName = "Họ và tên không được để trống";
+    if (!data.fullName?.trim())
+      errors.fullName = "Họ và tên không được để trống";
     if (!data.email?.trim()) errors.email = "Email không được để trống";
-    else if (!emailRegex.test(data.email)) errors.email = "Định dạng email không hợp lệ";
+    else if (!emailRegex.test(data.email))
+      errors.email = "Định dạng email không hợp lệ";
 
     if (!data.phone?.trim()) errors.phone = "Số điện thoại không được để trống";
-    else if (!phoneRegex.test(data.phone)) errors.phone = "Số điện thoại phải có 10 chữ số";
+    else if (!phoneRegex.test(data.phone))
+      errors.phone = "Số điện thoại phải có 10 chữ số";
 
     if (!isEdit) {
       if (!data.password) errors.password = "Mật khẩu không được để trống";
-      else if (data.password.length < 8) errors.password = "Mật khẩu phải ít nhất 8 ký tự";
-      if (data.password !== data.confirmPassword) errors.confirmPassword = "Xác nhận mật khẩu không khớp";
+      else if (data.password.length < 8)
+        errors.password = "Mật khẩu phải ít nhất 8 ký tự";
+      if (data.password !== data.confirmPassword)
+        errors.confirmPassword = "Xác nhận mật khẩu không khớp";
     }
 
     if (!data.role) errors.role = "Vui lòng chọn vai trò";
+
+    if (isAdmin && !["STAFF", "SHIPPER"].includes(data.role)) {
+      errors.role =
+        "Admin chỉ được tạo hoặc sửa tài khoản nhân viên của cửa hàng mình";
+    }
+
+    if (
+      isSuperAdmin &&
+      storeRequiredRoles.includes(data.role) &&
+      !data.storeId
+    ) {
+      errors.storeId = "Vui lòng chọn cửa hàng cho tài khoản này";
+    }
     return errors;
   };
 
   // --- ACTIONS ---
 
   const handleOpenAdd = () => {
-    setFormData(initialFormData);
+    setFormData({
+      ...initialFormData,
+      role: isAdmin ? "STAFF" : "CUSTOMER",
+    });
     setIsEditMode(false);
     setFormErrors({});
     setIsFormModalOpen(true);
   };
 
   const handleOpenEdit = (user) => {
-    setFormData(user);
+    setFormData({
+      ...user,
+      password: "",
+      confirmPassword: "",
+      storeId: user.storeId || "",
+    });
+
     setIsEditMode(true);
     setFormErrors({});
     setIsFormModalOpen(true);
@@ -97,9 +169,22 @@ function Users() {
     setFormErrors({});
   };
 
+  const storeRequiredRoles = ["ADMIN", "STAFF", "SHIPPER"];
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    setFormData((prev) => {
+      const nextData = {
+        ...prev,
+        [name]: value,
+      };
+
+      if (name === "role" && !storeRequiredRoles.includes(value)) {
+        nextData.storeId = "";
+      }
+
+      return nextData;
+    });
   };
 
   const handleClearError = (fieldName) => {
@@ -114,7 +199,21 @@ function Users() {
     }
 
     try {
-      const dataToSend = { ...formData, isVerified: formData.isVerified ?? false };
+      const dataToSend = {
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        role: formData.role,
+        status: formData.status,
+        isVerified: formData.isVerified ?? true,
+        store:
+          isSuperAdmin &&
+          storeRequiredRoles.includes(formData.role) &&
+          formData.storeId
+            ? { id: Number(formData.storeId) }
+            : null,
+      };
 
       let response;
       if (isEditMode) {
@@ -128,7 +227,6 @@ function Users() {
       }
 
       handleCloseModal();
-
     } catch (error) {
       console.error("Lỗi:", error.response?.data);
       const serverError = error.response?.data;
@@ -148,10 +246,16 @@ function Users() {
   const handleToggleStatus = async (user) => {
     const nextStatus = user.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
     try {
-      const updatedData = { ...user, status: nextStatus, isVerified: user.isVerified ?? false };
+      const updatedData = {
+        ...user,
+        status: nextStatus,
+        isVerified: user.isVerified ?? false,
+      };
       const response = await userApi.update(user.id, updatedData);
       setUsers(users.map((u) => (u.id === user.id ? response.data : u)));
-      toast.success(`Đã ${nextStatus === "ACTIVE" ? "mở khóa" : "khóa"} tài khoản thành công!`);
+      toast.success(
+        `Đã ${nextStatus === "ACTIVE" ? "mở khóa" : "khóa"} tài khoản thành công!`,
+      );
     } catch (error) {
       console.error("Lỗi thay đổi trạng thái:", error);
       toast.error("Không thể thay đổi trạng thái!");
@@ -175,11 +279,18 @@ function Users() {
       render: (row) => roleTranslations[row.role] || row.role,
     },
     {
+      header: "Cửa hàng",
+      accessor: "storeName",
+      render: (row) => row.storeName || "—",
+    },
+    {
       header: "Trạng thái",
       accessor: "status",
       className: "td-status",
       render: (row) => (
-        <span className={`status ${row.status === "ACTIVE" ? "status--active" : "status--locked"}`}>
+        <span
+          className={`status ${row.status === "ACTIVE" ? "status--active" : "status--locked"}`}
+        >
           {row.status === "ACTIVE" ? "Hoạt động" : "Ngừng hoạt động"}
         </span>
       ),
@@ -188,8 +299,15 @@ function Users() {
       header: "Thao tác",
       render: (u) => (
         <div className="action-buttons">
-          <i className="fa-regular fa-eye btn-icon btn-icon--view" onClick={() => handleOpenDetail(u)} title="Xem chi tiết"></i>
-          <i className="fa-regular fa-pen-to-square btn-icon btn-icon--edit" onClick={() => handleOpenEdit(u)}></i>
+          <i
+            className="fa-regular fa-eye btn-icon btn-icon--view"
+            onClick={() => handleOpenDetail(u)}
+            title="Xem chi tiết"
+          ></i>
+          <i
+            className="fa-regular fa-pen-to-square btn-icon btn-icon--edit"
+            onClick={() => handleOpenEdit(u)}
+          ></i>
           <i
             className={`fa-solid ${u.status === "ACTIVE" ? "fa-user-slash" : "fa-user-check"} btn-icon`}
             style={{ color: u.status === "ACTIVE" ? "#e74c3c" : "#2ecc71" }}
@@ -210,10 +328,31 @@ function Users() {
         </div>
 
         <div className="user-management__toolbar">
-          <SearchBox value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+          <SearchBox
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+
+          <div className="user-role-filter">
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+            >
+              {roleFilterOptions.map((role) => (
+                <option key={role.value} value={role.value}>
+                  {role.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        <DataTable columns={columnsTableUser} data={users} itemsPerPage={5} searchQuery={searchQuery} />
+        <DataTable
+          columns={columnsTableUser}
+          data={filteredUsers}
+          itemsPerPage={5}
+          searchQuery={searchQuery}
+        />
       </div>
 
       <UserFormModal
@@ -221,6 +360,8 @@ function Users() {
         isEdit={isEditMode}
         formData={formData}
         formErrors={formErrors}
+        stores={stores}
+        currentRole={currentRole}
         onClose={handleCloseModal}
         onSubmit={handleSubmit}
         onInputChange={handleInputChange}

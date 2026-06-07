@@ -16,4 +16,6 @@ public class AuthResponse {
 
     private String tokenType;
     private String token;
+    private Long storeId;
+    private String storeName;
 }

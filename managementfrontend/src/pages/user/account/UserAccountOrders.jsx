@@ -33,7 +33,7 @@ const getPaymentLabel = (paymentMethod) => {
   if (paymentMethod === "COD") return "Thanh toán khi nhận hàng (COD)";
   return paymentMethod || "—";
 };
-const ORDERS_PER_PAGE = 10;
+const ORDERS_PER_PAGE = 5;
 const UserAccountOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);

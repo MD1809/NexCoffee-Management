@@ -1,6 +1,7 @@
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { getAccessToken, getCurrentUser } from "../utils/authStorage";
+import { getRedirectPathByRole, normalizeRole } from "../utils/roleRedirect";
 
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const location = useLocation();
@@ -20,12 +21,14 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     );
   }
 
-  if (allowedRoles.length > 0 && !allowedRoles.includes(currentUser.role)) {
-    if (currentUser.role === "ADMIN") {
-      return <Navigate to="/admin" replace />;
-    }
+  const currentRole = normalizeRole(currentUser.role);
+  const normalizedAllowedRoles = allowedRoles.map(normalizeRole);
 
-    return <Navigate to="/" replace />;
+  if (
+    normalizedAllowedRoles.length > 0 &&
+    !normalizedAllowedRoles.includes(currentRole)
+  ) {
+    return <Navigate to={getRedirectPathByRole(currentRole)} replace />;
   }
 
   return children;

@@ -124,7 +124,9 @@ const UserCheckout = () => {
     }
 
     if (!selectedAddress) {
-      toast.warning("Vui lòng chọn địa chỉ giao hàng từ gợi ý.");
+      toast.warning(
+        "Vui lòng nhập địa chỉ giao hàng và chọn vị trí trên bản đồ.",
+      );
       return false;
     }
 
@@ -226,7 +228,7 @@ const UserCheckout = () => {
                 type="email"
                 placeholder="Email"
                 value={formData.email}
-                onChange={handleChange}
+                readOnly
               />
             </div>
 

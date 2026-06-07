@@ -98,7 +98,8 @@
 
 .header_right {
   display: flex;
-  gap: 28px;
+  align-items: center;
+  gap: 16px;
 }
 
 .user-profile {
@@ -284,4 +285,33 @@
 
 [data-theme="light"] .admin-container .account-options .header-user-dropdown {
   box-shadow: 0 16px 35px rgba(0, 0, 0, 0.12);
+}
+.admin-header-store {
+  min-height: 40px;
+  max-width: 240px;
+  padding: 0 14px;
+  border: 1px solid var(--border-primary-color);
+  border-radius: 10px;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.2;
+}
+
+.admin-header-store__label {
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.admin-header-store__name {
+  max-width: 210px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

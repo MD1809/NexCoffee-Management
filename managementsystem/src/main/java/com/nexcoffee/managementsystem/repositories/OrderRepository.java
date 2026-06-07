@@ -31,4 +31,43 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     List<Order> findByUserOrderByCreatedAtDesc(User user);
 
     Optional<Order> findByIdAndUser(Integer id, User user);
+
+    List<Order> findByNearestStoreIdOrderByCreatedAtDesc(Long nearestStoreId);
+
+    List<Order> findByNearestStoreIdAndCreatedAtBetweenOrderByCreatedAtDesc(
+            Long nearestStoreId,
+            LocalDateTime start,
+            LocalDateTime end
+    );
+
+    Optional<Order> findByIdAndNearestStoreId(Integer id, Long nearestStoreId);
+
+    List<Order> findAllByOrderByCreatedAtDesc();
+
+    List<Order> findByCreatedAtBetweenOrderByCreatedAtDesc(
+            LocalDateTime start,
+            LocalDateTime end
+    );
+    @Query("SELECT SUM(o.total) FROM Order o " +
+            "WHERE o.createdAt BETWEEN :start AND :end " +
+            "AND o.paymentStatus = :paymentStatus " +
+            "AND o.nearestStoreId = :storeId")
+    Long calculateRevenueByDateAndStoreId(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end,
+            @Param("paymentStatus") PaymentStatus paymentStatus,
+            @Param("storeId") Long storeId
+    );
+
+    @Query("SELECT DISTINCT o FROM Order o " +
+            "LEFT JOIN FETCH o.staff " +
+            "LEFT JOIN FETCH o.shipper " +
+            "WHERE o.createdAt >= :startOfDay " +
+            "AND o.createdAt <= :endOfDay " +
+            "AND o.nearestStoreId = :storeId")
+    List<Order> findOrdersWithStaffAndShipperByDateAndStoreId(
+            @Param("startOfDay") LocalDateTime startOfDay,
+            @Param("endOfDay") LocalDateTime endOfDay,
+            @Param("storeId") Long storeId
+    );
 }

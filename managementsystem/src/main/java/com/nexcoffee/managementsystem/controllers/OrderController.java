@@ -13,6 +13,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.nexcoffee.managementsystem.entities.Store;
+import com.nexcoffee.managementsystem.repositories.StoreRepository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 public class OrderController {
 
     private final OrderService orderService;
+    private final StoreRepository storeRepository;
 
     // ==============================================================================
     // PHẦN 1: CÁC API MỚI DÀNH RIÊNG CHO TRANG DASHBOARD THỐNG KÊ
@@ -96,7 +99,7 @@ public class OrderController {
     }
 
     private OrderResponse mapToResponseSummary(Order order) {
-        OrderResponse response = OrderResponse.builder()
+        OrderResponse.OrderResponseBuilder builder = OrderResponse.builder()
                 .id(order.getId())
                 .code(order.getCode())
                 .customerName(order.getFullName())
@@ -107,16 +110,18 @@ public class OrderController {
                 .paymentStatus(order.getPaymentStatus())
                 .status(order.getStatus())
                 .createdAt(order.getCreatedAt())
-                // 👇 BỔ SUNG 3 MỐC THỜI GIAN
                 .processedAt(order.getProcessedAt())
                 .shippedAt(order.getShippedAt())
-                .completedAt(order.getCompletedAt())
-                .build();
+                .completedAt(order.getCompletedAt());
 
-        // Bổ sung tên nhân viên & shipper cho các API dạng danh sách
+        applyDeliveryInfo(builder, order);
+
+        OrderResponse response = builder.build();
+
         if (order.getStaff() != null) {
             response.setStaffName(order.getStaff().getFullName());
         }
+
         if (order.getShipper() != null) {
             response.setShipperName(order.getShipper().getFullName());
         }
@@ -164,7 +169,7 @@ public class OrderController {
     }
 
     private OrderResponse mapToResponse(Order order) {
-        OrderResponse response = OrderResponse.builder()
+        OrderResponse.OrderResponseBuilder builder = OrderResponse.builder()
                 .id(order.getId())
                 .code(order.getCode())
                 .customerName(order.getFullName())
@@ -179,7 +184,6 @@ public class OrderController {
                 .status(order.getStatus())
                 .cancelReason(order.getCancelReason())
                 .createdAt(order.getCreatedAt())
-                // 👇 BỔ SUNG 3 MỐC THỜI GIAN VÀO API CHI TIẾT
                 .processedAt(order.getProcessedAt())
                 .shippedAt(order.getShippedAt())
                 .completedAt(order.getCompletedAt())
@@ -199,17 +203,40 @@ public class OrderController {
                             .totalPrice(detail.getTotalPrice())
                             .image(mainImageUrl)
                             .build();
-                }).collect(Collectors.toList()))
-                .build();
+                }).collect(Collectors.toList()));
 
-        // Bổ sung tên nhân viên & shipper
+        applyDeliveryInfo(builder, order);
+
+        OrderResponse response = builder.build();
+
         if (order.getStaff() != null) {
             response.setStaffName(order.getStaff().getFullName());
         }
+
         if (order.getShipper() != null) {
             response.setShipperName(order.getShipper().getFullName());
         }
 
         return response;
+    }
+    private void applyDeliveryInfo(OrderResponse.OrderResponseBuilder builder, Order order) {
+        builder
+                .customerLatitude(order.getCustomerLatitude())
+                .customerLongitude(order.getCustomerLongitude())
+                .nearestStoreId(order.getNearestStoreId())
+                .deliveryDistanceMeters(order.getDeliveryDistanceMeters())
+                .deliveryDurationSeconds(order.getDeliveryDurationSeconds());
+
+        if (order.getNearestStoreId() == null) {
+            return;
+        }
+
+        storeRepository.findById(order.getNearestStoreId()).ifPresent(store -> {
+            builder
+                    .nearestStoreName(store.getName())
+                    .nearestStoreAddress(store.getAddress())
+                    .nearestStoreLatitude(store.getLatitude())
+                    .nearestStoreLongitude(store.getLongitude());
+        });
     }
 }

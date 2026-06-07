@@ -8,49 +8,55 @@ const menuSidebarTop = [
     icon: "fa-solid fa-house",
     label: "Trang chủ",
     end: true,
-    roles: ["ADMIN"],
+    roles: ["SUPER_ADMIN"],
   },
   {
     to: "/admin/daily-report",
     icon: "fa-solid fa-chart-simple",
     label: "Thống kê",
-    roles: ["ADMIN"],
+    roles: ["ADMIN", "SUPER_ADMIN"],
   },
   {
     to: "/admin/pos",
     icon: "fa-solid fa-cash-register",
     label: "Pos",
-    roles: ["ADMIN"],
+    roles: ["ADMIN", "SUPER_ADMIN"],
   },
   {
     to: "/admin/orders",
     icon: "fa-solid fa-cart-shopping",
     label: "Đơn hàng",
-    roles: ["ADMIN"],
+    roles: ["ADMIN", "SUPER_ADMIN"],
   },
   {
     to: "/admin/categories",
     icon: "fa-solid fa-shapes",
     label: "Danh mục",
-    roles: ["ADMIN"],
+    roles: ["SUPER_ADMIN"],
   },
   {
     to: "/admin/products",
     icon: "fa-solid fa-box",
     label: "Sản phẩm",
-    roles: ["ADMIN"],
+    roles: ["SUPER_ADMIN"],
   },
   {
     to: "/admin/users",
     icon: "fa-solid fa-users",
     label: "Người dùng",
+    roles: ["SUPER_ADMIN"],
+  },
+  {
+    to: "/admin/users",
+    icon: "fa-solid fa-users",
+    label: "Nhân viên",
     roles: ["ADMIN"],
   },
   {
-    to: "/admin/delivery-areas",
-    icon: "fa-solid fa-truck",
-    label: "Khu vực GH",
-    roles: ["ADMIN"],
+    to: "/admin/stores",
+    icon: "fa-solid fa-store",
+    label: "Cửa Hàng",
+    roles: ["SUPER_ADMIN"],
   },
 
   {
@@ -69,14 +75,14 @@ const menuSidebarTop = [
     to: "/admin/advertisements",
     icon: "fa-solid fa-bullhorn",
     label: "Quảng cáo",
-    roles: ["ADMIN"],
+    roles: ["SUPER_ADMIN"],
   },
 
   {
     to: "/admin/delivery-setting",
     icon: "fa-solid fa-gear",
     label: "Cấu hình GH",
-    roles: ["ADMIN"],
+    roles: ["SUPER_ADMIN"],
   },
 ];
 

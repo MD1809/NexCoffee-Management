@@ -1,19 +1,7 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { getCurrentUser, isAuthenticated } from "../utils/authStorage";
-
-const getRedirectPathByRole = (role) => {
-  switch (role) {
-    case "ADMIN":
-      return "/admin";
-    case "STAFF":
-      return "/";
-    case "CUSTOMER":
-      return "/";
-    default:
-      return "/";
-  }
-};
+import { getRedirectPathByRole } from "../utils/roleRedirect";
 
 const GuestOnlyRoute = ({ children }) => {
   const currentUser = getCurrentUser();

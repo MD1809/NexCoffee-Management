@@ -36,6 +36,17 @@ public class OrderResponse {
     private LocalDateTime processedAt;
     private LocalDateTime shippedAt;
     private LocalDateTime completedAt;
+    private Double customerLatitude;
+    private Double customerLongitude;
+
+    private Long nearestStoreId;
+    private String nearestStoreName;
+    private String nearestStoreAddress;
+    private Double nearestStoreLatitude;
+    private Double nearestStoreLongitude;
+
+    private Integer deliveryDistanceMeters;
+    private Integer deliveryDurationSeconds;
 
     private List<OrderDetailResponse> items;
 }

@@ -15,6 +15,11 @@ import com.nexcoffee.managementsystem.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.nexcoffee.managementsystem.enums.Role;
+import com.nexcoffee.managementsystem.exceptions.InvalidOperationException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,22 +41,74 @@ public class OrderService {
     // --- PHẦN 1: CÁC HÀM MỚI PHỤC VỤ DASHBOARD THỐNG KÊ ---
 
     public Long getRevenueByDate(LocalDate date) {
+        User currentUser = getCurrentUser();
+
         LocalDateTime startOfDay = getStartOfDay(date);
         LocalDateTime endOfDay = getEndOfDay(date);
-        return orderRepository.calculateRevenueByDate(startOfDay, endOfDay, PaymentStatus.paid);
+
+        if (isSuperAdmin(currentUser)) {
+            return orderRepository.calculateRevenueByDate(
+                    startOfDay,
+                    endOfDay,
+                    PaymentStatus.paid
+            );
+        }
+
+        Long storeId = getCurrentUserStoreIdOrThrow(currentUser);
+
+        return orderRepository.calculateRevenueByDateAndStoreId(
+                startOfDay,
+                endOfDay,
+                PaymentStatus.paid,
+                storeId
+        );
     }
 
     public List<OrderDetailRepository.ProductSaleStats> getProductSalesStatsByDate(LocalDate date) {
+        User currentUser = getCurrentUser();
+
         LocalDateTime startOfDay = getStartOfDay(date);
         LocalDateTime endOfDay = getEndOfDay(date);
-        return orderDetailRepository.getProductSalesByDate(startOfDay, endOfDay, OrderStatus.Completed);
+
+        if (isSuperAdmin(currentUser)) {
+            return orderDetailRepository.getProductSalesByDate(
+                    startOfDay,
+                    endOfDay,
+                    OrderStatus.Completed
+            );
+        }
+
+        Long storeId = getCurrentUserStoreIdOrThrow(currentUser);
+
+        return orderDetailRepository.getProductSalesByDateAndStoreId(
+                startOfDay,
+                endOfDay,
+                OrderStatus.Completed,
+                storeId
+        );
     }
 
     // Lấy danh sách đơn hàng chi tiết phục vụ trang quản lý (kèm staff/shipper)
     public List<Order> getOrdersWithStaffInfoByDate(LocalDate date) {
+        User currentUser = getCurrentUser();
+
         LocalDateTime startOfDay = getStartOfDay(date);
         LocalDateTime endOfDay = getEndOfDay(date);
-        return orderRepository.findOrdersWithStaffAndShipperByDate(startOfDay, endOfDay);
+
+        if (isSuperAdmin(currentUser)) {
+            return orderRepository.findOrdersWithStaffAndShipperByDate(
+                    startOfDay,
+                    endOfDay
+            );
+        }
+
+        Long storeId = getCurrentUserStoreIdOrThrow(currentUser);
+
+        return orderRepository.findOrdersWithStaffAndShipperByDateAndStoreId(
+                startOfDay,
+                endOfDay,
+                storeId
+        );
     }
 
     // Helper method: Lấy giờ bắt đầu của ngày
@@ -71,25 +128,74 @@ public class OrderService {
 
     // Lấy danh sách đơn hàng hôm nay (Giữ nguyên)
     public List<Order> getOrdersToday() {
+        User currentUser = getCurrentUser();
+
         LocalDateTime startOfDay = LocalDateTime.now().with(LocalTime.MIN);
         LocalDateTime endOfDay = LocalDateTime.now().with(LocalTime.MAX);
-        return orderRepository.findByCreatedAtBetween(startOfDay, endOfDay);
+
+        if (isSuperAdmin(currentUser)) {
+            return orderRepository.findByCreatedAtBetweenOrderByCreatedAtDesc(
+                    startOfDay,
+                    endOfDay
+            );
+        }
+
+        Long storeId = getCurrentUserStoreIdOrThrow(currentUser);
+
+        return orderRepository.findByNearestStoreIdAndCreatedAtBetweenOrderByCreatedAtDesc(
+                storeId,
+                startOfDay,
+                endOfDay
+        );
     }
 
     // Lấy danh sách tất cả đơn hàng (Giữ nguyên)
     public List<Order> getAllOrders(LocalDate filterDate) {
-        if (filterDate == null) {
-            return orderRepository.findAll();
+        User currentUser = getCurrentUser();
+
+        if (isSuperAdmin(currentUser)) {
+            if (filterDate == null) {
+                return orderRepository.findAllByOrderByCreatedAtDesc();
+            }
+
+            LocalDateTime startOfDay = filterDate.atStartOfDay();
+            LocalDateTime endOfDay = filterDate.atTime(LocalTime.MAX);
+
+            return orderRepository.findByCreatedAtBetweenOrderByCreatedAtDesc(
+                    startOfDay,
+                    endOfDay
+            );
         }
+
+        Long storeId = getCurrentUserStoreIdOrThrow(currentUser);
+
+        if (filterDate == null) {
+            return orderRepository.findByNearestStoreIdOrderByCreatedAtDesc(storeId);
+        }
+
         LocalDateTime startOfDay = filterDate.atStartOfDay();
         LocalDateTime endOfDay = filterDate.atTime(LocalTime.MAX);
-        return orderRepository.findByCreatedAtBetween(startOfDay, endOfDay);
+
+        return orderRepository.findByNearestStoreIdAndCreatedAtBetweenOrderByCreatedAtDesc(
+                storeId,
+                startOfDay,
+                endOfDay
+        );
     }
 
     // Lấy đơn hàng chi tiết qua id (Giữ nguyên)
     public Order getOrderById(Integer id) {
-        return orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+        User currentUser = getCurrentUser();
+
+        if (isSuperAdmin(currentUser)) {
+            return orderRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn hàng."));
+        }
+
+        Long storeId = getCurrentUserStoreIdOrThrow(currentUser);
+
+        return orderRepository.findByIdAndNearestStoreId(id, storeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn hàng."));
     }
 
     @Transactional
@@ -167,8 +273,7 @@ public class OrderService {
     // 2. HÀM MỚI (Cập nhật thêm tham số staffId)
     @Transactional
     public Order updateOrderStatus(Integer orderId, OrderStatus newStatus, String cancelReason, Integer shipperId, Integer staffId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn hàng với id: " + orderId));
+        Order order = getManagedOrderById(orderId);
 
         if (newStatus == OrderStatus.Cancelled) {
             if (order.getStatus() == OrderStatus.Shipped || order.getStatus() == OrderStatus.Completed) {
@@ -243,11 +348,22 @@ public class OrderService {
 
         return savedOrder;
     }
+    private Order getManagedOrderById(Integer orderId) {
+        User currentUser = getCurrentUser();
 
+        if (isSuperAdmin(currentUser)) {
+            return orderRepository.findById(orderId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn hàng."));
+        }
+
+        Long storeId = getCurrentUserStoreIdOrThrow(currentUser);
+
+        return orderRepository.findByIdAndNearestStoreId(orderId, storeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn hàng."));
+    }
     @Transactional
     public Order updatePaymentStatus(Integer orderId, PaymentStatus newPaymentStatus) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với id: " + orderId));
+        Order order = getManagedOrderById(orderId);
 
         order.setPaymentStatus(newPaymentStatus);
 
@@ -270,10 +386,17 @@ public class OrderService {
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin nhân viên thu ngân"));
         }
 
+        Long staffStoreId = null;
+
+        if (staff != null && staff.getStore() != null) {
+            staffStoreId = staff.getStore().getId();
+        }
+
         // 2. Tạo đơn hàng mới. Đặc thù của POS là mặc định khách mua tại quầy.
         Order order = Order.builder()
                 .staff(staff)
                 .code(generateUniqueOrderCode())
+                .nearestStoreId(staffStoreId)
                 .fullName("Khách lẻ (Tại quầy)")
                 .shipping(request.getShipping() != null ? request.getShipping().longValue() : 0L)
                 .discount(request.getDiscount() != null ? request.getDiscount().longValue() : 0L)
@@ -324,5 +447,38 @@ public class OrderService {
     private String generateUniqueOrderCode() {
         String uuid = UUID.randomUUID().toString().replace("-", "").substring(0, 6).toUpperCase();
         return "NEX-" + uuid;
+    }
+
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new InvalidOperationException("Bạn cần đăng nhập để thực hiện thao tác này.");
+        }
+
+        if (authentication instanceof AnonymousAuthenticationToken) {
+            throw new InvalidOperationException("Bạn cần đăng nhập để thực hiện thao tác này.");
+        }
+
+        String email = authentication.getName();
+
+        if (email == null || email.isBlank() || "anonymousUser".equals(email)) {
+            throw new InvalidOperationException("Bạn cần đăng nhập để thực hiện thao tác này.");
+        }
+
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản đăng nhập."));
+    }
+
+    private boolean isSuperAdmin(User user) {
+        return user.getRole() == Role.SUPER_ADMIN;
+    }
+
+    private Long getCurrentUserStoreIdOrThrow(User user) {
+        if (user.getStore() == null) {
+            throw new InvalidOperationException("Tài khoản chưa được gán cửa hàng.");
+        }
+
+        return user.getStore().getId();
     }
 }

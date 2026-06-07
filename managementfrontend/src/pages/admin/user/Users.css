@@ -1,40 +1,39 @@
 .user-management__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .user-management__header h2 {
-    color: var(--text-primary);
+  color: var(--text-primary);
 }
 
 .button-adduser {
-    background: var(--bg-secondary);
-    color: white;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
+  background: var(--bg-secondary);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
 }
 
 .user-management__toolbar {
-    display: flex;
-    align-items: center;
-    padding: 16px 20px;
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    margin: 44px 0 28px 0;
-    gap: 40px;
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  margin: 44px 0 28px 0;
+  gap: 40px;
 }
-
 
 /* modal view user */
 
 .modal-userdetail {
-    position: fixed;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
@@ -46,132 +45,134 @@
   z-index: 9999;
 }
 
-.modal-userdetail--open { display: flex; }
+.modal-userdetail--open {
+  display: flex;
+}
 
 .modal-userdetail__overlay {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.03);
-    backdrop-filter: blur(0.4px);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.03);
+  backdrop-filter: blur(0.4px);
 }
 
 .modal-userdetail__content {
-    position: relative;
-    width: 900px;
-    background: var(--bg-main);
-    border-radius: 12px;
-    padding: 40px;
-    z-index: 9999;
-    animation: modalSlideIn 0.3s ease-out;
+  position: relative;
+  width: 900px;
+  background: var(--bg-main);
+  border-radius: 12px;
+  padding: 40px;
+  z-index: 9999;
+  animation: modalSlideIn 0.3s ease-out;
 }
 
 @keyframes modalSlideIn {
-    from {
-        transform: translateY(30px);
-        opacity: 0;
-    }
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
 
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .modal-userdetail__close {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    font-size: 1.5rem;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 1.5rem;
   color: #64748b;
   cursor: pointer;
 }
 
 .modal-userdetail__close:hover {
-    color: #e65555;
+  color: #e65555;
 }
 
 .modal-userdetail__top {
-    display: flex;
-    gap: 50px;
-    margin-bottom: 20px;
-    position: relative;
+  display: flex;
+  gap: 50px;
+  margin-bottom: 20px;
+  position: relative;
 }
 
 .modal-userdetail__profile {
-    text-align: center;
-    flex-shrink: 0;
+  text-align: center;
+  flex-shrink: 0;
 }
 
 .modal-userdetail__avatar img {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1px solid #f0f0f0;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #f0f0f0;
 }
 
 .modal-userdetail__meta {
-    margin-top: 15px;
+  margin-top: 15px;
 }
 
 .modal-userdetail__id {
-    color: var(--text-primary);
-    margin-bottom: 5px;
+  color: var(--text-primary);
+  margin-bottom: 5px;
 }
 
 .modal-userdetail__status {
-    font-size: 14px;
-    padding: 4px 8px;
-    border-radius: 4px;
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 4px;
 }
 
 .modal-userdetail__info {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 /* Lưới thông tin */
 .modal-userdetail__info-grid {
-    flex: 1;
-    margin-top: 40px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px 40px;
-    align-content: start;
-    position: relative;
+  flex: 1;
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 40px;
+  align-content: start;
+  position: relative;
 }
 
 .modal-userdetail__info-item {
-    font-size: 15px;
+  font-size: 15px;
 }
 
 .modal-userdetail__info-item .label {
-    color: var(--text-primary);
-    margin-right: 8px;
+  color: var(--text-primary);
+  margin-right: 8px;
 }
 
 .modal-userdetail__info-item .value {
-    color: var(--text-primary);
+  color: var(--text-primary);
 }
 
 .modal-userdetail__divider {
-    border: 0;
-    border-top: 1px solid #999;
-    margin: 20px 0;
+  border: 0;
+  border-top: 1px solid #999;
+  margin: 20px 0;
 }
 
 .modal-userdetail__section-title {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 50px;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 50px;
 }
 
 .modal-userdetail__empty {
-    text-align: center;
-    padding: 40px 0;
-    color: var(--text-secondary);
+  text-align: center;
+  padding: 40px 0;
+  color: var(--text-secondary);
 }
 
 .form-modal__input.input--error {
@@ -185,4 +186,51 @@
   display: block;
   font-weight: 500;
   text-align: left;
+}
+.user-role-filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-role-filter label {
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.user-role-filter select {
+  min-width: 180px;
+  height: 40px;
+  border: 1px solid var(--border-primary-color);
+  border-radius: 8px;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 0 12px;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+}
+
+.user-role-filter select:focus {
+  border-color: var(--sidebar-active-dark);
+  box-shadow: 0 0 0 3px var(--sidebar-active-blur);
+}
+
+@media (max-width: 768px) {
+  .user-management__toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .user-role-filter {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .user-role-filter select {
+    width: 100%;
+  }
 }
