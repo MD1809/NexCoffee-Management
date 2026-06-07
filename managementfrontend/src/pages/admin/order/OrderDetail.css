@@ -18,8 +18,16 @@
   border: none;
   cursor: pointer;
   display: flex;
+  align-items: center;
   gap: 10px;
   margin-left: 4px;
+  color: var(--text-primary);
+  transition: all 0.2s ease-in;
+}
+
+.order-content__backBtn:hover {
+  cursor: pointer;
+  transform: scale(1.02);
 }
 
 .order-grid-left {
@@ -187,7 +195,6 @@
   background-color: rgba(239, 68, 68, 0.1);
 }
 
-/* --- Thông tin khách hàng --- */
 .customer-info {
   display: flex;
   flex-direction: column;
@@ -227,7 +234,6 @@
 
 .payment-tag {
   background-color: #a50064;
-  /* Màu của Momo */
   color: white;
   font-size: 11px;
   padding: 2px 6px;
@@ -236,10 +242,8 @@
   font-weight: bold;
 }
 
-/* =========================================
-   MODERN TIMELINE STYLE
-========================================= */
 .modern-timeline {
+  padding: 30px 40px;
   /* Tăng padding 2 bên (40px) để có không gian cho các icon tràn ra mép */
   padding: 30px 40px;
   margin-top: 10px;
@@ -280,9 +284,8 @@
 .timeline-steps-wrapper {
   display: flex;
   justify-content: space-between;
-  /* Kéo dài wrapper ra ngoài 40px mỗi bên để neo tâm của icon vào đúng đầu đường kẻ */
-  margin-left: -40px;
-  margin-right: -40px;
+  margin-left: -125px;
+  margin-right: -125px;
   position: relative;
   z-index: 3;
 }
@@ -291,8 +294,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Cố định chiều rộng 80px (tức là 40px từ tâm ra 2 bên) để bù trừ chính xác với margin âm ở trên */
-  width: 80px;
+  width: 259px;
 }
 
 .step-icon-wrapper {
@@ -334,7 +336,6 @@
   color: var(--text-primary);
 }
 
-/* --- XỬ LÝ GIAO DIỆN KHI ĐƠN BỊ HỦY --- */
 .timeline-cancelled-state {
   display: flex;
   flex-direction: column;
@@ -344,7 +345,7 @@
 }
 
 .step-icon-wrapper.cancelled {
-  border-color: #ef4444; /* Dùng mã màu đỏ tĩnh để cảnh báo trạng thái hủy */
+  border-color: #ef4444;
   background-color: #ef4444;
   color: #ffffff;
   margin-bottom: 10px;
@@ -363,16 +364,11 @@
   font-style: italic;
 }
 
-/* =========================================
-   CSS DÀNH RIÊNG CHO BẢN IN HÓA ĐƠN (react-to-print)
-   ========================================= */
 .print-bill-container {
   width: 80mm;
-  /* Khổ giấy in nhiệt tiêu chuẩn */
   padding: 5mm;
   color: #000;
   font-family: "Courier New", Courier, monospace;
-  /* Font chữ máy in */
   font-size: 12px;
   line-height: 1.4;
 }
@@ -576,4 +572,130 @@
 
 [data-theme="light"] .order-route-marker__label {
   background-color: #ffffff;
+}
+
+.swal-custom-popup {
+  background-color: var(--bg-sidebar) !important;
+  border: 1px solid var(--border-primary-color) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important;
+  width: 480px;
+}
+
+.swal-custom-title {
+  color: var(--text-primary) !important;
+  font-size: 18px !important;
+  margin-bottom: 10px !important;
+}
+
+.swal-custom-select {
+  width: 100% !important;
+  max-width: 80% !important;
+  margin: 20px auto 10px auto !important;
+  padding: 10px 36px 10px 16px !important;
+
+  background-color: var(--bg-secondary) !important;
+  border: 1px solid var(--border-primary-color) !important;
+  border-radius: 8px !important;
+  color: var(--text-primary) !important;
+  font-size: 14px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease-in-out !important;
+
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  color-scheme: dark !important;
+
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 16px center !important;
+}
+
+.swal-custom-select:hover {
+  border-color: var(--sidebar-active-dark) !important;
+  background-color: var(--bg-sidebar) !important;
+}
+
+.swal-custom-select:focus {
+  border-color: var(--sidebar-active-dark) !important;
+  box-shadow: 0 0 0 3px var(--sidebar-active-blur) !important;
+  outline: none !important;
+  cursor: pointer;
+}
+
+.swal-custom-select option {
+  background-color: var(--bg-sidebar) !important;
+  color: var(--text-primary) !important;
+  padding: 10px 16px !important;
+  font-size: 14px !important;
+  cursor: pointer;
+}
+
+.swal-custom-popup .swal2-actions button {
+  min-width: 120px;
+  font-size: 12px !important;
+}
+
+.swal-custom-popup .swal2-confirm {
+  background-color: #1468e3 !important;
+  color: #fff !important;
+}
+
+.swal-custom-popup .swal2-confirm:hover {
+  background-color: #0b65ed !important;
+}
+
+.swal-custom-popup .swal2-confirm:focus {
+  border-color: var(--sidebar-active-dark) !important;
+  box-shadow: 0 0 0 3px var(--sidebar-active-blur) !important;
+}
+
+.swal-danger-popup {
+  background-color: var(--bg-sidebar) !important;
+  border: 2px solid #ef4444 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3) !important;
+  width: 480px;
+}
+
+.swal-danger-title {
+  color: #ef4444 !important;
+  font-weight: 700 !important;
+  padding: 0;
+}
+
+.swal-danger-textarea {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-primary-color) !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.swal-danger-textarea:focus {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+  outline: none !important;
+}
+
+.swal-danger-icon.swal2-warning {
+  border-color: #ef4444 !important;
+  color: #ef4444 !important;
+}
+
+.swal-danger-popup .swal2-actions button {
+  min-width: 80px;
+  font-size: 12px !important;
+}
+
+.swal-danger-popup .swal2-confirm {
+  background-color: #dc2626 !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+}
+
+.swal-danger-popup .swal2-confirm:hover {
+  background-color: #b91c1c !important;
 }

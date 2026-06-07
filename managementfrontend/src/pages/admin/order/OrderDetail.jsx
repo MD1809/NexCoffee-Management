@@ -15,7 +15,7 @@ import {
 import Swal from "sweetalert2";
 
 import orderApi from "../../../apis/OrderApi";
-import userApi from "../../../apis/userApi"; // ĐÃ BỔ SUNG: Import API lấy user
+import userApi from "../../../apis/userApi";
 import Button from "../../../components/admin/button/Button";
 import "./OrderDetail.css";
 import OrderRouteMap from "../../../components/admin/order/OrderRouteMap";
@@ -41,12 +41,10 @@ const OrderDetail = () => {
     fetchOrderDetail();
   }, [id]);
 
-  // Hàm định dạng tiền tệ
   const formatPrice = (price) => {
     return price != null ? `${price.toLocaleString("vi-VN")}đ` : "0đ";
   };
 
-  // Hàm định dạng ngày tháng
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -79,7 +77,6 @@ const OrderDetail = () => {
 
       if (userStorage) {
         try {
-          // Dịch chuỗi JSON thành Object và lấy trường id
           const userObj = JSON.parse(userStorage);
           staffId = userObj.id;
         } catch (error) {
@@ -97,31 +94,30 @@ const OrderDetail = () => {
         confirmButtonText: "Xác nhận",
         cancelButtonText: "Hủy bỏ",
         reverseButtons: true,
+        customClass: {
+          popup: "swal-custom-popup",
+          title: "swal-custom-title",
+        },
       });
 
       if (!confirmResult.isConfirmed) return;
-    }
-
-    // TRƯỜNG HỢP 2: GIAO HÀNG (Lấy Shipper từ Database)
-    else if (newStatus === "Shipped") {
+    } else if (newStatus === "Shipped") {
       try {
-        // Gọi API lấy danh sách Shipper
         const response = await userApi.getShippers();
         const shippersFromDb = response.data;
 
-        // Chuyển mảng thành Object cho Swal hiển thị Dropdown
         const shipperOptions = {};
         shippersFromDb.forEach((shipper) => {
           shipperOptions[shipper.id] = shipper.fullName;
         });
 
-        // Báo lỗi nếu không có shipper nào online/tồn tại
         if (Object.keys(shipperOptions).length === 0) {
-          Swal.fire(
-            "Thông báo",
-            "Hiện tại không có nhân viên giao hàng nào đang hoạt động!",
-            "warning",
-          );
+          Swal.fire({
+            title: "Thông báo",
+            text: "Hiện tại không có nhân viên giao hàng nào đang hoạt động!",
+            icon: "warning",
+            confirmButtonColor: "#1468e3",
+          });
           return;
         }
 
@@ -136,6 +132,13 @@ const OrderDetail = () => {
           confirmButtonText: "Bắt đầu giao",
           cancelButtonText: "Hủy",
           reverseButtons: true,
+
+          customClass: {
+            popup: "swal-custom-popup",
+            title: "swal-custom-title",
+            input: "swal-custom-select",
+          },
+
           inputValidator: (value) => {
             if (!value) {
               return "Bạn bắt buộc phải chọn người giao hàng!";
@@ -150,36 +153,40 @@ const OrderDetail = () => {
         const errorMsg =
           error.response?.data?.message ||
           "Không thể lấy danh sách nhân viên giao hàng.";
-        Swal.fire("Lỗi", errorMsg, "error");
+        Swal.fire({
+          title: "Lỗi",
+          text: errorMsg,
+          icon: "error",
+          confirmButtonColor: "#1468e3",
+        });
         return;
       }
-    }
-
-    // TRƯỜNG HỢP 3: HOÀN THÀNH (Hoặc các trạng thái khác)
-    else {
+    } else {
       confirmResult = await Swal.fire({
         title: "Hoàn thành đơn hàng",
         text: "Khách hàng đã nhận được nước và thanh toán đầy đủ?",
         icon: "question",
         showCancelButton: true,
-        confirmButtonColor: "#22c55e",
+        confirmButtonColor: "#1468e3",
         cancelButtonColor: "rgb(154, 154, 154)",
         confirmButtonText: "Đã hoàn thành",
         cancelButtonText: "Hủy bỏ",
         reverseButtons: true,
+        customClass: {
+          popup: "swal-custom-popup",
+          title: "swal-custom-title",
+        },
       });
 
       if (!confirmResult.isConfirmed) return;
     }
 
-    // GỌI API CẬP NHẬT TRẠNG THÁI
     try {
       const payload = {
         status: newStatus,
         shipperId: shipperId,
         staffId: staffId,
       };
-
       const response = await orderApi.updateOrderStatus(id, payload);
       setOrder(response.data);
 
@@ -201,7 +208,6 @@ const OrderDetail = () => {
     }
   };
 
-  // Hàm xử lý hủy đơn hàng
   const handleCancelOrder = async () => {
     const { value: reason, isConfirmed } = await Swal.fire({
       title: "Hủy đơn hàng",
@@ -210,11 +216,19 @@ const OrderDetail = () => {
       inputPlaceholder: "Nhập lý do tại đây...",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#ef4444",
+      confirmButtonColor: "#dc2626",
       cancelButtonColor: "rgb(154, 154, 154)",
       confirmButtonText: "Xác nhận Hủy",
       cancelButtonText: "Đóng",
       reverseButtons: true,
+
+      customClass: {
+        popup: "swal-danger-popup",
+        title: "swal-danger-title",
+        input: "swal-danger-textarea",
+        icon: "swal-danger-icon",
+        confirmButton: "swal-danger-confirm-btn",
+      },
       inputValidator: (value) => {
         if (!value || value.trim() === "") {
           return "Bạn phải nhập lý do để hủy đơn hàng!";
@@ -224,7 +238,6 @@ const OrderDetail = () => {
     if (!isConfirmed) return;
 
     try {
-      // Cập nhật cách truyền tham số cho khớp API mới
       const payload = {
         status: "Cancelled",
         cancelReason: reason,
@@ -284,7 +297,6 @@ const OrderDetail = () => {
       label: "Hoàn thành",
       icon: FaCheckCircle,
       actor: order.shipperName ? `Giao bởi: ${order.shipperName}` : "",
-      // Tạm chờ backend bổ sung trường completedAt
       time: order.completedAt ? formatDate(order.completedAt) : "",
     },
   ];
@@ -330,9 +342,8 @@ const OrderDetail = () => {
               </div>
             ) : (
               <div className="timeline-track-container">
-                {/* Thanh tiến trình xám (nền) */}
                 <div className="timeline-progress-bg"></div>
-                {/* Thanh tiến trình màu (chạy theo status) */}
+
                 <div
                   className="timeline-progress-fill"
                   style={{ width: progressWidth }}
@@ -345,15 +356,7 @@ const OrderDetail = () => {
                     const isActive = index === currentStepIndex;
 
                     return (
-                      <div
-                        key={step.id}
-                        className="timeline-step"
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                        }}
-                      >
+                      <div key={step.id} className="timeline-step">
                         <div
                           className={`step-icon-wrapper ${isCompleted ? "completed" : ""} ${isActive ? "active" : ""}`}
                         >
@@ -406,9 +409,7 @@ const OrderDetail = () => {
           </div>
         </div>
 
-        {/* nội dung */}
         <div className="order-grid">
-          {/* danh sách sản phẩm trong đơn hàng */}
           <div className="order-grid-left">
             <div className="order-card">
               <h2 className="card-title">Sản phẩm đã đặt</h2>
@@ -486,7 +487,6 @@ const OrderDetail = () => {
             </div>
           </div>
 
-          {/* Thao tác và thông tin khách hàng */}
           <div className="order-grid-right">
             <div className="order-card">
               <h2 className="section-title">Thao tác quản trị</h2>
@@ -615,9 +615,9 @@ const OrderDetail = () => {
       <div style={{ display: "none" }}>
         <div ref={billRef} className="print-bill-container">
           <div className="bill-header">
-            <h2>NEX COFFEE</h2>
-            <p>123 Đường ABC, Quận 1, TP.HCM</p>
-            <p>Hotline: 0909 123 456</p>
+            <h2>NexCoffee</h2>
+            <p>Đại Học Phenikaa</p>
+            <p>Hotline: 0395 230 327</p>
             <hr />
             <h3>HÓA ĐƠN THANH TOÁN</h3>
           </div>
@@ -627,10 +627,14 @@ const OrderDetail = () => {
               <strong>Mã đơn:</strong> {order.code}
             </p>
             <p>
-              <strong>Ngày:</strong> {formatDate(order.createdAt)}
+              <strong>Ngày đặt:</strong> {formatDate(order.createdAt)}
             </p>
+            <hr />
             <p>
               <strong>Khách hàng:</strong> {order.customerName}
+            </p>
+            <p>
+              <strong>SĐT:</strong> {order.phone}
             </p>
           </div>
 
