@@ -56,7 +56,6 @@ public class ProductController {
             @RequestParam(value = "deletedImageIds", required = false) List<Integer> deletedImageIds,
             @RequestParam(value = "deletedVariantIds", required = false) List<Integer> deletedVariantIds // <-- THÊM MỚI
     ) {
-        // TRUYỀN THÊM BIẾN VÀO HÀM UPDATE
         return ResponseEntity.ok(productService.updateProduct(id, request, mainImage, subImages, deletedImageIds, deletedVariantIds));
     }
 

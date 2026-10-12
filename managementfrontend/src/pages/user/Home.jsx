@@ -2,9 +2,13 @@ import React, { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 import Hero from "../../components/user/hero/Hero";
+import SignatureBrews from "../../components/user/signature-brews/SignatureBrews";
 import About from "../../components/user/about/About";
+import StoreLocator from "../../components/user/store-locator/StoreLocator";
 import Contact from "../../components/user/contact/Contact";
+import Testimonials from "../../components/user/testimonials/Testimonials";
 import HomeAdPopup from "../../components/user/home-ad-popup/HomeAdPopup";
+import "./Home.css";
 
 const scrollToSection = (sectionId) => {
   const target = document.getElementById(sectionId);
@@ -39,17 +43,37 @@ const Home = () => {
 
   return (
     <div className="home-page">
+      {/* Popup quảng cáo trang chủ */}
       <HomeAdPopup />
-      <div id="hero" className="home-scroll-section">
+
+      {/* Section 1: Hero (TỐI) */}
+      <div id="hero" className="home-scroll-section section-dark">
         <Hero />
       </div>
 
-      <div id="about" className="home-scroll-section">
+      {/* Section 2: Signature Brews - Món nổi bật (SÁNG) */}
+      <div id="signature-brews" className="home-scroll-section section-light">
+        <SignatureBrews />
+      </div>
+
+      {/* Section 3: About / Storytelling (TỐI) */}
+      <div id="about" className="home-scroll-section section-dark">
         <About />
       </div>
 
-      <div id="contact" className="home-scroll-section">
+      {/* Section 4: Store Locator & Giao Hàng (SÁNG) */}
+      <div id="stores" className="home-scroll-section section-light">
+        <StoreLocator />
+      </div>
+
+      {/* Section 5: Contact - Liên hệ & Gửi tin nhắn (TỐI) */}
+      <div id="contact" className="home-scroll-section section-dark">
         <Contact />
+      </div>
+
+      {/* Section 6: Testimonials - Đánh giá từ khách hàng (SÁNG) */}
+      <div id="testimonials" className="home-scroll-section section-light">
+        <Testimonials />
       </div>
     </div>
   );

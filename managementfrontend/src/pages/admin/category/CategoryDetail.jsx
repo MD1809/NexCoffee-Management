@@ -18,7 +18,6 @@ const CategoryDetail = () => {
   // 1. Thêm state quản lý việc đóng/mở form chỉnh sửa
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  // 2. Tách logic gọi API ra một hàm riêng để có thể tái sử dụng (làm mới dữ liệu)
   const fetchCategoryDetail = useCallback(() => {
     if (!id) return;
 

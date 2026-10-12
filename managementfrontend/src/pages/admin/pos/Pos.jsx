@@ -6,16 +6,13 @@ import Dropdown from "../../../components/admin/dropDown/Dropdown";
 import posApi from "../../../apis/posApi";
 import "./pos.css";
 
-// Thư mục chứa ảnh tĩnh của Spring Boot (nếu có cấu hình WebMvcConfigurer để public thư mục uploads)
 const IMAGE_BASE_URL = "http://localhost:8080/images/";
 
 export default function Pos() {
-  // --- STATES DỮ LIỆU TỪ SERVER ---
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // --- STATES GIỎ HÀNG & UI ---
   const [cart, setCart] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -24,11 +21,9 @@ export default function Pos() {
   const [discountAmount, setDiscountAmount] = useState(0);
   const shippingFee = 0;
 
-  // --- 1. LẤY DỮ LIỆU TỪ BACKEND KHI VỪA MỞ TRANG ---
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Gọi API qua posApi
         const [productsRes, categoriesRes] = await Promise.all([
           posApi.getProducts(),
           posApi.getCategories(),
@@ -51,7 +46,6 @@ export default function Pos() {
     fetchData();
   }, []);
 
-  // --- 2. LỌC SẢN PHẨM THEO TÌM KIẾM & DANH MỤC ---
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
       const matchCategory =
@@ -64,7 +58,6 @@ export default function Pos() {
     });
   }, [products, selectedCategoryId, searchQuery]);
 
-  // --- 3. LOGIC GIỎ HÀNG ---
   const addToCart = (product, variant) => {
     const itemIndex = cart.findIndex(
       (item) =>
@@ -111,7 +104,6 @@ export default function Pos() {
     }
   };
 
-  // --- 4. TÍNH TOÁN TIỀN & THANH TOÁN ---
   const subTotal = cart.reduce(
     (total, item) => total + item.price * item.quantity,
     0,
@@ -121,7 +113,6 @@ export default function Pos() {
   const handleCheckout = async () => {
     if (cart.length === 0) return toast.warning("Giỏ hàng trống!");
 
-    // 1. Lấy thông tin user từ sessionStorage
     const userString = sessionStorage.getItem("currentUser");
 
     if (!userString) {
@@ -130,9 +121,8 @@ export default function Pos() {
     }
 
     const user = JSON.parse(userString);
-    const userId = user.id; // Lấy đúng ID từ object đã parse
+    const userId = user.id;
 
-    // 2. Đóng gói payload với userId lấy từ session
     const orderPayload = {
       subtotal: subTotal,
       discount: discountAmount,
@@ -140,7 +130,7 @@ export default function Pos() {
       total: finalTotal,
       paymentMethod: "CASH",
       note: "Khách mua tại quầy",
-      staffId: userId, // Truyền ID nhân viên thật vào đây
+      staffId: userId,
       items: cart.map((item) => ({
         productVariantId: item.variant_id,
         quantity: item.quantity,
@@ -155,7 +145,6 @@ export default function Pos() {
       setDiscountAmount(0);
       setDiscountCode("");
     } catch (error) {
-      // Log lỗi để kiểm tra xem có phải do staffId không hợp lệ không
       console.error("Checkout error:", error);
       toast.error("Thanh toán thất bại!");
     }
@@ -163,11 +152,7 @@ export default function Pos() {
 
   return (
     <div className="pos-layout">
-      {/* =========================================
-          CỘT TRÁI: MENU & SẢN PHẨM 
-          ========================================= */}
       <div className="pos-main">
-        {/* KHỐI 1: TÌM KIẾM VÀ LỌC (Cố định ở trên) */}
         <div className="top-bar">
           <SearchBox
             value={searchQuery}
@@ -184,7 +169,6 @@ export default function Pos() {
           </div>
         </div>
 
-        {/* KHỐI 2: DANH SÁCH SẢN PHẨM (Được phép trượt) */}
         <div className="product-scroll-area">
           {isLoading ? (
             <div
@@ -226,12 +210,10 @@ export default function Pos() {
                       <div className="product-name">{product.name}</div>
 
                       <div className="variants-area">
-                        {/* Kiểm tra xem có phải là sản phẩm có nhiều size thực sự không */}
                         {activeVariants.length > 0 &&
                         activeVariants.every(
                           (v) => v.size && v.size !== "Mặc định",
                         ) ? (
-                          // KIỂU 1: Nhiều size (S, M, L) -> Hiển thị dạng nhóm capsule
                           <div className="variants-capsule-group">
                             {activeVariants.map((variant) => (
                               <button
@@ -249,7 +231,6 @@ export default function Pos() {
                             ))}
                           </div>
                         ) : activeVariants.length > 0 ? (
-                          // KIỂU 2: Chỉ có 1 size mặc định -> Hiển thị nút thêm đơn giản
                           <div className="variant-single">
                             <span className="single-price">
                               {activeVariants[0].price.toLocaleString("vi-VN")}{" "}

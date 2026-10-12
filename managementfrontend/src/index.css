@@ -17,14 +17,32 @@ body {
 }
 
 .user-portal {
-  --primary-brown: #391b09;
-  --primary-orange: #ff8914;
+  --primary-brown: #1c1917;
+  --primary-orange: #ef4444;
   --font-main: "Be Vietnam Pro", sans-serif;
   --font-title: "Tapestry";
 
+  /* Bảng màu 3: Rich Mocha & Vibrant Terracotta */
+  --bg-dark: #1c1917;
+  --card-dark: #292524;
+  --card-dark-hover: #332d2a;
+  --text-dark-primary: #faf5f0;
+  --text-dark-muted: #a8a29e;
+  --accent-primary: #dc2626;
+  --accent-hover: #ef4444;
+  --border-dark: rgba(255, 255, 255, 0.1);
+
+  --bg-light: #fffdf9;
+  --card-light: #ffffff;
+  --card-light-hover: #fdfaf5;
+  --text-light-primary: #292524;
+  --text-light-muted: #78716c;
+  --accent-light: #b91c1c;
+  --border-light: #f0eae1;
+
   font-family: var(--font-main);
-  background-color: var(--primary-brown);
-  color: #ffffff;
+  background-color: var(--bg-dark);
+  color: var(--text-dark-primary);
   min-height: 100vh;
 }
 
@@ -42,8 +60,11 @@ body {
 
 .user-portal a {
   text-decoration: none;
-  color: inherit;
   transition: 0.3s;
+}
+
+.user-portal a:not([class]) {
+  color: inherit;
 }
 
 .user-portal .btn {

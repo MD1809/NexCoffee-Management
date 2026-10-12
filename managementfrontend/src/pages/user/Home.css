@@ -1,0 +1,20 @@
+.home-page {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.home-scroll-section {
+  width: 100%;
+  position: relative;
+}
+
+/* Các section so le */
+.home-scroll-section.section-dark {
+  background-color: var(--bg-dark, #1c1917);
+  color: var(--text-dark-primary, #faf5f0);
+}
+
+.home-scroll-section.section-light {
+  background-color: var(--bg-light, #fffdf9);
+  color: var(--text-light-primary, #292524);
+}

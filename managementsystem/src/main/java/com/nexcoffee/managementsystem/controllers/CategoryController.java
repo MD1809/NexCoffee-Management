@@ -32,7 +32,6 @@ public class CategoryController {
         return categoryService.getCategoryById(categoryId);
     }
 
-    // --- ENDPOINT MỚI CHO TRANG CHI TIẾT ---
     @GetMapping("/detail/{categoryId}")
     public CategoryDetailResponse getCategoryDetail(@PathVariable Integer categoryId) {
         return categoryService.getCategoryDetail(categoryId);

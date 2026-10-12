@@ -2,3 +2,4 @@
 managementsystem/uploads/
 managementsystem/target/
 managementsystem/src/main/resources/application.properties
+.agents/

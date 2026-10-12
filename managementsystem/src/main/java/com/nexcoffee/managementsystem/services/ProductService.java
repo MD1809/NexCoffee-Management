@@ -425,15 +425,14 @@ public class ProductService {
             Product product = productRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm với ID: " + id));
 
-            // Kiểm tra xem đã bị xóa mềm chưa
             if (product.isDeleted()) {
                 System.err.println("Thao tác lỗi: Cố gắng xóa sản phẩm đã bị xóa trước đó. ID: " + id);
                 throw new InvalidOperationException("Sản phẩm này đã nằm trong thùng rác.");
             }
 
-            // Bật cờ deleted thay vì đổi status
+
             product.setDeleted(true);
-            // product.setStatus(...) // BỎ ĐI, giữ nguyên status hiện tại để sau này khôi phục lại đúng trạng thái cũ
+
             product.setUpdatedAt(LocalDateTime.now());
 
             productRepository.save(product);

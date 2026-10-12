@@ -1,0 +1,292 @@
+.signature-brews-section {
+  background-color: var(--bg-light, #fffdf9);
+  color: var(--text-light-primary, #292524);
+  padding: 100px 0;
+  position: relative;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.section-head {
+  max-width: 680px;
+  margin: 0 auto 5rem;
+}
+
+.section-badge-light {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(185, 28, 28, 0.08);
+  border: 1px solid rgba(185, 28, 28, 0.2);
+  color: var(--accent-light, #b91c1c);
+  padding: 0.5rem 1.4rem;
+  border-radius: 999px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1.4rem;
+}
+
+.section-title-light {
+  color: var(--text-light-primary, #292524);
+  font-size: clamp(2.8rem, 3.6vw, 4.4rem);
+  font-weight: 400;
+  line-height: 1.25;
+  margin-bottom: 1.4rem;
+  letter-spacing: -0.3px;
+}
+
+.section-desc-light {
+  color: var(--text-light-muted, #78716c);
+  font-size: 1.6rem;
+  line-height: 1.6;
+}
+
+/* --- Grid sản phẩm --- */
+.brews-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2.4rem;
+  margin-bottom: 4.5rem;
+}
+
+.brew-card {
+  background: var(--card-light, #ffffff);
+  border: 1px solid var(--border-light, #f0eae1);
+  border-radius: 1.6rem;
+  overflow: hidden;
+  box-shadow: 0 4px 20px -2px rgba(41, 37, 36, 0.05);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.brew-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 36px -6px rgba(41, 37, 36, 0.12);
+  border-color: rgba(185, 28, 28, 0.3);
+}
+
+.brew-image-wrap {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  background-color: #f5ede6;
+}
+
+.brew-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.brew-card:hover .brew-image {
+  transform: scale(1.06);
+}
+
+.brew-badge {
+  position: absolute;
+  top: 1.2rem;
+  left: 1.2rem;
+  background: rgba(28, 25, 23, 0.85);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 600;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  letter-spacing: 0.3px;
+}
+
+.brew-content {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.brew-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+  font-size: 1.25rem;
+}
+
+.brew-category {
+  color: var(--accent-light, #b91c1c);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.brew-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #d97706;
+  font-weight: 600;
+}
+
+.star-icon {
+  font-size: 1.2rem;
+}
+
+.rating-count {
+  color: var(--text-light-muted, #78716c);
+  font-weight: 400;
+  font-size: 1.15rem;
+}
+
+.brew-name {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-light-primary, #292524);
+  line-height: 1.35;
+  margin-bottom: 0.8rem;
+}
+
+.brew-description {
+  color: var(--text-light-muted, #78716c);
+  font-size: 1.35rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+  flex: 1;
+}
+
+.brew-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1.4rem;
+  border-top: 1px dashed var(--border-light, #f0eae1);
+}
+
+.brew-price {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--accent-light, #b91c1c);
+}
+
+.brew-price .currency {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.user-portal a.brew-add-btn,
+.brew-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background-color: rgba(185, 28, 28, 0.08);
+  color: var(--accent-light, #b91c1c) !important;
+  border: 1px solid rgba(185, 28, 28, 0.25);
+  padding: 0.8rem 1.6rem;
+  border-radius: 999px;
+  font-size: 1.35rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.user-portal a.brew-add-btn span,
+.brew-add-btn span {
+  color: var(--accent-light, #b91c1c);
+  transition: color 0.2s ease;
+}
+
+.user-portal a.brew-add-btn:hover,
+.brew-add-btn:hover {
+  background-color: var(--accent-light, #b91c1c);
+  color: #ffffff !important;
+  border-color: var(--accent-light, #b91c1c);
+  transform: translateY(-2px);
+}
+
+.user-portal a.brew-add-btn:hover span,
+.brew-add-btn:hover span {
+  color: #ffffff !important;
+}
+
+.add-icon {
+  font-size: 1.1rem;
+}
+
+/* --- Nút View All --- */
+.brews-cta-wrap {
+  text-align: center;
+}
+
+.user-portal a.btn-view-all-menu,
+.btn-view-all-menu {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: var(--accent-primary, #dc2626);
+  color: #ffffff !important;
+  border: 2px solid var(--accent-primary, #dc2626);
+  padding: 1.4rem 3.4rem;
+  border-radius: 999px;
+  font-size: 1.55rem;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  box-shadow: 0 8px 22px -4px rgba(220, 38, 38, 0.4);
+}
+
+.user-portal a.btn-view-all-menu span,
+.btn-view-all-menu span {
+  color: #ffffff !important;
+  transition: color 0.25s ease;
+}
+
+.user-portal a.btn-view-all-menu .cta-icon,
+.btn-view-all-menu .cta-icon {
+  font-size: 1.3rem;
+  color: #ffffff !important;
+  transition: transform 0.2s ease, color 0.25s ease;
+}
+
+.user-portal a.btn-view-all-menu:hover,
+.btn-view-all-menu:hover {
+  background-color: #ffffff;
+  color: var(--accent-primary, #dc2626) !important;
+  border-color: var(--accent-primary, #dc2626);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -4px rgba(220, 38, 38, 0.3);
+}
+
+.user-portal a.btn-view-all-menu:hover span,
+.btn-view-all-menu:hover span {
+  color: var(--accent-primary, #dc2626) !important;
+}
+
+.user-portal a.btn-view-all-menu:hover .cta-icon,
+.btn-view-all-menu:hover .cta-icon {
+  color: var(--accent-primary, #dc2626) !important;
+  transform: translateX(4px);
+}
+
+/* --- Responsive --- */
+@media (max-width: 1200px) {
+  .brews-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .signature-brews-section {
+    padding: 70px 0;
+  }
+
+  .brews-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .brew-image-wrap {
+    height: 200px;
+  }
+}

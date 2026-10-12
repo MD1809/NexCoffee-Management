@@ -28,10 +28,6 @@ public class OrderController {
     private final OrderService orderService;
     private final StoreRepository storeRepository;
 
-    // ==============================================================================
-    // PHẦN 1: CÁC API MỚI DÀNH RIÊNG CHO TRANG DASHBOARD THỐNG KÊ
-    // ==============================================================================
-
     // 1. Lấy tổng doanh thu trong ngày
     @GetMapping("/dashboard/revenue")
     public ResponseEntity<Long> getDashboardRevenue(
@@ -60,10 +56,8 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
-    // Mapper riêng cho Dashboard để lấy thêm tên nhân viên và shipper
     private OrderResponse mapToDashboardResponseSummary(Order order) {
         OrderResponse response = mapToResponseSummary(order);
-        // Bổ sung thông tin nhân sự (Yêu cầu bạn thêm 2 trường này vào class OrderResponse)
         if (order.getStaff() != null) {
             response.setStaffName(order.getStaff().getFullName()); // Giả sử entity User có getFullName()
         }
@@ -74,9 +68,6 @@ public class OrderController {
     }
 
 
-    // ==============================================================================
-    // PHẦN 2: CÁC API HIỆN TẠI (GIỮ NGUYÊN ĐỂ KHÔNG ẢNH HƯỞNG TRANG CŨ)
-    // ==============================================================================
 
     @GetMapping("/today")
     public ResponseEntity<List<OrderResponse>> getTodayOrders() {

@@ -1,78 +1,278 @@
-.about {
-  background-color: #ffffff; /* Nền sáng để làm nổi bật text */
-  padding: 8rem 0;
+.about-section {
+  background-color: var(--bg-dark, #1c1917);
+  color: var(--text-dark-primary, #faf5f0);
+  padding: 110px 0;
+  position: relative;
+  overflow: hidden;
 }
 
-.about .body {
+.about-grid {
   display: flex;
+  align-items: center;
+  gap: 6rem;
   justify-content: space-between;
-  align-items: center;
-  gap: 5rem;
 }
 
-.about-image {
+/* --- Visual bên trái --- */
+.about-visual {
   flex: 1;
-  max-width: 500px;
+  max-width: 520px;
 }
 
-.about-image img {
+.visual-card {
+  position: relative;
+  background: var(--card-dark, #292524);
+  border: 1px solid var(--border-dark, rgba(255, 255, 255, 0.12));
+  border-radius: 2.2rem;
+  padding: 1.4rem;
+  box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.6);
+}
+
+.visual-img {
   width: 100%;
-  height: auto;
-  border-radius: 1rem;
+  aspect-ratio: 1 / 1;
+  border-radius: 1.6rem;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
 }
 
-.about-content {
-  flex: 1.5;
+.visual-card:hover .visual-img {
+  transform: scale(1.02);
 }
 
-.about-title {
-  color: var(--primary-orange); /* Màu cam #ff8914 */
-  font-size: clamp(3.2rem, 5vw, 6rem);
-  margin-bottom: 2rem;
-}
-
-.about-desc {
-  text-align: justify;
-  line-height: 1.6;
-  font-size: 1.8rem;
-  color: #333333;
-}
-
-.about-info {
+.experience-badge {
+  position: absolute;
+  bottom: -2rem;
+  right: -1.5rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+  padding: 1.4rem 2.2rem;
+  border-radius: 1.4rem;
+  box-shadow: 0 10px 25px -4px rgba(220, 38, 38, 0.45);
   display: flex;
   align-items: center;
-  gap: 2rem;
-  margin: 4rem 0;
+  gap: 1.2rem;
 }
 
-.about-info .title {
-  color: var(--primary-orange);
-  font-size: 2.4rem;
+.exp-number {
+  font-size: 2.8rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
-.social-icons {
+.exp-text {
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.3;
+  max-width: 110px;
+}
+
+/* --- Nội dung bên phải --- */
+.about-narrative {
+  flex: 1.2;
+}
+
+.section-badge-dark {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(220, 38, 38, 0.12);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  color: var(--accent-hover, #ef4444);
+  padding: 0.5rem 1.4rem;
+  border-radius: 999px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1.6rem;
+}
+
+.about-heading {
+  color: var(--text-dark-primary, #faf5f0);
+  font-size: clamp(2.8rem, 3.6vw, 4.6rem);
+  font-weight: 400;
+  line-height: 1.25;
+  margin-bottom: 2rem;
+  letter-spacing: -0.3px;
+}
+
+.heading-highlight {
+  color: var(--accent-hover, #ef4444);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.about-lead {
+  font-size: 1.7rem;
+  line-height: 1.65;
+  color: #f5ede6;
+  font-weight: 400;
+  margin-bottom: 1.6rem;
+}
+
+.about-paragraph {
+  font-size: 1.5rem;
+  line-height: 1.7;
+  color: var(--text-dark-muted, #a8a29e);
+  margin-bottom: 3rem;
+}
+
+/* --- 3 Cam kết --- */
+.about-commitments {
   display: flex;
-  gap: 1.5rem;
-  font-size: 3rem;
+  flex-direction: column;
+  gap: 1.6rem;
+  margin-bottom: 3.5rem;
 }
 
-.about-btn {
-  background-color: var(--primary-orange);
+.commit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.6rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 1.4rem 1.8rem;
+  border-radius: 1.2rem;
+  transition: all 0.25s ease;
+}
+
+.commit-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(220, 38, 38, 0.3);
+  transform: translateX(4px);
+}
+
+.commit-icon-wrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(220, 38, 38, 0.15);
+  color: var(--accent-hover, #ef4444);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.commit-title {
+  font-size: 1.55rem;
+  font-weight: 600;
+  color: var(--text-dark-primary, #faf5f0);
+  margin-bottom: 0.3rem;
+}
+
+.commit-desc {
+  font-size: 1.35rem;
+  color: var(--text-dark-muted, #a8a29e);
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* --- Hàng hành động cuối --- */
+.about-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 2.4rem;
+  flex-wrap: wrap;
+}
+
+.btn-about-contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  background-color: var(--accent-primary, #dc2626);
   color: #ffffff;
-  font-size: 2.4rem;
-  padding: 1.2rem 4rem;
+  padding: 1.3rem 2.8rem;
+  border-radius: 999px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  box-shadow: 0 8px 20px -4px rgba(220, 38, 38, 0.4);
 }
-.about-btn:hover {
-  background-color: #ff9f3f;
-  transform: translateY(-4px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+
+.btn-about-contact:hover {
+  background-color: var(--accent-hover, #ef4444);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px -4px rgba(220, 38, 38, 0.6);
 }
+
+.action-icon {
+  font-size: 1.2rem;
+  transition: transform 0.2s ease;
+}
+
+.btn-about-contact:hover .action-icon {
+  transform: translateX(3px);
+}
+
+.about-social-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.social-label {
+  font-size: 1.35rem;
+  color: var(--text-dark-muted, #a8a29e);
+}
+
+.social-link-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dark-primary, #faf5f0);
+  font-size: 1.6rem;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.social-link-btn:hover {
+  background-color: var(--accent-primary, #dc2626);
+  border-color: var(--accent-primary, #dc2626);
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* --- Responsive --- */
 @media (max-width: 992px) {
-  .about .body {
+  .about-grid {
     flex-direction: column;
-    text-align: center;
+    gap: 5rem;
   }
-  .about-desc {
-    text-align: center;
+
+  .about-visual {
+    max-width: 100%;
+    width: 90%;
+  }
+
+  .experience-badge {
+    bottom: -1.5rem;
+    right: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .about-section {
+    padding: 70px 0;
+  }
+
+  .about-actions-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.6rem;
+  }
+
+  .btn-about-contact {
+    width: 100%;
+    justify-content: center;
   }
 }

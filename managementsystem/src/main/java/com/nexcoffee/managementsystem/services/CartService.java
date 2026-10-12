@@ -173,7 +173,6 @@ public class CartService {
 
         Cart userCart = findOrCreateUserCart(currentUser);
 
-        // Cart của user tuyệt đối không được giữ guest token
         if (userCart.getCartToken() != null) {
             userCart.setCartToken(null);
             userCart = cartRepository.save(userCart);
@@ -191,7 +190,6 @@ public class CartService {
             return toCartResponse(userCart);
         }
 
-        // Nếu token này không phải guest cart thật thì không merge
         if (guestCart.getUser() != null) {
             return toCartResponse(userCart);
         }
@@ -231,7 +229,6 @@ public class CartService {
             }
         }
 
-        // Xóa guest cart sau khi đã copy toàn bộ item sang user cart
         guestCart.getItems().clear();
         cartRepository.delete(guestCart);
         cartRepository.flush();

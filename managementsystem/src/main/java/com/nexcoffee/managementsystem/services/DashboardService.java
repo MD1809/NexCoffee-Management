@@ -65,7 +65,6 @@ public class DashboardService {
     public List<RevenueByDayResponse> getDailyRevenueChartData(int year, int month) {
         List<Object[]> results = dashboardRepository.getDailyRevenueByMonthAndYear(year, month);
 
-        // Chuyển kết quả từ Database sang dạng Map<Ngày, DoanhThu> để dễ tra cứu
         Map<Integer, Long> revenueMap = new HashMap<>();
         for (Object[] row : results) {
             int day = ((Number) row[0]).intValue();
@@ -73,7 +72,7 @@ public class DashboardService {
             revenueMap.put(day, revenue);
         }
 
-        // Dùng java.time để tính chính xác số ngày của tháng đó trong năm đó (xử lý cả năm nhuận)
+
         YearMonth yearMonthObject = YearMonth.of(year, month);
         int daysInMonth = yearMonthObject.lengthOfMonth();
 

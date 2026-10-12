@@ -276,7 +276,7 @@ public class OrderService {
         Order order = getManagedOrderById(orderId);
 
         if (newStatus == OrderStatus.Cancelled) {
-            if (order.getStatus() == OrderStatus.Shipped || order.getStatus() == OrderStatus.Completed) {
+            if (order.getStatus() == OrderStatus.Completed) {
                 throw new IllegalStateException("Không thể hủy đơn hàng đang giao hoặc đã hoàn thành.");
             }
             order.setCancelReason(cancelReason);
@@ -335,7 +335,6 @@ public class OrderService {
                 }
             }
 
-            // BẠN ĐÃ THIẾU ĐOẠN NÀY DẪN ĐẾN VIỆC KHÔNG GỬI ĐƯỢC MAIL
             // Gọi service để thực sự gửi email đi
             emailService.sendOrderStatusEmail(
                     savedOrder.getEmail(),
