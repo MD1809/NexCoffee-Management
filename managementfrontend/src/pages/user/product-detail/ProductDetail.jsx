@@ -155,6 +155,8 @@ const ProductDetail = () => {
   }, [id]);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchProductDetail = async () => {
       try {
         setLoading(true);
@@ -163,6 +165,8 @@ const ProductDetail = () => {
           getMenuProductById(id),
           getMenuProducts(),
         ]);
+
+        if (!isMounted) return;
 
         const productData = productResponse?.data || productResponse || null;
 
@@ -200,14 +204,21 @@ const ProductDetail = () => {
         setQuantity(1);
         setRelatedProducts(related);
       } catch (error) {
+        if (!isMounted) return;
         toast.error("Không thể tải chi tiết sản phẩm.");
         setProduct(null);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchProductDetail();
+
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
 
   const productImages = useMemo(() => {

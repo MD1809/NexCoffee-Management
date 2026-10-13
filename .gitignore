@@ -1,5 +1,126 @@
-./idea
-managementsystem/uploads/
-managementsystem/target/
+# ==========================================
+# NexCoffee Management - Root .gitignore
+# ==========================================
+
+# --- 1. Environment & Secrets (Bảo mật) ---
+.env
+.env.*
+!.env.example
+*.env
+application.properties
+application-*.properties
+!application.properties.example
 managementsystem/src/main/resources/application.properties
+managementsystem/src/main/resources/application-*.properties
+!managementsystem/src/main/resources/application.properties.example
+*.pem
+*.key
+*.keystore
+*.jks
+
+# --- 2. Dependencies (Thư viện phụ thuộc) ---
+node_modules/
+**/node_modules/
+.pnp
+.pnp.js
+.mvn/wrapper/maven-wrapper.jar
+
+# --- 3. Build Outputs & Artifacts ---
+dist/
+**/dist/
+dist-ssr/
+**/dist-ssr/
+build/
+**/build/
+out/
+**/out/
+target/
+**/target/
+*.class
+*.jar
+*.war
+*.ear
+
+# --- 4. User Uploads & Media (File tải lên động) ---
+uploads/
+**/uploads/*
+!**/uploads/.gitkeep
+managementsystem/uploads/*
+!managementsystem/uploads/.gitkeep
+tmp/
+temp/
+*.tmp
+*.temp
+
+# --- 5. Logs & Debug ---
+logs/
+**/logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# --- 6. Editor & IDEs ---
+# IntelliJ IDEA / WebStorm
+.idea/
+**/.idea/
+*.iws
+*.iml
+*.ipr
+
+# Visual Studio Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+*.code-workspace
+
+# Eclipse / STS
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+
+# NetBeans
+nbproject/private/
+nbbuild/
+nbdist/
+.nb-gradle/
+
+# Sublime Text & Vim
+*.sublime-workspace
+*.sublime-project
+*.sw?
+*.swo
+*.swp
+*~
+
+# --- 7. Operating System Files (Hệ điều hành) ---
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+desktop.ini
+$RECYCLE.BIN/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# --- 8. AI Tools & Agent Local Storage ---
 .agents/
+.antigravity/scratch/
+.antigravity/tmp/

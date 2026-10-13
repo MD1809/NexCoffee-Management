@@ -40,10 +40,6 @@ const Contact = () => {
         <div className="contact-grid">
           {/* Cột trái: Thông tin liên hệ */}
           <div className="contact-info-panel">
-            <div className="section-badge-dark">
-              <span>💬 Kết Nối Với Chúng Tôi</span>
-            </div>
-
             <h2 className="contact-heading title-font">
               Liên Hệ Với NexCoffee
             </h2>
@@ -134,7 +130,7 @@ const Contact = () => {
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group form-group-textarea">
                   <label htmlFor="contact-message" className="input-label">Nội dung tin nhắn *</label>
                   <textarea
                     id="contact-message"

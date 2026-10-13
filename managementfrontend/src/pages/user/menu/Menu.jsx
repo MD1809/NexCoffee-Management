@@ -76,6 +76,8 @@ const Menu = () => {
     }
   }, [searchParams]);
   useEffect(() => {
+    let isMounted = true;
+
     const fetchMenuData = async () => {
       try {
         setLoading(true);
@@ -84,6 +86,8 @@ const Menu = () => {
           getMenuProducts(),
           getMenuCategories(),
         ]);
+
+        if (!isMounted) return;
 
         const productsData = Array.isArray(productsResponse)
           ? productsResponse
@@ -100,15 +104,22 @@ const Menu = () => {
         setProducts(productsData);
         setCategories(categoriesData);
       } catch (error) {
+        if (!isMounted) return;
         toast.error("Không thể tải menu sản phẩm.");
         setProducts([]);
         setCategories([]);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchMenuData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const visibleProducts = useMemo(() => {
@@ -157,62 +168,110 @@ const Menu = () => {
   return (
     <section className="menu-section fade-in">
       <div className="main-content menu-container">
-        <aside className="menu-sidebar">
-          <form className="menu-search" onSubmit={handleSearchSubmit}>
-            <input
-              type="text"
-              value={keyword}
-              placeholder="Tìm đồ uống..."
-              onChange={(event) => setKeyword(event.target.value)}
-            />
-            <button type="submit">Tìm</button>
-          </form>
+        {/* Cột lọc danh mục bên trái */}
+        <div className="menu-sidebar-wrapper">
+          <aside className="menu-sidebar">
+            <form className="menu-search" onSubmit={handleSearchSubmit}>
+              <input
+                type="text"
+                value={keyword}
+                placeholder="Tìm đồ uống..."
+                onChange={(event) => setKeyword(event.target.value)}
+              />
+              <button type="submit">Tìm</button>
+            </form>
 
-          <ul>
-            <li>
-              <button
-                type="button"
-                className={`menu-category-btn ${
-                  activeCategoryId === "all" ? "active" : ""
-                }`}
-                onClick={() => {
-                  setActiveCategoryId("all");
-                  setSearchParams({});
-                }}
-              >
-                Tất cả
-              </button>
-            </li>
+            <h3 className="menu-sidebar-heading">Danh Mục</h3>
 
-            {visibleCategories.map((category) => (
-              <li key={category.id}>
-                <button
-                  type="button"
-                  className={`menu-category-btn ${
-                    String(activeCategoryId) === String(category.id)
-                      ? "active"
-                      : ""
-                  }`}
-                  onClick={() => {
-                    setActiveCategoryId(category.id);
-                    setSearchParams({ category: String(category.id) });
-                  }}
-                >
-                  {category.name}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </aside>
+            {loading && categories.length === 0 ? (
+              <ul className="menu-category-skeleton-list">
+                {Array.from({ length: 6 }).map((_, idx) => (
+                  <li key={idx}>
+                    <div className="skeleton-category-item skeleton-shimmer"></div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <ul>
+                <li>
+                  <button
+                    type="button"
+                    className={`menu-category-btn ${
+                      activeCategoryId === "all" ? "active" : ""
+                    }`}
+                    onClick={() => {
+                      setActiveCategoryId("all");
+                      setSearchParams({});
+                    }}
+                  >
+                    Tất cả
+                  </button>
+                </li>
 
+                {visibleCategories.map((category) => (
+                  <li key={category.id}>
+                    <button
+                      type="button"
+                      className={`menu-category-btn ${
+                        String(activeCategoryId) === String(category.id)
+                          ? "active"
+                          : ""
+                      }`}
+                      onClick={() => {
+                        setActiveCategoryId(category.id);
+                        setSearchParams({ category: String(category.id) });
+                      }}
+                    >
+                      {category.name}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </aside>
+        </div>
+
+        {/* Cột danh sách sản phẩm bên phải */}
         <div className="menu-content" id="menu-content">
-          {loading && <p className="menu-empty">Đang tải menu...</p>}
+          {loading ? (
+            <div className="menu-skeleton-container" aria-busy="true" aria-label="Đang tải thực đơn...">
+              {/* Nhóm sản phẩm 1 */}
+              <div className="menu-group skeleton-group">
+                <div className="skeleton-title skeleton-shimmer"></div>
+                <div className="menu-products">
+                  {Array.from({ length: 6 }).map((_, idx) => (
+                    <div className="menu-card menu-card-skeleton" key={`sk-1-${idx}`}>
+                      <div className="skeleton-img skeleton-shimmer"></div>
+                      <div className="menu-card-info skeleton-card-info">
+                        <div className="skeleton-line skeleton-name skeleton-shimmer"></div>
+                        <div className="skeleton-line skeleton-price skeleton-shimmer"></div>
+                      </div>
+                      <div className="skeleton-cart-btn skeleton-shimmer"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-          {!loading && Object.keys(groupedProducts).length === 0 && (
+              {/* Nhóm sản phẩm 2 */}
+              <div className="menu-group skeleton-group">
+                <div className="skeleton-title skeleton-title-short skeleton-shimmer"></div>
+                <div className="menu-products">
+                  {Array.from({ length: 3 }).map((_, idx) => (
+                    <div className="menu-card menu-card-skeleton" key={`sk-2-${idx}`}>
+                      <div className="skeleton-img skeleton-shimmer"></div>
+                      <div className="menu-card-info skeleton-card-info">
+                        <div className="skeleton-line skeleton-name skeleton-shimmer"></div>
+                        <div className="skeleton-line skeleton-price skeleton-shimmer"></div>
+                      </div>
+                      <div className="skeleton-cart-btn skeleton-shimmer"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : Object.keys(groupedProducts).length === 0 ? (
             <p className="menu-empty">Không tìm thấy sản phẩm phù hợp.</p>
-          )}
-
-          {!loading &&
+          ) : (
             Object.entries(groupedProducts).map(([groupName, items]) => (
               <div className="menu-group" key={groupName}>
                 <h2>{groupName}</h2>
@@ -223,7 +282,8 @@ const Menu = () => {
                   ))}
                 </div>
               </div>
-            ))}
+            ))
+          )}
         </div>
       </div>
     </section>

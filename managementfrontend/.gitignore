@@ -1,5 +1,27 @@
+# ==========================================
+# Frontend (.gitignore) - React + Vite + Node
+# ==========================================
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production Build
+dist/
+dist-ssr/
+build/
+
+# Local Environment Variables & Secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.local
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,22 +29,24 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-.idea/
-managementsystem/uploads/
-managementsystem/target/
-managementfrontend/node_modules/
+# Caches & Temp
+.cache/
+.eslintcache
+.stylelintcache
+*.tmp
+*.temp
 
-# Editor directories and files
+# IDE & Editor Configs
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+!.vscode/settings.json
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# OS Files
+.DS_Store
+Thumbs.db

@@ -16,6 +16,8 @@
 .contact-info-panel {
   flex: 1;
   max-width: 540px;
+  display: flex;
+  flex-direction: column;
 }
 
 .contact-heading {
@@ -23,6 +25,7 @@
   font-size: clamp(2.8rem, 3.6vw, 4.4rem);
   font-weight: 400;
   line-height: 1.25;
+  margin-top: 0;
   margin-bottom: 1.6rem;
 }
 
@@ -30,13 +33,15 @@
   font-size: 1.55rem;
   line-height: 1.65;
   color: var(--text-dark-muted, #a8a29e);
-  margin-bottom: 3rem;
+  margin-bottom: 2.8rem;
 }
 
 .contact-cards-list {
   display: flex;
   flex-direction: column;
-  gap: 1.6rem;
+  gap: 1.4rem;
+  flex: 1;
+  justify-content: space-between;
 }
 
 .contact-info-card {
@@ -48,6 +53,7 @@
   padding: 1.6rem 2rem;
   border-radius: 1.4rem;
   transition: all 0.25s ease;
+  flex: 1;
 }
 
 .contact-info-card:hover {
@@ -102,6 +108,8 @@
 .contact-form-panel {
   flex: 1.1;
   max-width: 600px;
+  display: flex;
+  flex-direction: column;
 }
 
 .form-card-container {
@@ -110,12 +118,16 @@
   border-radius: 2rem;
   padding: 3.5rem 3rem;
   box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .form-heading {
   font-size: 2.2rem;
   font-weight: 700;
   color: var(--text-dark-primary, #faf5f0);
+  margin-top: 0;
   margin-bottom: 0.6rem;
 }
 
@@ -129,12 +141,19 @@
   display: flex;
   flex-direction: column;
   gap: 1.8rem;
+  flex: 1;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+}
+
+.form-group-textarea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .input-label {
@@ -160,6 +179,7 @@
 .direct-contact-form textarea {
   resize: vertical;
   min-height: 110px;
+  flex: 1;
 }
 
 .direct-contact-form input::placeholder,
@@ -226,6 +246,29 @@
 
   .form-card-container {
     padding: 3rem 2rem;
+    height: auto;
+  }
+
+  .contact-cards-list {
+    flex: initial;
+    gap: 1.4rem;
+  }
+
+  .contact-info-card {
+    flex: initial;
+  }
+
+  .direct-contact-form {
+    flex: initial;
+  }
+
+  .form-group-textarea {
+    flex: initial;
+  }
+
+  .direct-contact-form textarea {
+    flex: initial;
+    min-height: 110px;
   }
 }
 

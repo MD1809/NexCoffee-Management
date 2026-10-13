@@ -51,11 +51,12 @@ const Cart = () => {
     return Array.isArray(cart?.items) ? cart.items : [];
   }, [cart]);
 
-  const fetchCart = async () => {
+  const fetchCart = async (isMounted = { current: true }) => {
     try {
       setLoading(true);
 
       const response = await getCart();
+      if (!isMounted.current) return;
 
       setCart({
         items: Array.isArray(response?.items) ? response.items : [],
@@ -65,6 +66,7 @@ const Cart = () => {
         id: response?.id || null,
       });
     } catch (error) {
+      if (!isMounted.current) return;
       toast.error("Không thể tải giỏ hàng.");
       setCart({
         items: [],
@@ -72,17 +74,25 @@ const Cart = () => {
         totalAmount: 0,
       });
     } finally {
-      setLoading(false);
+      if (isMounted.current) {
+        setLoading(false);
+      }
     }
   };
 
   useEffect(() => {
+    const isMounted = { current: true };
+
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
 
-    fetchCart();
+    fetchCart(isMounted);
+
+    return () => {
+      isMounted.current = false;
+    };
   }, []);
 
   const syncCart = (nextCart) => {

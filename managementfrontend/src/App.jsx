@@ -8,7 +8,12 @@ function App() {
   return (
     <>
       <WebRouters />
-      <ToastContainer position="top-right" autoClose={1500} pauseOnHover />
+      <ToastContainer
+        position="top-right"
+        autoClose={1800}
+        pauseOnHover
+        limit={3}
+      />
     </>
   );
 }

@@ -205,6 +205,26 @@ Hiện tại frontend đang tồn tại **2 file cấu hình Axios**:
 - Tiêu đề các cột (`.footer .title`): Chuyển từ màu vàng cam `#d28737` sang đỏ Coral `var(--accent-hover, #ef4444)`.
 - Hiệu ứng hover link và nhãn `<strong>`: Đồng bộ sang ánh đỏ ấm `#ef4444` và text-shadow đỏ.
 
+### 5.4 Hiệu ứng chuyển tiếp mềm mại giữa các Section (`SectionDivider.jsx`)
+- Sử dụng đường cong hữu cơ tự nhiên 2 tầng (Organic Double-Layer SVG Wave) mô phỏng dòng sữa cà phê / bọt kem latte art hòa quyện.
+- Hai biến thể chuyển màu mượt mà:
+  - `type="dark-to-light"`: Chuyển mềm từ nền tối sang sáng.
+  - `type="light-to-dark"`: Chuyển mềm từ nền sáng sang tối (hỗ trợ `flip={true}` tạo độ đảo chiều sóng tự nhiên).
+### 5.6 Hoàn thiện Section Liên Hệ (Contact Section)
+- Bỏ badge "Kết Nối Với Chúng Tôi", căn chỉnh tiêu đề `margin-top: 0` ngang hàng với khung form bên phải.
+- Cân bằng chiều cao hai cột (Equal Height Columns): Cột trái (Flex column chứa 4 thẻ liên hệ có `flex: 1`) và Cột phải (`.form-card-container` có `height: 100%`, form textarea có `flex: 1` dãn nở linh hoạt) đảm bảo mép dưới của cả 2 cột luôn chạm cùng một đường ngang hoàn hảo.
+
+### 5.7 Trang Thực Đơn (Menu Page) - Skeleton Loading & Border Phân Cách
+- **Skeleton Shimmer Loading:** Thay thế dòng text "Đang tải menu..." bằng animation sóng ánh sáng kem cà phê (`skeleton-shimmer`). Khớp 100% layout thực tế gồm tiêu đề nhóm, ảnh sản phẩm, dòng tên, dòng giá và nút giỏ hàng (Zero Cumulative Layout Shift).
+- **Border phân cách Sidebar:** Bỏ khung viền hộp tròn độc lập (`border-radius: 1.6rem`, shadow). Thay bằng cột danh mục tự nhiên với `border-right: 1px solid rgba(57, 27, 9, 0.12)` kéo dài xuyên suốt trang. Danh mục chuyển sang dạng Modern List với chỉ báo `border-left: 3px solid #dc2626` khi active. Responsive chuyển sang `border-bottom` trên mobile/tablet.
+
+### 5.8 Chuẩn hóa .gitignore & Bảo vệ File Nhạy Cảm (Git Hygiene)
+- Cập nhật đồng bộ hệ thống `.gitignore` tại Root, Frontend và Backend:
+  - **Secrets:** Chặn triệt để `application.properties` (chứa mail password, jwt secret, API key), các file `.env*`, keys, certificates. Cung cấp file mẫu [application.properties.example](file:///d:/HOC/NexCoffee-Management/managementsystem/src/main/resources/application.properties.example).
+  - **Dependencies & Builds:** `node_modules/`, `target/`, `dist/`, `build/`, `*.jar`, `*.war`.
+  - **Dynamic Uploads:** Chặn toàn bộ thư mục `uploads/` (file ảnh người dùng tải lên), chỉ lưu file `.gitkeep`.
+  - **IDEs & OS:** `.idea/`, `.vscode/*`, `.DS_Store`, `Thumbs.db`, `logs/`, `*.log`.
+
 ---
 
 ## 6. Quy ước & Hướng dẫn dành cho AI Agent
