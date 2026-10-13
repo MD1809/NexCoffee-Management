@@ -10,3 +10,7 @@ export const getMenuCategories = () => {
 export const getMenuProductById = (id) => {
   return axiosInstance.get(`/products/${id}`);
 };
+
+export const getBestSellerProducts = (limit = 4) => {
+  return axiosInstance.get(`/products/best-sellers?limit=${limit}`);
+};

@@ -54,6 +54,10 @@ public class SecurityConfig {
                         // Public cho trang menu khách hàng
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/featured").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/product/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/reviews").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/order/**").authenticated()
                         .requestMatchers("/api/checkout/**").hasAuthority("CUSTOMER")
 
                         // Dashboard: chỉ ADMIN

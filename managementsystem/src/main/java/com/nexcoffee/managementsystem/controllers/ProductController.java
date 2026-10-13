@@ -42,6 +42,13 @@ public class ProductController {
         return ResponseEntity.ok(productService.getTrashedProducts());
     }
 
+    @GetMapping("/best-sellers")
+    public ResponseEntity<List<ProductResponse>> getBestSellers(
+            @RequestParam(defaultValue = "4") int limit
+    ) {
+        return ResponseEntity.ok(productService.getBestSellerProducts(limit));
+    }
+
     @GetMapping("/{productId}")
     public ResponseEntity<ProductResponse> getProductById(@PathVariable Integer productId) {
         return ResponseEntity.ok(productService.getProductById(productId));

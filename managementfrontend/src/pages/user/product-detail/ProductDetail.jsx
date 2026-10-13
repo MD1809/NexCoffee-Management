@@ -7,6 +7,7 @@ import {
   FaPlus,
   FaShieldAlt,
   FaShoppingCart,
+  FaStar,
   FaTruck,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
@@ -16,6 +17,7 @@ import "../menu/Menu.css";
 
 import ProductCard from "../../../components/user/product-card/ProductCard";
 import { getMenuProductById, getMenuProducts } from "../../../apis/menuApi";
+import { getProductReviews } from "../../../apis/reviewApi";
 import { addCartItem } from "../../../apis/cartApi";
 import { showCartToast } from "../../../utils/cartToast";
 import ProductBreadcrumb from "../../../components/user/breadcrumb/ProductBreadcrumb";
@@ -146,6 +148,7 @@ const ProductDetail = () => {
 
   const [loading, setLoading] = useState(true);
   const [buyNowLoading, setBuyNowLoading] = useState(false);
+  const [productReviews, setProductReviews] = useState([]);
 
   useEffect(() => {
     window.scrollTo({
@@ -161,9 +164,10 @@ const ProductDetail = () => {
       try {
         setLoading(true);
 
-        const [productResponse, productsResponse] = await Promise.all([
+        const [productResponse, productsResponse, reviewsResponse] = await Promise.all([
           getMenuProductById(id),
           getMenuProducts(),
+          getProductReviews(id).catch(() => []),
         ]);
 
         if (!isMounted) return;
@@ -179,6 +183,7 @@ const ProductDetail = () => {
         if (!productData || !isProductActive(productData)) {
           setProduct(null);
           setRelatedProducts([]);
+          setProductReviews([]);
           return;
         }
 
@@ -198,15 +203,23 @@ const ProductDetail = () => {
           })
           .slice(0, 5);
 
+        const reviewsData = Array.isArray(reviewsResponse)
+          ? reviewsResponse
+          : Array.isArray(reviewsResponse?.data)
+            ? reviewsResponse.data
+            : [];
+
         setProduct(productData);
         setSelectedImage(images[0]?.url || "");
         setSelectedVariantId(availableVariants[0]?.id || null);
         setQuantity(1);
         setRelatedProducts(related);
+        setProductReviews(reviewsData);
       } catch (error) {
         if (!isMounted) return;
         toast.error("Không thể tải chi tiết sản phẩm.");
         setProduct(null);
+        setProductReviews([]);
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -415,6 +428,22 @@ const ProductDetail = () => {
 
             <h1 className="product-detail-title">{product.name}</h1>
 
+            <div className="product-detail-rating-meta">
+              <div className="product-detail-stars">
+                <FaStar className="star-icon" />
+                <span className="rating-score">
+                  {Number(product.averageRating || 5.0).toFixed(1)}
+                </span>
+                <span className="rating-count">
+                  ({productReviews.length || product.reviewCount || 0} đánh giá)
+                </span>
+              </div>
+              <span className="meta-divider">•</span>
+              <div className="product-detail-sold">
+                <span>Đã bán:</span> <strong>{product.soldCount || 0}</strong>
+              </div>
+            </div>
+
             <div className="product-detail-price">
               {formatCurrency(currentPrice)}
             </div>
@@ -535,6 +564,103 @@ const ProductDetail = () => {
               ))}
           </div>
         )}
+
+        {/* PHẦN ĐÁNH GIÁ SẢN PHẨM TỪ KHÁCH HÀNG */}
+        <div className="product-detail-reviews-section">
+          <div className="product-reviews-header">
+            <div>
+              <h2>Đánh giá từ khách hàng ({productReviews.length})</h2>
+              <p className="product-reviews-subtitle">
+                Nhận xét thực tế từ khách hàng đã đặt và thưởng thức món này tại NexCoffee
+              </p>
+            </div>
+            {productReviews.length > 0 && (
+              <div className="product-reviews-score-card">
+                <span className="score-number">
+                  {Number(product.averageRating || 5.0).toFixed(1)}
+                </span>
+                <div className="score-stars">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <FaStar
+                      key={s}
+                      className={
+                        s <= Math.round(product.averageRating || 5.0)
+                          ? "star-filled"
+                          : "star-empty"
+                      }
+                    />
+                  ))}
+                </div>
+                <span className="score-text">
+                  {productReviews.length} lượt đánh giá
+                </span>
+              </div>
+            )}
+          </div>
+
+          {productReviews.length > 0 ? (
+            <div className="product-reviews-list">
+              {productReviews.map((review) => (
+                <div key={review.id} className="product-review-item">
+                  <div className="product-review-user">
+                    {review.userAvatar ? (
+                      <img
+                        src={getImageUrl(review.userAvatar)}
+                        alt={review.userFullName}
+                        className="review-user-avatar"
+                      />
+                    ) : (
+                      <div className="review-user-avatar-placeholder">
+                        {(review.userFullName || "U")[0]}
+                      </div>
+                    )}
+                    <div className="review-user-info">
+                      <span className="review-user-name">
+                        {review.userFullName || "Khách hàng"}
+                      </span>
+                      <span className="review-user-badge">
+                        <FaCheckCircle /> Đã mua hàng
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="product-review-body">
+                    <div className="product-review-stars-row">
+                      <div className="review-item-stars">
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <FaStar
+                            key={s}
+                            className={
+                              s <= review.rating ? "star-filled" : "star-empty"
+                            }
+                          />
+                        ))}
+                      </div>
+                      {review.variantSize && (
+                        <span className="review-variant-tag">
+                          Size {review.variantSize}
+                        </span>
+                      )}
+                      <span className="review-date">
+                        {new Date(review.createdAt).toLocaleDateString("vi-VN")}
+                      </span>
+                    </div>
+
+                    <p className="product-review-comment">{review.comment}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="product-reviews-empty">
+              <FaCoffee className="empty-icon" />
+              <p>Chưa có đánh giá nào cho món này.</p>
+              <span>
+                Hãy đặt hàng và là người đầu tiên chia sẻ cảm nhận về món nước đặc biệt này nhé!
+              </span>
+            </div>
+          )}
+        </div>
 
         {relatedProducts.length > 0 && (
           <div className="product-detail-related">

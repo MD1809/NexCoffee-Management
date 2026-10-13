@@ -15,4 +15,7 @@ public class ProductResponse {
     private String categoryName;
     private ProductsStatus status;
     private List<ProductVariantResponse> variants;
+    private Integer soldCount;
+    private Double averageRating;
+    private Integer reviewCount;
 }

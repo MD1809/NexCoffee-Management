@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { FaStar, FaTimes, FaCheckCircle } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { cancelMyOrder, getMyOrderDetail } from "../../../apis/accountApi";
+import { getOrderReviews, createReview } from "../../../apis/reviewApi";
 
 const BACKEND_URL = "http://localhost:8080";
 
@@ -46,12 +48,29 @@ const getPaymentLabel = (paymentMethod) => {
   return paymentMethod || "—";
 };
 
+const RATING_HINTS = {
+  1: "Tệ",
+  2: "Chưa hài lòng",
+  3: "Bình thường",
+  4: "Rất ngon & hài lòng",
+  5: "Tuyệt vời, chuẩn vị!",
+};
+
 const UserAccountOrderDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Danh sách đánh giá đã có cho đơn hàng này
+  const [orderReviews, setOrderReviews] = useState([]);
+
+  // State cho Modal đánh giá
+  const [reviewingItem, setReviewingItem] = useState(null);
+  const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
+  const [hoverStar, setHoverStar] = useState(0);
+  const [submittingReview, setSubmittingReview] = useState(false);
 
   const [statusLabel, statusClass] = useMemo(() => {
     return getStatusInfo(order?.status);
@@ -62,6 +81,17 @@ const UserAccountOrderDetail = () => {
       setLoading(true);
       const data = await getMyOrderDetail(id);
       setOrder(data);
+
+      // Nếu đơn đã hoàn thành, load danh sách review của đơn này
+      if (data && data.status === "Completed") {
+        try {
+          const reviewsRes = await getOrderReviews(data.id);
+          const reviewList = Array.isArray(reviewsRes) ? reviewsRes : reviewsRes?.data || [];
+          setOrderReviews(reviewList);
+        } catch (err) {
+          // Bỏ qua lỗi load review phụ
+        }
+      }
     } catch (error) {
       toast.error("Không thể tải chi tiết đơn hàng.");
       navigate("/account/orders", { replace: true });
@@ -102,41 +132,89 @@ const UserAccountOrderDetail = () => {
     }
   };
 
+  // Mở modal đánh giá cho một món
+  const handleOpenReviewModal = (item) => {
+    setReviewingItem(item);
+    setReviewForm({ rating: 5, comment: "" });
+    setHoverStar(0);
+  };
+
+  const handleCloseReviewModal = () => {
+    setReviewingItem(null);
+    setReviewForm({ rating: 5, comment: "" });
+    setHoverStar(0);
+  };
+
+  // Gửi đánh giá cho món được chọn
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    if (!reviewForm.comment.trim()) {
+      toast.warning("Vui lòng nhập cảm nhận của bạn về món này!");
+      return;
+    }
+
+    try {
+      setSubmittingReview(true);
+      const payload = {
+        orderId: order.id,
+        productId: reviewingItem.productId,
+        productVariantId: reviewingItem.variantId,
+        rating: reviewForm.rating,
+        comment: reviewForm.comment.trim(),
+      };
+
+      const newReview = await createReview(payload);
+      const createdData = newReview?.data || newReview;
+
+      toast.success("Cảm ơn bạn đã gửi đánh giá cho món ăn!");
+      setOrderReviews((prev) => [...prev, createdData]);
+      handleCloseReviewModal();
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data ||
+        "Không thể gửi đánh giá lúc này.";
+      toast.error(message);
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
   if (loading) {
-    return <p className="user-account-muted">Đang tải chi tiết đơn hàng...</p>;
+    return (
+      <section className="user-account-content">
+        <p className="user-account-muted">Đang tải chi tiết đơn hàng...</p>
+      </section>
+    );
   }
 
-  if (!order) return null;
+  if (!order) {
+    return (
+      <section className="user-account-content">
+        <div className="user-account-empty">
+          <p>Không tìm thấy thông tin đơn hàng.</p>
+          <Link to="/account/orders">Quay lại danh sách đơn hàng</Link>
+        </div>
+      </section>
+    );
+  }
 
-  const isCancelled = order.status === "Cancelled";
+  const isCompletedOrder = order.status === "Completed";
 
   return (
-    <section className="user-account-order-detail">
+    <section className="user-account-content">
       <div className="user-account-detail-head">
-        <h2>
-          Chi tiết đơn hàng <span>#{order.code || order.id}</span>
-        </h2>
-
-        <Link to="/account/orders">Quay lại đơn hàng</Link>
-      </div>
-
-      <div className="user-account-status-box">
         <div>
-          <span>Trạng thái đơn hàng:</span>{" "}
-          <strong className={`user-account-status-text ${statusClass}`}>
-            {statusLabel}
-          </strong>
+          <h2>Đơn hàng #{order.code}</h2>
+          <p className="user-account-muted">
+            Ngày đặt: {formatDate(order.createdAt)}
+          </p>
         </div>
 
-        <div>Ngày tạo: {formatDate(order.createdAt)}</div>
+        <span className={`user-account-badge ${statusClass}`}>
+          {statusLabel}
+        </span>
       </div>
-
-      {isCancelled && (
-        <div className="user-account-cancel-box">
-          <p>Ngày hủy: {formatDate(order.updatedAt)}</p>
-          <p>Lý do hủy: {order.cancelReason || "Không có lý do"}</p>
-        </div>
-      )}
 
       {order.status === "Pending" && (
         <div className="user-account-cancel-area">
@@ -179,12 +257,16 @@ const UserAccountOrderDetail = () => {
               <th>Đơn giá</th>
               <th>Số lượng</th>
               <th>Tổng</th>
+              {isCompletedOrder && <th>Đánh giá</th>}
             </tr>
           </thead>
 
           <tbody>
             {(order.items || []).map((item) => {
               const imageUrl = getImageUrl(item.image);
+              const existingReview = orderReviews.find(
+                (r) => Number(r.productId) === Number(item.productId)
+              );
 
               return (
                 <tr key={`${item.variantId}-${item.productId}`}>
@@ -210,6 +292,31 @@ const UserAccountOrderDetail = () => {
                   <td className="user-account-line-total">
                     {formatCurrency(item.lineTotal || item.totalPrice)}
                   </td>
+
+                  {/* Cột đánh giá cho từng món khi đơn đã hoàn thành */}
+                  {isCompletedOrder && (
+                    <td>
+                      {existingReview ? (
+                        <span
+                          className="badge-reviewed"
+                          title={`Bạn đã chấm ${existingReview.rating} sao: "${existingReview.comment}"`}
+                        >
+                          <FaCheckCircle />
+                          <span>{existingReview.rating}</span>
+                          <FaStar className="star-icon" />
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn-open-review"
+                          onClick={() => handleOpenReviewModal(item)}
+                        >
+                          <FaStar />
+                          <span>Đánh giá</span>
+                        </button>
+                      )}
+                    </td>
+                  )}
                 </tr>
               );
             })}
@@ -246,6 +353,107 @@ const UserAccountOrderDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* MODAL POPUP ĐÁNH GIÁ MÓN NƯỚC */}
+      {reviewingItem && (
+        <div className="review-modal-backdrop" onClick={handleCloseReviewModal}>
+          <div
+            className="review-modal-card"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="review-modal-head">
+              <h3>Đánh Giá Món Uống</h3>
+              <button
+                type="button"
+                className="btn-close-modal"
+                onClick={handleCloseReviewModal}
+              >
+                <FaTimes />
+              </button>
+            </div>
+
+            <div className="review-product-preview">
+              {reviewingItem.image ? (
+                <img
+                  src={getImageUrl(reviewingItem.image)}
+                  alt={reviewingItem.productName}
+                />
+              ) : (
+                <div className="review-product-placeholder">Nex</div>
+              )}
+              <div className="review-product-info">
+                <strong>{reviewingItem.productName}</strong>
+                <span>
+                  {reviewingItem.size ? `Size ${reviewingItem.size}` : "Mặc định"}
+                </span>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmitReview}>
+              <div className="review-stars-select">
+                <label>Chất lượng món thế nào?</label>
+                <div className="stars-picker">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      type="button"
+                      key={star}
+                      className={`star-btn ${
+                        (hoverStar || reviewForm.rating) >= star ? "active" : ""
+                      }`}
+                      onMouseEnter={() => setHoverStar(star)}
+                      onMouseLeave={() => setHoverStar(0)}
+                      onClick={() =>
+                        setReviewForm((prev) => ({ ...prev, rating: star }))
+                      }
+                      aria-label={`${star} sao`}
+                    >
+                      <FaStar />
+                    </button>
+                  ))}
+                </div>
+                <span className="rating-text-hint">
+                  {RATING_HINTS[hoverStar || reviewForm.rating]}
+                </span>
+              </div>
+
+              <div className="review-textarea-group">
+                <label htmlFor="review-comment">Cảm nhận thực tế của bạn:</label>
+                <textarea
+                  id="review-comment"
+                  value={reviewForm.comment}
+                  onChange={(e) =>
+                    setReviewForm((prev) => ({
+                      ...prev,
+                      comment: e.target.value,
+                    }))
+                  }
+                  placeholder="Hãy chia sẻ về hương vị, độ ngọt, độ béo hoặc cách phục vụ..."
+                  rows="4"
+                  required
+                />
+              </div>
+
+              <div className="review-modal-actions">
+                <button
+                  type="button"
+                  className="btn-modal-cancel"
+                  onClick={handleCloseReviewModal}
+                  disabled={submittingReview}
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  className="btn-modal-submit"
+                  disabled={submittingReview}
+                >
+                  {submittingReview ? "Đang gửi..." : "Gửi Đánh Giá"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

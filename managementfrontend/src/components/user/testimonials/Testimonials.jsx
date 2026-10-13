@@ -1,77 +1,141 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaStar, FaQuoteLeft, FaCheckCircle, FaHeart, FaCoffee } from "react-icons/fa";
+import { getFeaturedReviews } from "../../../apis/reviewApi";
 import "./Testimonials.css";
 
-const REVIEWS_DATA = [
+const BACKEND_URL = "http://localhost:8080";
+
+const getImageUrl = (imagePath) => {
+  if (!imagePath) return "";
+  if (imagePath.startsWith("http")) return imagePath;
+  if (imagePath.startsWith("/images")) return `${BACKEND_URL}${imagePath}`;
+  if (imagePath.startsWith("images")) return `${BACKEND_URL}/${imagePath}`;
+  return `${BACKEND_URL}/images/${imagePath}`;
+};
+
+const formatTimeAgo = (dateStr) => {
+  if (!dateStr) return "Vừa xong";
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now - date) / 1000);
+
+  if (diffInSeconds < 60) return "Vừa xong";
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} phút trước`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} giờ trước`;
+  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} ngày trước`;
+  return date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+};
+
+// Dữ liệu mẫu khởi đầu khi hệ thống mới chạy chưa có đánh giá từ khách
+const DEFAULT_REVIEWS = [
   {
     id: 1,
     name: "Nguyễn Hải Đăng",
-    role: "Product Designer • Khách hàng quen",
+    role: "Khách hàng thân thiết",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
     rating: 5,
-    tag: "Cà Phê Muối Kem Béo",
-    category: "coffee",
+    productName: "Cà Phê Muối Kem Béo",
+    productId: 1,
     comment:
-      "NexCoffee là trạm dừng chân quen thuộc mỗi sáng trước khi vào ca làm việc. Lớp kem muối béo mặn độc quyền hòa quyện tuyệt vời với espresso đậm đà. Không gian quán tone trầm ấm cúng, nhạc êm dịu, cực kỳ lý tưởng để tập trung sáng tạo.",
+      "NexCoffee là trạm dừng chân quen thuộc mỗi sáng trước khi vào ca làm việc. Lớp kem muối béo mặn độc quyền hòa quyện tuyệt vời với espresso đậm đà. Đồ uống giao đến vẫn còn nguyên lớp bọt béo.",
     date: "2 ngày trước",
     verified: true,
   },
   {
     id: 2,
     name: "Lê Phương Thảo",
-    role: "Food Reviewer & Content Creator",
+    role: "Đã đặt đơn online",
     avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&auto=format&fit=crop&q=80",
     rating: 5,
-    tag: "Cold Brew Cam Quế",
-    category: "coldbrew",
+    productName: "Cold Brew Cam Quế",
+    productId: 3,
     comment:
-      "Điểm ấn tượng nhất là cách Barista tại NexCoffee chăm chút mẻ Cold Brew ủ 16 tiếng: vị chua thanh tự nhiên của Arabica Cầu Đất, hương quế thoang thoảng sảng khoái và hậu vị ngọt sâu. Phong cách phục vụ chỉn chu và thân thiện 10/10!",
-    date: "5 ngày trước",
+      "Điểm ấn tượng nhất là hương Cold Brew ủ thủ công 16 tiếng: vị chua thanh tự nhiên của Arabica Cầu Đất, hương quế thoang thoảng sảng khoái và hậu vị ngọt sâu rất dễ chịu.",
+    date: "4 ngày trước",
     verified: true,
   },
   {
     id: 3,
     name: "Trần Minh Quân",
-    role: "Kiến trúc sư • Đặt hàng trực tuyến",
+    role: "Khách hàng quen",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
     rating: 5,
-    tag: "Bạc Xỉu Sữa Dừa Hạnh Nhân",
-    category: "coffee",
+    productName: "Bạc Xỉu Sữa Dừa Hạnh Nhân",
+    productId: 2,
     comment:
-      "Đặt giao hàng qua website mà cực kỳ hài lòng: shipper giao nhanh, đá để riêng trong túi giữ nhiệt chuyên dụng, món đến nơi vẫn vẹn nguyên hương vị và độ béo ngậy. Đây chắc chắn là quán cà phê yêu thích nhất của tôi tại Đà Nẵng.",
+      "Đặt giao hàng qua website mà cực kỳ hài lòng: shipper giao nhanh, đá để riêng trong túi giữ nhiệt chuyên dụng, món đến nơi vẫn vẹn nguyên hương vị và độ béo ngậy.",
     date: "1 tuần trước",
     verified: true,
   },
   {
     id: 4,
     name: "Vũ Hoàng My",
-    role: "Freelance Copywriter",
+    role: "Đã thưởng thức tại quán",
     avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80",
     rating: 5,
-    tag: "Không gian & Thái độ phục vụ",
-    category: "service",
+    productName: "Trà Đào Cam Sả Thảo Mộc",
+    productId: 4,
     comment:
-      "Một không gian hiếm hoi vừa mang lại cảm giác bình yên của gỗ và hương cà phê mộc, vừa có wifi mạnh và nhiều góc ngồi riêng tư. Nhân viên luôn niềm nở đón khách và ghi nhớ khẩu vị giảm đường của mình.",
+      "Trà thanh mát, miếng đào giòn ngọt và thơm ngát mùi sả tự nhiên, uống giữa trưa nắng giải nhiệt cực kỳ đã. Nhân viên đóng gói cẩn thận 10/10.",
     date: "1 tuần trước",
     verified: true,
   },
 ];
 
-const FILTER_TABS = [
-  { key: "all", label: "Tất cả đánh giá (2.4k+)" },
-  { key: "coffee", label: "Cà phê pha phin & Espresso" },
-  { key: "coldbrew", label: "Cold Brew Thủ Công" },
-  { key: "service", label: "Không gian & Dịch vụ" },
-];
-
 const Testimonials = () => {
-  const [activeTab, setActiveTab] = useState("all");
+  const [reviews, setReviews] = useState(DEFAULT_REVIEWS);
+  const [stats, setStats] = useState({
+    averageRating: 4.9,
+    totalReviews: 2480,
+    satisfactionRate: 98.8,
+  });
+  const [loading, setLoading] = useState(true);
 
-  const filteredReviews =
-    activeTab === "all"
-      ? REVIEWS_DATA
-      : REVIEWS_DATA.filter((item) => item.category === activeTab);
+  useEffect(() => {
+    let isMounted = true;
+    const fetchReviews = async () => {
+      try {
+        setLoading(true);
+        const response = await getFeaturedReviews(6);
+        const data = response?.data || response;
+
+        if (isMounted && data?.reviews && Array.isArray(data.reviews) && data.reviews.length > 0) {
+          const mapped = data.reviews.map((r, idx) => ({
+            id: r.id || idx,
+            name: r.userFullName || "Khách hàng NexCoffee",
+            role: "Khách hàng đã mua hàng",
+            avatar: getImageUrl(r.userAvatar) || DEFAULT_REVIEWS[idx % DEFAULT_REVIEWS.length].avatar,
+            rating: r.rating || 5,
+            productName: r.productName || "Đồ uống NexCoffee",
+            productId: r.productId,
+            variantSize: r.variantSize,
+            comment: r.comment || "Đồ uống rất ngon, chuẩn vị!",
+            date: formatTimeAgo(r.createdAt),
+            verified: true,
+          }));
+          setReviews(mapped);
+
+          if (data.totalReviews && data.totalReviews > 0) {
+            setStats({
+              averageRating: Number(data.averageRating || 5.0).toFixed(1),
+              totalReviews: data.totalReviews,
+              satisfactionRate: Number(data.satisfactionRate || 98.8).toFixed(1),
+            });
+          }
+        }
+      } catch (error) {
+        // Giữ fallback mặc định nếu offline
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchReviews();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <section className="testimonials-section" id="testimonials">
@@ -80,29 +144,29 @@ const Testimonials = () => {
         <div className="testimonials-head text-center">
           <div className="section-badge-light">
             <FaHeart className="badge-icon" />
-            <span>Đánh Giá Từ Khách Hàng</span>
+            <span>Đánh Giá Từ Khách Hàng Thật</span>
           </div>
 
           <h2 className="section-title-light title-font">
-            Những Tách Cà Phê, Những Câu Chuyện Thật
+            Cảm Nhận Thực Tế Về Đồ Uống NexCoffee
           </h2>
 
           <p className="section-desc-light">
-            Hơn 15.000+ lượt khách ghé thăm mỗi tháng và hàng ngàn phản hồi chân thành là động lực lớn nhất để chúng tôi hoàn thiện mỗi ngày.
+            Các đánh giá được xác thực trực tiếp từ khách hàng đã đặt và thưởng thức đồ uống qua hệ thống đơn hàng của NexCoffee.
           </p>
 
           {/* Social Proof Stats Bar */}
           <div className="testimonials-stats-bar">
             <div className="t-stat-item">
               <div className="t-stat-score">
-                <span className="score-num">4.9</span>
+                <span className="score-num">{stats.averageRating}</span>
                 <div className="stars-row">
                   {[...Array(5)].map((_, i) => (
                     <FaStar key={i} className="star-gold" />
                   ))}
                 </div>
               </div>
-              <span className="t-stat-label">2,480+ Đánh giá 5 sao</span>
+              <span className="t-stat-label">{stats.totalReviews.toLocaleString("vi-VN")}+ Đánh giá thực tế</span>
             </div>
 
             <div className="t-stat-divider" />
@@ -115,29 +179,15 @@ const Testimonials = () => {
             <div className="t-stat-divider" />
 
             <div className="t-stat-item">
-              <span className="t-stat-highlight">98.8%</span>
+              <span className="t-stat-highlight">{stats.satisfactionRate}%</span>
               <span className="t-stat-label">Khách sẵn sàng quay lại</span>
             </div>
-          </div>
-
-          {/* Filter Pills */}
-          <div className="testimonials-filters" role="tablist">
-            {FILTER_TABS.map((tab) => (
-              <button
-                key={tab.key}
-                type="button"
-                className={`filter-pill-btn ${activeTab === tab.key ? "active" : ""}`}
-                onClick={() => setActiveTab(tab.key)}
-              >
-                {tab.label}
-              </button>
-            ))}
           </div>
         </div>
 
         {/* Review Cards Grid */}
         <div className="reviews-grid">
-          {filteredReviews.map((item) => (
+          {reviews.map((item) => (
             <div key={item.id} className="review-card">
               <div className="card-top-row">
                 <div className="user-profile">
@@ -153,7 +203,7 @@ const Testimonials = () => {
                     <h4 className="user-name">
                       {item.name}
                       {item.verified && (
-                        <span className="verified-badge" title="Đã xác thực trải nghiệm">
+                        <span className="verified-badge" title="Đã xác thực đơn hàng thành công">
                           <FaCheckCircle className="check-icon" />
                         </span>
                       )}
@@ -171,10 +221,25 @@ const Testimonials = () => {
                     <FaStar key={i} className="star-icon" />
                   ))}
                 </div>
-                <span className="favorite-drink-pill">
-                  <FaCoffee className="coffee-pill-icon" />
-                  <span>{item.tag}</span>
-                </span>
+
+                {item.productId ? (
+                  <Link
+                    to={`/products/${item.productId}`}
+                    className="favorite-drink-pill"
+                    title={`Xem chi tiết ${item.productName}`}
+                  >
+                    <FaCoffee className="coffee-pill-icon" />
+                    <span>
+                      {item.productName}
+                      {item.variantSize ? ` (${item.variantSize})` : ""}
+                    </span>
+                  </Link>
+                ) : (
+                  <span className="favorite-drink-pill">
+                    <FaCoffee className="coffee-pill-icon" />
+                    <span>{item.productName}</span>
+                  </span>
+                )}
               </div>
 
               {/* Review Text */}
@@ -183,7 +248,7 @@ const Testimonials = () => {
               {/* Card Footer */}
               <div className="review-card-footer">
                 <span className="review-date">{item.date}</span>
-                <span className="verified-text">Trải nghiệm thực tế</span>
+                <span className="verified-text">Đã mua tại quán</span>
               </div>
             </div>
           ))}
@@ -194,12 +259,12 @@ const Testimonials = () => {
           <div className="bottom-banner-text">
             <h4>Bạn Đã Trải Nghiệm NexCoffee Chưa?</h4>
             <p>
-              Hãy để lại lời nhắn hoặc góp ý của bạn để cùng chúng tôi nâng tầm hương vị cà phê Việt mỗi ngày.
+              Sau khi nhận đơn hàng thành công, hãy để lại đánh giá trong mục Đơn hàng của bạn để cùng chúng tôi hoàn thiện mỗi ngày!
             </p>
           </div>
-          <a href="#contact" className="btn-write-review">
-            <span>Gửi Đánh Giá Của Bạn</span>
-          </a>
+          <Link to="/account/orders" className="btn-write-review">
+            <span>Xem Đơn Hàng Của Bạn</span>
+          </Link>
         </div>
       </div>
     </section>

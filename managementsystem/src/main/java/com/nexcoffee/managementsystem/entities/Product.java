@@ -41,6 +41,15 @@ public class Product {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "sold_count", nullable = false)
+    private Integer soldCount = 0;
+
+    @Column(name = "average_rating")
+    private Double averageRating = 5.0;
+
+    @Column(name = "review_count", nullable = false)
+    private Integer reviewCount = 0;
+
     @Column(name = "deleted", nullable = false)
     private boolean deleted = false;
 }

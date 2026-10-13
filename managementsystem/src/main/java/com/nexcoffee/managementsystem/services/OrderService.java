@@ -11,7 +11,8 @@ import com.nexcoffee.managementsystem.exceptions.ResourceNotFoundException;
 import com.nexcoffee.managementsystem.repositories.OrderDetailRepository;
 import com.nexcoffee.managementsystem.repositories.OrderRepository;
 import com.nexcoffee.managementsystem.repositories.ProductVariantRepository;
-import com.nexcoffee.managementsystem.repositories.UserRepository;
+import com.nexcoffee.managementsystem.entities.Product;
+import com.nexcoffee.managementsystem.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +37,7 @@ public class OrderService {
     private final OrderDetailRepository orderDetailRepository;
     private final UserRepository userRepository;
     private final ProductVariantRepository productVariantRepository;
+    private final ProductRepository productRepository;
     private final EmailService emailService;
 
     // --- PHẦN 1: CÁC HÀM MỚI PHỤC VỤ DASHBOARD THỐNG KÊ ---
@@ -312,6 +314,9 @@ public class OrderService {
                 order.setPaymentStatus(PaymentStatus.paid);
                 order.setPaidAt(LocalDateTime.now());
             }
+
+            // Tự động cộng dồn số lượng bán (sold_count) cho từng sản phẩm
+            updateProductSoldCount(order);
         }
 
         order.setStatus(newStatus);
@@ -479,5 +484,52 @@ public class OrderService {
         }
 
         return user.getStore().getId();
+    }
+
+    private void updateProductSoldCount(Order order) {
+        List<OrderDetail> details = order.getOrderDetails();
+        if (details == null || details.isEmpty()) {
+            details = orderDetailRepository.findByOrderId(order.getId());
+        }
+        if (details == null || details.isEmpty()) {
+            return;
+        }
+
+        for (OrderDetail detail : details) {
+            if (detail.getProductVariant() != null && detail.getProductVariant().getProduct() != null) {
+                Product product = detail.getProductVariant().getProduct();
+                int currentSold = product.getSoldCount() != null ? product.getSoldCount() : 0;
+                int addedQuantity = detail.getQuantity() != null ? detail.getQuantity() : 0;
+                product.setSoldCount(currentSold + addedQuantity);
+                productRepository.save(product);
+            }
+        }
+    }
+
+    @jakarta.annotation.PostConstruct
+    public void syncHistoricalSoldCount() {
+        try {
+            List<Product> products = productRepository.findAll();
+            boolean needSync = products.stream().allMatch(p -> p.getSoldCount() == null || p.getSoldCount() == 0);
+            if (needSync) {
+                for (Product p : products) {
+                    Long totalSold = orderDetailRepository.findAll().stream()
+                            .filter(od -> od.getOrder() != null && od.getOrder().getStatus() == OrderStatus.Completed)
+                            .filter(od -> od.getProductVariant() != null && od.getProductVariant().getProduct() != null
+                                    && od.getProductVariant().getProduct().getId().equals(p.getId()))
+                            .mapToLong(od -> od.getQuantity() != null ? od.getQuantity() : 0L)
+                            .sum();
+                    p.setSoldCount(totalSold.intValue());
+                    if (p.getAverageRating() == null) {
+                        p.setAverageRating(5.0);
+                    }
+                    if (p.getReviewCount() == null) {
+                        p.setReviewCount(0);
+                    }
+                    productRepository.save(p);
+                }
+            }
+        } catch (Exception ignored) {
+        }
     }
 }

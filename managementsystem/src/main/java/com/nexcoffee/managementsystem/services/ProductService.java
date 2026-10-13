@@ -107,7 +107,29 @@ public class ProductService {
             res.setVariants(variantResponses);
         }
 
+        res.setSoldCount(product.getSoldCount() != null ? product.getSoldCount() : 0);
+        res.setAverageRating(product.getAverageRating() != null ? product.getAverageRating() : 5.0);
+        res.setReviewCount(product.getReviewCount() != null ? product.getReviewCount() : 0);
+
         return res;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductResponse> getBestSellerProducts(int limit) {
+        int safeLimit = Math.max(1, Math.min(limit, 20));
+        List<Product> products = new ArrayList<>(
+                productRepository.findTop4ByStatusAndDeletedFalseOrderBySoldCountDescIdDesc(ProductsStatus.active)
+        );
+        if (products.size() < safeLimit) {
+            List<Product> allActive = productRepository.findByStatusAndDeletedFalseOrderByIdDesc(ProductsStatus.active);
+            for (Product p : allActive) {
+                if (products.size() >= safeLimit) break;
+                if (products.stream().noneMatch(existing -> existing.getId().equals(p.getId()))) {
+                    products.add(p);
+                }
+            }
+        }
+        return products.stream().limit(safeLimit).map(this::toProductResponse).collect(Collectors.toList());
     }
 
     private ProductResponse toProductResponseActiveVariant(Product product) {
