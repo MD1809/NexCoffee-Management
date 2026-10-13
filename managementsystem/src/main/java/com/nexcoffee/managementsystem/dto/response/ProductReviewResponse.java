@@ -20,7 +20,7 @@ public class ProductReviewResponse {
     private String categoryName;
     private String variantSize;
 
-    private Integer userId;
+    private Long userId;
     private String userFullName;
     private String userAvatar;
 

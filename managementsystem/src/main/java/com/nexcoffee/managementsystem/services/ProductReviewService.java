@@ -195,7 +195,7 @@ public class ProductReviewService {
                 .variantSize(review.getProductVariant() != null ? review.getProductVariant().getSize() : null)
                 .userId(user != null ? user.getId() : null)
                 .userFullName(displayName)
-                .userAvatar(user != null ? user.getAvatarUrl() : null)
+                .userAvatar(null)
                 .rating(review.getRating())
                 .comment(review.getComment())
                 .status(review.getStatus())

@@ -13,6 +13,8 @@ import java.util.List;
 @Repository
 public interface OrderDetailRepository extends JpaRepository<OrderDetail, Integer> {
 
+    List<OrderDetail> findByOrderId(Integer orderId);
+
     // BỔ SUNG: Interface Projection để hứng dữ liệu thống kê món
     interface ProductSaleStats {
         String getProductName();

@@ -13,6 +13,7 @@ import com.nexcoffee.managementsystem.repositories.OrderRepository;
 import com.nexcoffee.managementsystem.repositories.ProductVariantRepository;
 import com.nexcoffee.managementsystem.entities.Product;
 import com.nexcoffee.managementsystem.repositories.ProductRepository;
+import com.nexcoffee.managementsystem.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
