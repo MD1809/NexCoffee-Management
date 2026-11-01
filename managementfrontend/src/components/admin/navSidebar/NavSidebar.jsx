@@ -1,6 +1,7 @@
 import SidebarItem from "./SidebarItem";
-import "./navSidebar.css";
+import "./NavSidebar.css";
 import { NavLink } from "react-router-dom";
+import { useAdminNotifications } from "../../../context/AdminNotificationContext";
 
 const menuSidebarTop = [
   {
@@ -8,7 +9,7 @@ const menuSidebarTop = [
     icon: "fa-solid fa-house",
     label: "Trang chủ",
     end: true,
-    roles: ["SUPER_ADMIN"],
+    roles: ["ADMIN", "SUPER_ADMIN"],
   },
   {
     to: "/admin/daily-report",
@@ -20,12 +21,24 @@ const menuSidebarTop = [
     to: "/admin/pos",
     icon: "fa-solid fa-cash-register",
     label: "Pos",
-    roles: ["ADMIN", "SUPER_ADMIN"],
+    roles: ["ADMIN"],
+  },
+  {
+    to: "/admin/barista",
+    icon: "fa-solid fa-mug-hot",
+    label: "Pha chế",
+    roles: ["ADMIN"],
   },
   {
     to: "/admin/orders",
     icon: "fa-solid fa-cart-shopping",
     label: "Đơn hàng",
+    roles: ["ADMIN", "SUPER_ADMIN"],
+  },
+  {
+    to: "/admin/support-chat",
+    icon: "fa-solid fa-headset",
+    label: "Hỗ trợ khách hàng",
     roles: ["ADMIN", "SUPER_ADMIN"],
   },
   {
@@ -58,6 +71,12 @@ const menuSidebarTop = [
     label: "Cửa Hàng",
     roles: ["SUPER_ADMIN"],
   },
+  {
+    to: "/admin/reviews",
+    icon: "fa-solid fa-star-half-stroke",
+    label: "Đánh giá",
+    roles: ["SUPER_ADMIN"],
+  },
 
   {
     to: "/staff/pos",
@@ -66,9 +85,21 @@ const menuSidebarTop = [
     roles: ["STAFF"],
   },
   {
+    to: "/staff/barista",
+    icon: "fa-solid fa-mug-hot",
+    label: "Pha chế",
+    roles: ["STAFF"],
+  },
+  {
     to: "/staff/orders",
     icon: "fa-solid fa-cart-shopping",
     label: "Đơn hàng",
+    roles: ["STAFF"],
+  },
+  {
+    to: "/staff/support-chat",
+    icon: "fa-solid fa-headset",
+    label: "Hỗ trợ khách hàng",
     roles: ["STAFF"],
   },
   {
@@ -101,10 +132,26 @@ const getCurrentUserRole = () => {
 };
 
 function NavSidebar({ isOpen }) {
+  const { pendingOrdersCount, baristaOrdersCount, chatWaitingCount } =
+    useAdminNotifications();
+
   const userRole = getCurrentUserRole();
   const allowedMenus = menuSidebarTop.filter(
     (item) => item.roles && item.roles.includes(userRole),
   );
+
+  const getBadgeInfo = (to) => {
+    if (to.endsWith("/orders")) {
+      return { count: pendingOrdersCount, variant: "orders" };
+    }
+    if (to.endsWith("/barista")) {
+      return { count: baristaOrdersCount, variant: "barista" };
+    }
+    if (to.endsWith("/support-chat")) {
+      return { count: chatWaitingCount, variant: "chat" };
+    }
+    return { count: 0, variant: "default" };
+  };
 
   return (
     <aside className="sidebar">
@@ -114,9 +161,18 @@ function NavSidebar({ isOpen }) {
         </div>
 
         <ul className="sidebar__list">
-          {allowedMenus.map((item, index) => (
-            <SidebarItem key={index} {...item} isOpen={isOpen} />
-          ))}
+          {allowedMenus.map((item, index) => {
+            const badge = getBadgeInfo(item.to);
+            return (
+              <SidebarItem
+                key={index}
+                {...item}
+                isOpen={isOpen}
+                badgeCount={badge.count}
+                badgeVariant={badge.variant}
+              />
+            );
+          })}
         </ul>
       </div>
     </aside>

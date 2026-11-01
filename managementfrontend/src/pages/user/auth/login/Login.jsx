@@ -97,12 +97,32 @@ const Login = () => {
       }
       redirectByRole(response);
     } catch (error) {
+      const errorData = error.response?.data;
+      if (
+        errorData?.errorCode === "ACCOUNT_DEACTIVATED" ||
+        (typeof errorData === "string" && errorData.includes("vô hiệu hóa"))
+      ) {
+        navigate("/account-deactivated", {
+          state: {
+            reason:
+              errorData?.reason ||
+              "Tài khoản có dấu hiệu bất thường hoặc vi phạm chính sách của hệ thống.",
+            deactivatedAt: errorData?.deactivatedAt,
+            email: formData.email.trim(),
+          },
+        });
+        return;
+      }
+
       const serverError =
-        error.response?.data || "Đăng nhập thất bại. Vui lòng thử lại.";
+        typeof errorData === "string"
+          ? errorData
+          : errorData?.message || "Đăng nhập thất bại. Vui lòng thử lại.";
 
       if (
-        serverError.includes("chưa được xác thực") ||
-        serverError.includes("xác thực email")
+        typeof serverError === "string" &&
+        (serverError.includes("chưa được xác thực") ||
+          serverError.includes("xác thực email"))
       ) {
         setErrors({
           common: serverError,

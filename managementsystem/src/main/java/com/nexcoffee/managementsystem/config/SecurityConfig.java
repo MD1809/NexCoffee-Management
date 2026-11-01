@@ -25,12 +25,20 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                          UserDetailsService userDetailsService,
+                          PasswordEncoder passwordEncoder) {
+        super();
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.userDetailsService = userDetailsService;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -46,6 +54,11 @@ public class SecurityConfig {
                         // Auth public
                         .requestMatchers("/api/auth/**").permitAll()
 
+                        // WebSocket Chat endpoints & Public Chat APIs
+                        .requestMatchers("/ws-chat/**", "/ws-chat-raw/**").permitAll()
+                        .requestMatchers("/api/chat/public/**").permitAll()
+                        .requestMatchers("/api/chat/admin/**").hasAnyAuthority("STAFF", "ADMIN", "SUPER_ADMIN")
+
                         .requestMatchers("/images/**", "/api/maps/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/locations/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/delivery/check").permitAll()
@@ -54,10 +67,11 @@ public class SecurityConfig {
                         // Public cho trang menu khách hàng
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/reviews/featured").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/reviews/product/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/reviews").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/reviews/order/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/reviews").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/reviews/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews").permitAll()
                         .requestMatchers("/api/checkout/**").hasAuthority("CUSTOMER")
 
                         // Dashboard: chỉ ADMIN
@@ -78,9 +92,11 @@ public class SecurityConfig {
 
                         // Nếu có các controller admin khác đang dùng endpoint hiện tại
                         .requestMatchers("/api/users/**").hasAnyAuthority("ADMIN" , "SUPER_ADMIN")
+                        .requestMatchers("/api/admin/users/**").hasAnyAuthority("ADMIN" , "SUPER_ADMIN")
+                        .requestMatchers("/api/admin/reviews/**").hasAuthority("SUPER_ADMIN")
                         .requestMatchers("/api/orders/**").hasAnyAuthority("SUPER_ADMIN","ADMIN", "STAFF")
                         .requestMatchers("/api/delivery-areas/**").hasAnyAuthority("ADMIN", "SUPER_ADMIN")
-                        .requestMatchers("/api/pos/**").hasAnyAuthority("SUPER_ADMIN", "ADMIN", "STAFF")
+                        .requestMatchers("/api/pos/**").hasAnyAuthority("ADMIN", "STAFF")
                         .requestMatchers(
                                 "/api/delivery-areas",
                                 "/api/delivery-areas/**"

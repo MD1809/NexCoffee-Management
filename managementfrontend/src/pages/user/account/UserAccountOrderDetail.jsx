@@ -1,9 +1,21 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { FaStar, FaTimes, FaCheckCircle } from "react-icons/fa";
+import {
+  FaStar,
+  FaTimes,
+  FaCheckCircle,
+  FaEdit,
+  FaCalendarAlt,
+  FaClock,
+} from "react-icons/fa";
 import { toast } from "react-toastify";
 import { cancelMyOrder, getMyOrderDetail } from "../../../apis/accountApi";
-import { getOrderReviews, createReview } from "../../../apis/reviewApi";
+import {
+  getOrderReviews,
+  createReview,
+  updateReview,
+} from "../../../apis/reviewApi";
 
 const BACKEND_URL = "http://localhost:8080";
 
@@ -56,6 +68,25 @@ const RATING_HINTS = {
   5: "Tuyệt vời, chuẩn vị!",
 };
 
+// Kiểm tra đơn hàng có quá hạn 7 ngày để đánh giá không
+const isReviewExpired = (order) => {
+  if (!order) return true;
+  const baseTime = new Date(order.completedAt || order.createdAt);
+  const now = new Date();
+  const diffInDays = (now - baseTime) / (1000 * 60 * 60 * 24);
+  return diffInDays > 7;
+};
+
+// Lấy số ngày còn lại để đánh giá
+const getReviewRemainingDays = (order) => {
+  if (!order) return 0;
+  const baseTime = new Date(order.completedAt || order.createdAt);
+  const deadline = new Date(baseTime.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const now = new Date();
+  const diffMs = deadline - now;
+  return Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+};
+
 const UserAccountOrderDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -68,9 +99,23 @@ const UserAccountOrderDetail = () => {
 
   // State cho Modal đánh giá
   const [reviewingItem, setReviewingItem] = useState(null);
+  const [reviewModalMode, setReviewModalMode] = useState("create"); // "create" | "edit"
+  const [editingReviewId, setEditingReviewId] = useState(null);
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
   const [hoverStar, setHoverStar] = useState(0);
   const [submittingReview, setSubmittingReview] = useState(false);
+
+  // Khóa cuộn body khi modal đánh giá mở
+  useEffect(() => {
+    if (reviewingItem) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [reviewingItem]);
 
   const [statusLabel, statusClass] = useMemo(() => {
     return getStatusInfo(order?.status);
@@ -105,6 +150,18 @@ const UserAccountOrderDetail = () => {
     fetchOrder();
   }, [id]);
 
+  // Khóa cuộn trang khi mở modal đánh giá món
+  useEffect(() => {
+    if (reviewingItem) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [reviewingItem]);
+
   const handleCancelOrder = async () => {
     if (!order || order.status !== "Pending") {
       toast.warning("Chỉ có thể hủy đơn hàng đang ở trạng thái chờ duyệt.");
@@ -132,22 +189,42 @@ const UserAccountOrderDetail = () => {
     }
   };
 
-  // Mở modal đánh giá cho một món
+  // Mở modal đánh giá mới cho một món
   const handleOpenReviewModal = (item) => {
     setReviewingItem(item);
+    setReviewModalMode("create");
+    setEditingReviewId(null);
     setReviewForm({ rating: 5, comment: "" });
+    setHoverStar(0);
+  };
+
+  // Mở modal chỉnh sửa đánh giá đã có (chỉ cho phép sửa 1 lần)
+  const handleOpenEditReviewModal = (item, existingReview) => {
+    setReviewingItem(item);
+    setReviewModalMode("edit");
+    setEditingReviewId(existingReview.id);
+    setReviewForm({
+      rating: existingReview.rating || 5,
+      comment: existingReview.comment || "",
+    });
     setHoverStar(0);
   };
 
   const handleCloseReviewModal = () => {
     setReviewingItem(null);
+    setReviewModalMode("create");
+    setEditingReviewId(null);
     setReviewForm({ rating: 5, comment: "" });
     setHoverStar(0);
   };
 
-  // Gửi đánh giá cho món được chọn
+  // Gửi đánh giá mới hoặc cập nhật đánh giá đã có
   const handleSubmitReview = async (e) => {
     e.preventDefault();
+    if (isReviewExpired(order)) {
+      toast.error("Đơn hàng đã quá thời hạn 7 ngày kể từ khi mua hàng để gửi hoặc chỉnh sửa đánh giá.");
+      return;
+    }
     if (!reviewForm.comment.trim()) {
       toast.warning("Vui lòng nhập cảm nhận của bạn về món này!");
       return;
@@ -155,25 +232,42 @@ const UserAccountOrderDetail = () => {
 
     try {
       setSubmittingReview(true);
-      const payload = {
-        orderId: order.id,
-        productId: reviewingItem.productId,
-        productVariantId: reviewingItem.variantId,
-        rating: reviewForm.rating,
-        comment: reviewForm.comment.trim(),
-      };
 
-      const newReview = await createReview(payload);
-      const createdData = newReview?.data || newReview;
+      if (reviewModalMode === "edit") {
+        const payload = {
+          rating: reviewForm.rating,
+          comment: reviewForm.comment.trim(),
+        };
 
-      toast.success("Cảm ơn bạn đã gửi đánh giá cho món ăn!");
-      setOrderReviews((prev) => [...prev, createdData]);
+        const updatedReview = await updateReview(editingReviewId, payload);
+        const updatedData = updatedReview?.data || updatedReview;
+
+        toast.success("Cập nhật đánh giá thành công!");
+        setOrderReviews((prev) =>
+          prev.map((r) => (r.id === updatedData.id ? updatedData : r))
+        );
+      } else {
+        const payload = {
+          orderId: order.id,
+          productId: reviewingItem.productId,
+          productVariantId: reviewingItem.variantId,
+          rating: reviewForm.rating,
+          comment: reviewForm.comment.trim(),
+        };
+
+        const newReview = await createReview(payload);
+        const createdData = newReview?.data || newReview;
+
+        toast.success("Cảm ơn bạn đã gửi đánh giá cho món ăn!");
+        setOrderReviews((prev) => [...prev, createdData]);
+      }
+
       handleCloseReviewModal();
     } catch (error) {
       const message =
         error.response?.data?.message ||
         error.response?.data ||
-        "Không thể gửi đánh giá lúc này.";
+        "Không thể hoàn tất thao tác đánh giá lúc này.";
       toast.error(message);
     } finally {
       setSubmittingReview(false);
@@ -297,19 +391,53 @@ const UserAccountOrderDetail = () => {
                   {isCompletedOrder && (
                     <td>
                       {existingReview ? (
+                        <div className="review-cell-done">
+                          <div className="review-badge-row">
+                            <span
+                              className="badge-reviewed"
+                              title={`Bạn đã chấm ${existingReview.rating} sao: "${existingReview.comment}"`}
+                            >
+                              <FaCheckCircle />
+                              <span>{existingReview.rating}</span>
+                              <FaStar className="star-icon" />
+                            </span>
+                            {existingReview.isEdited && (
+                              <span className="review-edited-tag">
+                                Đã chỉnh sửa
+                              </span>
+                            )}
+                          </div>
+
+                          <span className="review-date-caption">
+                            {formatDate(existingReview.createdAt)}
+                          </span>
+
+                          {/* Nút sửa đánh giá: chỉ hiển thị khi chưa sửa lần nào và chưa quá 7 ngày */}
+                          {!existingReview.isEdited && !isReviewExpired(order) && (
+                            <button
+                              type="button"
+                              className="btn-edit-review"
+                              onClick={() => handleOpenEditReviewModal(item, existingReview)}
+                              title="Chỉnh sửa đánh giá (mỗi đánh giá chỉ được sửa 1 lần duy nhất)"
+                            >
+                              <FaEdit className="edit-icon" />
+                              <span>Sửa đánh giá</span>
+                            </button>
+                          )}
+                        </div>
+                      ) : isReviewExpired(order) ? (
                         <span
-                          className="badge-reviewed"
-                          title={`Bạn đã chấm ${existingReview.rating} sao: "${existingReview.comment}"`}
+                          className="badge-expired-review"
+                          title="Đã quá thời hạn 7 ngày kể từ ngày mua hàng (hết hạn gửi đánh giá)"
                         >
-                          <FaCheckCircle />
-                          <span>{existingReview.rating}</span>
-                          <FaStar className="star-icon" />
+                          Hết hạn
                         </span>
                       ) : (
                         <button
                           type="button"
                           className="btn-open-review"
                           onClick={() => handleOpenReviewModal(item)}
+                          title={`Còn ${getReviewRemainingDays(order)} ngày để đánh giá`}
                         >
                           <FaStar />
                           <span>Đánh giá</span>
@@ -354,106 +482,146 @@ const UserAccountOrderDetail = () => {
         </div>
       </div>
 
-      {/* MODAL POPUP ĐÁNH GIÁ MÓN NƯỚC */}
-      {reviewingItem && (
-        <div className="review-modal-backdrop" onClick={handleCloseReviewModal}>
-          <div
-            className="review-modal-card"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="review-modal-head">
-              <h3>Đánh Giá Món Uống</h3>
-              <button
-                type="button"
-                className="btn-close-modal"
-                onClick={handleCloseReviewModal}
-              >
-                <FaTimes />
-              </button>
-            </div>
-
-            <div className="review-product-preview">
-              {reviewingItem.image ? (
-                <img
-                  src={getImageUrl(reviewingItem.image)}
-                  alt={reviewingItem.productName}
-                />
-              ) : (
-                <div className="review-product-placeholder">Nex</div>
-              )}
-              <div className="review-product-info">
-                <strong>{reviewingItem.productName}</strong>
-                <span>
-                  {reviewingItem.size ? `Size ${reviewingItem.size}` : "Mặc định"}
-                </span>
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmitReview}>
-              <div className="review-stars-select">
-                <label>Chất lượng món thế nào?</label>
-                <div className="stars-picker">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      type="button"
-                      key={star}
-                      className={`star-btn ${
-                        (hoverStar || reviewForm.rating) >= star ? "active" : ""
-                      }`}
-                      onMouseEnter={() => setHoverStar(star)}
-                      onMouseLeave={() => setHoverStar(0)}
-                      onClick={() =>
-                        setReviewForm((prev) => ({ ...prev, rating: star }))
-                      }
-                      aria-label={`${star} sao`}
-                    >
-                      <FaStar />
-                    </button>
-                  ))}
-                </div>
-                <span className="rating-text-hint">
-                  {RATING_HINTS[hoverStar || reviewForm.rating]}
-                </span>
-              </div>
-
-              <div className="review-textarea-group">
-                <label htmlFor="review-comment">Cảm nhận thực tế của bạn:</label>
-                <textarea
-                  id="review-comment"
-                  value={reviewForm.comment}
-                  onChange={(e) =>
-                    setReviewForm((prev) => ({
-                      ...prev,
-                      comment: e.target.value,
-                    }))
-                  }
-                  placeholder="Hãy chia sẻ về hương vị, độ ngọt, độ béo hoặc cách phục vụ..."
-                  rows="4"
-                  required
-                />
-              </div>
-
-              <div className="review-modal-actions">
+      {/* MODAL POPUP ĐÁNH GIÁ MÓN NƯỚC (Mount vào document.body tránh bị giới hạn bới layout/transform) */}
+      {reviewingItem &&
+        createPortal(
+          <div className="review-modal-backdrop" onClick={handleCloseReviewModal}>
+            <div
+              className="review-modal-card"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="review-modal-head">
+                <h3>
+                  {reviewModalMode === "edit"
+                    ? "Chỉnh Sửa Đánh Giá Món"
+                    : "Đánh Giá Món Uống"}
+                </h3>
                 <button
                   type="button"
-                  className="btn-modal-cancel"
+                  className="btn-close-modal"
                   onClick={handleCloseReviewModal}
-                  disabled={submittingReview}
+                  aria-label="Đóng cửa sổ đánh giá"
                 >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  className="btn-modal-submit"
-                  disabled={submittingReview}
-                >
-                  {submittingReview ? "Đang gửi..." : "Gửi Đánh Giá"}
+                  <FaTimes />
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
+
+              <div className="review-product-preview">
+                {reviewingItem.image ? (
+                  <img
+                    src={getImageUrl(reviewingItem.image)}
+                    alt={reviewingItem.productName}
+                  />
+                ) : (
+                  <div className="review-product-placeholder">Nex</div>
+                )}
+                <div className="review-product-info">
+                  <strong>{reviewingItem.productName}</strong>
+                  <span>
+                    {reviewingItem.size ? `Size ${reviewingItem.size}` : "Mặc định"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="review-order-meta-info">
+                <div className="meta-info-row">
+                  <span>
+                    <FaCalendarAlt className="meta-icon" /> Ngày đặt hàng:
+                  </span>
+                  <strong>{formatDate(order.createdAt)}</strong>
+                </div>
+                <div className="meta-info-row meta-expiry-hint">
+                  <span>
+                    <FaClock className="meta-icon" /> Thời hạn đánh giá:
+                  </span>
+                  <span>
+                    {reviewModalMode === "edit"
+                      ? `Mỗi món chỉ được sửa 1 lần duy nhất (còn ${getReviewRemainingDays(order)} ngày)`
+                      : `Trong 7 ngày kể từ khi mua (còn ${getReviewRemainingDays(order)} ngày)`}
+                  </span>
+                </div>
+              </div>
+
+              <form onSubmit={handleSubmitReview}>
+                <div className="review-stars-select">
+                  <label>Chất lượng món thế nào?</label>
+                  <div className="stars-picker">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        type="button"
+                        key={star}
+                        className={`star-btn ${
+                          (hoverStar || reviewForm.rating) >= star ? "active" : ""
+                        }`}
+                        onMouseEnter={() => setHoverStar(star)}
+                        onMouseLeave={() => setHoverStar(0)}
+                        onClick={() =>
+                          setReviewForm((prev) => ({ ...prev, rating: star }))
+                        }
+                        aria-label={`${star} sao`}
+                      >
+                        <FaStar />
+                      </button>
+                    ))}
+                  </div>
+                  <span className="rating-text-hint">
+                    {RATING_HINTS[hoverStar || reviewForm.rating]}
+                  </span>
+                </div>
+
+                <div className="review-textarea-group">
+                  <div className="review-textarea-header">
+                    <label htmlFor="review-comment">Cảm nhận thực tế của bạn:</label>
+                    <span
+                      className={`review-char-counter ${
+                        reviewForm.comment.length >= 280 ? "limit-near" : ""
+                      }`}
+                    >
+                      {reviewForm.comment.length} / 300 ký tự
+                    </span>
+                  </div>
+                  <textarea
+                    id="review-comment"
+                    value={reviewForm.comment}
+                    maxLength={300}
+                    onChange={(e) =>
+                      setReviewForm((prev) => ({
+                        ...prev,
+                        comment: e.target.value,
+                      }))
+                    }
+                    placeholder="Hãy chia sẻ về hương vị, độ ngọt, độ béo hoặc cách phục vụ... (hỗ trợ xuống dòng)"
+                    rows="4"
+                    required
+                  />
+                </div>
+
+                <div className="review-modal-actions">
+                  <button
+                    type="button"
+                    className="btn-modal-cancel"
+                    onClick={handleCloseReviewModal}
+                    disabled={submittingReview}
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn-modal-submit"
+                    disabled={submittingReview}
+                  >
+                    {submittingReview
+                      ? "Đang lưu..."
+                      : reviewModalMode === "edit"
+                        ? "Cập Nhật Đánh Giá"
+                        : "Gửi Đánh Giá"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>,
+          document.body
+        )}
     </section>
   );
 };

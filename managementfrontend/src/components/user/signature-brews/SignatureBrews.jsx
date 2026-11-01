@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FaStar, FaArrowRight, FaPlus, FaFire } from "react-icons/fa";
+import { FaStar, FaArrowRight, FaPlus } from "react-icons/fa";
 import { getBestSellerProducts } from "../../../apis/menuApi";
+import SectionDivider from "../section-divider/SectionDivider";
+import coffeeCup from "../../../assets/hero/coffee-cup.svg";
 import "./SignatureBrews.css";
 
 const BACKEND_URL = "http://localhost:8080";
@@ -14,6 +16,37 @@ const getImageUrl = (imagePath) => {
   return `${BACKEND_URL}/images/${imagePath}`;
 };
 
+// Hàm trích xuất ảnh sản phẩm an toàn và đầy đủ các trường hợp từ backend
+const getProductImage = (item) => {
+  if (!item) return "";
+
+  // 1. Kiểm tra mainImage object (url hoặc imageUrl)
+  if (item.mainImage?.url) return getImageUrl(item.mainImage.url);
+  if (item.mainImage?.imageUrl) return getImageUrl(item.mainImage.imageUrl);
+  if (typeof item.mainImage === "string") return getImageUrl(item.mainImage);
+
+  // 2. Kiểm tra danh sách galleryImages
+  if (Array.isArray(item.galleryImages) && item.galleryImages.length > 0) {
+    const firstGallery = item.galleryImages[0];
+    if (firstGallery?.url) return getImageUrl(firstGallery.url);
+    if (firstGallery?.imageUrl) return getImageUrl(firstGallery.imageUrl);
+  }
+
+  // 3. Kiểm tra danh sách images
+  if (Array.isArray(item.images) && item.images.length > 0) {
+    const firstImg = item.images[0];
+    if (firstImg?.url) return getImageUrl(firstImg.url);
+    if (firstImg?.imageUrl) return getImageUrl(firstImg.imageUrl);
+    if (typeof firstImg === "string") return getImageUrl(firstImg);
+  }
+
+  // 4. Kiểm tra các thuộc tính trực tiếp
+  if (item.image) return getImageUrl(item.image);
+  if (item.imageUrl) return getImageUrl(item.imageUrl);
+
+  return "";
+};
+
 const getDisplayPrice = (product) => {
   if (Array.isArray(product.variants) && product.variants.length > 0) {
     const prices = product.variants
@@ -23,59 +56,11 @@ const getDisplayPrice = (product) => {
       return Math.min(...prices);
     }
   }
-  return 39000;
+  return product.price || 0;
 };
 
-// Fallback data an toàn khi backend chưa khởi động
-const DEFAULT_PRODUCTS = [
-  {
-    id: 1,
-    name: "Cà Phê Muối Kem Béo",
-    categoryName: "Cà Phê Pha Phin",
-    price: 39000,
-    averageRating: 5.0,
-    reviewCount: 42,
-    soldCount: 128,
-    description: "Espresso đậm đà hòa quyện cùng lớp kem muối biển béo ngậy độc quyền.",
-    imageUrl: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    id: 2,
-    name: "Bạc Xỉu Sữa Dừa Hạnh Nhân",
-    categoryName: "Cà Phê Sữa",
-    price: 45000,
-    averageRating: 4.9,
-    reviewCount: 36,
-    soldCount: 95,
-    description: "Cà phê phin truyền thống phối sữa dừa béo bùi và hạnh nhân lát giòn rụm.",
-    imageUrl: "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    id: 3,
-    name: "Cold Brew Cam Quế Thủ Công",
-    categoryName: "Cà Phê Ủ Lạnh",
-    price: 49000,
-    averageRating: 4.8,
-    reviewCount: 28,
-    soldCount: 84,
-    description: "Ủ lạnh 16 tiếng từ hạt Arabica Cầu Đất, thoang thoảng hương quế và cam vàng.",
-    imageUrl: "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    id: 4,
-    name: "Trà Đào Cam Sả Thảo Mộc",
-    categoryName: "Trà Trái Cây",
-    price: 42000,
-    averageRating: 4.9,
-    reviewCount: 31,
-    soldCount: 76,
-    description: "Trà đen nguyên bản kết hợp đào mọng nước và sả tươi thơm nồng sảng khoái.",
-    imageUrl: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&auto=format&fit=crop&q=80"
-  }
-];
-
 const SignatureBrews = () => {
-  const [products, setProducts] = useState(DEFAULT_PRODUCTS);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -87,9 +72,14 @@ const SignatureBrews = () => {
         const data = Array.isArray(response) ? response : response?.data;
         if (isMounted && Array.isArray(data) && data.length > 0) {
           setProducts(data);
+        } else if (isMounted) {
+          setProducts([]);
         }
       } catch (error) {
-        // Giữ fallback mặc định nếu offline
+        // Backend chưa kết nối hoặc lỗi mạng -> không dùng dữ liệu giả
+        if (isMounted) {
+          setProducts([]);
+        }
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -103,89 +93,118 @@ const SignatureBrews = () => {
 
   const getProductBadge = (item, index) => {
     if (index === 0 && (item.soldCount || 0) > 0) {
-      return "🔥 Bán chạy nhất";
+      return "Bán chạy nhất";
     }
     if ((item.soldCount || 0) > 0) {
       return `Đã bán ${item.soldCount}+`;
     }
-    if (index === 1) return "✨ Được yêu thích";
-    if (index === 2) return "☕ Hương vị đặc trưng";
+    if (index === 1) return "Được yêu thích";
+    if (index === 2) return "Món nổi bật";
     return "Món mới gợi ý";
   };
 
+  // Nếu không có sản phẩm nào từ backend (chưa kết nối / rỗng), ẩn hoàn toàn section
+  if (products.length === 0) {
+    return null;
+  }
+
   return (
-    <section className="signature-brews-section" id="signature-brews">
-      <div className="main-content">
-        {/* Header Section */}
-        <div className="section-head text-center">
-          <div className="section-badge-light">
-            <span>✨ Thức Uống Đặc Trưng</span>
-          </div>
-          <h2 className="section-title-light title-font">
-            Hương Vị Được Yêu Thích Nhất
-          </h2>
-          <p className="section-desc-light">
-            Các món bán chạy nhất tại NexCoffee được thống kê trực tiếp theo lượt yêu thích và đơn đặt hàng thực tế từ khách hàng.
-          </p>
-        </div>
+    <>
+      {/* Chuyển tiếp Tối -> Sáng */}
+      <SectionDivider type="dark-to-light" />
 
-        {/* Product Cards Grid */}
-        <div className="brews-grid">
-          {products.map((item, index) => {
-            const rawImage = item.mainImage?.imageUrl || item.imageUrl || "";
-            const displayImage = getImageUrl(rawImage) || DEFAULT_PRODUCTS[index % 4].imageUrl;
-            const price = item.price || getDisplayPrice(item);
-            const category = item.categoryName || item.category || "Đồ uống";
-            const rating = Number(item.averageRating || 5.0).toFixed(1);
-            const reviewCount = item.reviewCount || 0;
-            const badge = getProductBadge(item, index);
-
-            return (
-              <div key={item.id} className="brew-card">
-                <div className="brew-image-wrap">
-                  <img src={displayImage} alt={item.name} className="brew-image" loading="lazy" />
-                  <span className="brew-badge">{badge}</span>
-                </div>
-
-                <div className="brew-content">
-                  <div className="brew-meta">
-                    <span className="brew-category">{category}</span>
-                    <div className="brew-rating">
-                      <FaStar className="star-icon" />
-                      <span>{rating}</span>
-                      <span className="rating-count">({reviewCount})</span>
-                    </div>
-                  </div>
-
-                  <h3 className="brew-name">{item.name}</h3>
-                  <p className="brew-description">
-                    {item.description || "Công thức pha chế độc quyền từ những hạt cà phê thượng hạng của NexCoffee."}
-                  </p>
-
-                  <div className="brew-footer">
-                    <div className="brew-price">
-                      {price.toLocaleString("vi-VN")} <span className="currency">đ</span>
-                    </div>
-                    <Link to={`/products/${item.id}`} className="brew-add-btn" aria-label={`Đặt món ${item.name}`}>
-                      <FaPlus className="add-icon" />
-                      <span>Đặt Món</span>
-                    </Link>
-                  </div>
-                </div>
+      <div id="signature-brews" className="home-scroll-section section-light">
+        <section className="signature-brews-section">
+          <div className="main-content">
+            {/* Header Section */}
+            <div className="section-head text-center">
+              <div className="section-badge-light">
+                <span>Thực Đơn Nổi Bật</span>
               </div>
-            );
-          })}
-        </div>
+              <h2 className="section-title-light title-font">
+                Món Ngon Được Yêu Thích Nhất
+              </h2>
+              <p className="section-desc-light">
+                Các món ăn, đồ uống và bánh ngọt bán chạy nhất tại NexCoffee được thống kê trực tiếp theo lượt đặt hàng thực tế từ khách hàng.
+              </p>
+            </div>
 
-        {/* Bottom CTA */}
-        <div className="brews-cta-wrap">
-          <Link to="/menu" className="btn-view-all-menu">
-            <span>Khám Phá Toàn Bộ Thực Đơn</span>
-            <FaArrowRight className="cta-icon" />
-          </Link>
-        </div>
+            {/* Product Cards Grid */}
+            <div className="brews-grid">
+              {products.map((item, index) => {
+                const resolvedImage = getProductImage(item);
+                const displayImage = resolvedImage || coffeeCup;
+                const price = getDisplayPrice(item);
+                const category = item.categoryName || item.category || "Món ngon";
+                const rating = Number(item.averageRating || 5.0).toFixed(1);
+                const reviewCount = item.reviewCount || 0;
+                const badge = getProductBadge(item, index);
+
+                return (
+                  <div key={item.id} className="brew-card">
+                    <div className="brew-image-wrap">
+                      <img
+                        src={displayImage}
+                        alt={item.name}
+                        className="brew-image"
+                        loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.src = coffeeCup;
+                        }}
+                      />
+                      <span className="brew-badge">{badge}</span>
+                    </div>
+
+                    <div className="brew-content">
+                      <div className="brew-meta">
+                        <span className="brew-category">{category}</span>
+                        <div className="brew-rating">
+                          <FaStar className="star-icon" />
+                          <span>{rating}</span>
+                          <span className="rating-count">({reviewCount})</span>
+                        </div>
+                      </div>
+
+                      <h3 className="brew-name">{item.name}</h3>
+                      <p className="brew-description">
+                        {item.description ||
+                          "Hương vị thơm ngon hấp dẫn được chế biến từ những nguyên liệu tươi mới, chất lượng cao tại NexCoffee."}
+                      </p>
+
+                      <div className="brew-footer">
+                        <div className="brew-price">
+                          {price.toLocaleString("vi-VN")}{" "}
+                          <span className="currency">đ</span>
+                        </div>
+                        <Link
+                          to={`/products/${item.id}`}
+                          className="brew-add-btn"
+                          aria-label={`Đặt món ${item.name}`}
+                        >
+                          <FaPlus className="add-icon" />
+                          <span>Đặt Món</span>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Bottom CTA */}
+            <div className="brews-cta-wrap">
+              <Link to="/menu" className="btn-view-all-menu">
+                <span>Khám Phá Toàn Bộ Thực Đơn</span>
+                <FaArrowRight className="cta-icon" />
+              </Link>
+            </div>
+          </div>
+        </section>
       </div>
-    </section>
+
+      {/* Chuyển tiếp Sáng -> Tối sang About */}
+      <SectionDivider type="light-to-dark" flip={true} />
+    </>
   );
 };
 

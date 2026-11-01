@@ -203,27 +203,61 @@
 }
 
 .user-portal .menu-card-info {
-  min-height: 8rem;
+  min-height: 9.8rem;
   padding: 1.6rem 1.6rem 1.6rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .user-portal .menu-card-name {
   color: #2d2d2d;
   font-size: 1.6rem;
   font-weight: 600;
-  line-height: 1.45;
+  line-height: 1.4;
   transition: 0.25s ease;
 }
 
 .user-portal .menu-card:hover .menu-card-name {
-  color: var(--primary-orange);
+  color: var(--accent-primary, #dc2626);
+}
+
+.user-portal .menu-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+  font-size: 1.25rem;
+}
+
+.user-portal .menu-card-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #b45309;
+  font-weight: 700;
+}
+
+.user-portal .menu-card-rating .star-icon {
+  font-size: 1.15rem;
+  color: #f59e0b;
+}
+
+.user-portal .menu-card-dot {
+  color: rgba(57, 27, 9, 0.25);
+  font-size: 1.1rem;
+}
+
+.user-portal .menu-card-sold {
+  color: rgba(57, 27, 9, 0.6);
+  font-size: 1.2rem;
+  font-weight: 500;
 }
 
 .user-portal .menu-card-price {
-  color: var(--primary-orange);
-  font-size: 1.6rem;
-  font-weight: 700;
-  margin-top: 0.8rem;
+  color: var(--accent-primary, #dc2626);
+  font-size: 1.65rem;
+  font-weight: 800;
+  margin-top: 0.6rem;
 }
 
 .user-portal .badge {
@@ -250,8 +284,8 @@
   height: 4.4rem;
   border: none;
   border-radius: 50%;
-  background-color: var(--primary-orange);
-  border: var(--primary-orange) 3px solid;
+  background-color: var(--accent-primary, #dc2626);
+  border: var(--accent-primary, #dc2626) 3px solid;
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -260,7 +294,7 @@
   opacity: 0;
   transform: scale(0.85);
   transition: 0.25s ease;
-  box-shadow: 0 0.8rem 1.8rem rgba(255, 137, 20, 0.28);
+  box-shadow: 0 0.8rem 1.8rem rgba(220, 38, 38, 0.25);
 }
 
 .user-portal .menu-card:hover .menu-card-cart {
@@ -269,7 +303,8 @@
 }
 
 .user-portal .menu-card-cart:hover {
-  background-color: var(--primary-orange);
+  background-color: #ffffff;
+  color: var(--accent-primary, #dc2626);
 }
 
 .user-portal .menu-card-cart svg {

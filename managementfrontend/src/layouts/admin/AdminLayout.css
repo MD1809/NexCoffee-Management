@@ -92,9 +92,25 @@
   z-index: 10;
 }
 
+.header__left {
+  display: flex;
+  align-items: center;
+}
+
 .toggle-sidebar {
   cursor: pointer;
+  font-size: 18px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease, color 0.2s ease;
 }
+
+.toggle-sidebar:hover {
+  color: var(--sidebar-active-dark);
+  transform: scale(1.08);
+}
+
 
 .header_right {
   display: flex;

@@ -23,6 +23,16 @@ public class OrderPosRequest {
 
     private Integer staffId;
 
+    private String orderType; // DINE_IN hoặc TAKEAWAY
+
+    private String tableNumber; // Số bàn hoặc Số thẻ rung mang về
+
+    private Long cashGiven; // Tiền khách đưa
+
+    private Long changeReturned; // Tiền thừa thối lại
+
+    private String note; // Ghi chú đơn hàng
+
     @NotEmpty(message = "Giỏ hàng không được để trống")
     private List<OrderItemPosRequest> items;
 }

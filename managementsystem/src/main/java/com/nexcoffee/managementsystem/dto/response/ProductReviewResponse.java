@@ -31,5 +31,14 @@ public class ProductReviewResponse {
 
     private Integer orderId;
     private String orderCode;
+    private LocalDateTime orderCreatedAt;
+    private String storeName;
     private boolean verifiedPurchase;
+
+    private Boolean isEdited;
+    private LocalDateTime editedAt;
+
+    private String hiddenReason;
+    private String rawComment;
+    private Boolean isContentHidden;
 }

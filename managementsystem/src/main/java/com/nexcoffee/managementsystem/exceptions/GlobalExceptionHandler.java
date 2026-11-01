@@ -37,6 +37,18 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(AccountDeactivatedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccountDeactivatedException(AccountDeactivatedException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.FORBIDDEN.value());
+        response.put("errorCode", "ACCOUNT_DEACTIVATED");
+        response.put("message", ex.getMessage());
+        response.put("reason", ex.getReason());
+        response.put("deactivatedAt", ex.getDeactivatedAt());
+        response.put("timestamp", LocalDateTime.now());
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {

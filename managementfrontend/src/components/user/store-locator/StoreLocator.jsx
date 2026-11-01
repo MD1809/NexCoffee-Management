@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { FaLaptopCode, FaMapMarkedAlt, FaMotorcycle, FaArrowRight } from "react-icons/fa";
+import StoreLocatorMap from "./StoreLocatorMap";
 import "./StoreLocator.css";
 
 const STORE_HIGHLIGHTS = [
@@ -57,6 +58,9 @@ const StoreLocator = () => {
             </div>
           ))}
         </div>
+
+        {/* Bản đồ định vị các cửa hàng (Track Asia) */}
+        <StoreLocatorMap />
 
         {/* Call-to-action Banner */}
         <div className="delivery-banner-card">

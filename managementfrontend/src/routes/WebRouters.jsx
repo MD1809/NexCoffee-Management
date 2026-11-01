@@ -21,6 +21,7 @@ import UserAccountLayout from "../pages/user/account/UserAccountLayout";
 import UserAccountOrders from "../pages/user/account/UserAccountOrders";
 import UserAccountOrderDetail from "../pages/user/account/UserAccountOrderDetail";
 import UserChangePassword from "../pages/user/account/UserChangePassword";
+import UserAccountReviews from "../pages/user/account/UserAccountReviews";
 
 // Layout Page
 import AdminLayout from "../layouts/admin/AdminLayout";
@@ -34,6 +35,8 @@ import AddProductPage from "../pages/admin/product/AddProductPage";
 import EditProductPage from "../pages/admin/product/EditProductPage";
 import ProductDetailPage from "../pages/admin/product/ProductDetail";
 import UsersPage from "../pages/admin/user/Users";
+import UserDetailPage from "../pages/admin/user/UserDetail";
+import ReviewsPage from "../pages/admin/review/Reviews";
 import OrderPage from "../pages/admin/order/Order";
 import OrderDetailPage from "../pages/admin/order/OrderDetail";
 import DeliveryAreasPage from "../pages/admin/delivery-area/DeliveryAreasPage";
@@ -41,9 +44,12 @@ import AddDeliveryAreaPage from "../pages/admin/delivery-area/AddDeliveryAreaPag
 import EditDeliveryAreaPage from "../pages/admin/delivery-area/EditDeliveryAreaPage";
 import DailyReportPage from "../pages/admin/dailydashboard/DailyReport";
 import PosPage from "../pages/admin/pos/Pos";
+import BaristaKdsPage from "../pages/admin/barista/BaristaKds";
 import DeliverySettingPage from "../pages/admin/delivery-setting/DeliverySettingPage";
 import AdvertisementPage from "../pages/admin/advertisement/AdvertisementPage";
 import StorePage from "../pages/admin/store/StorePage";
+import AccountDeactivated from "../pages/user/account-deactivated/AccountDeactivated";
+import SupportChat from "../pages/admin/support/SupportChat";
 
 function WebRouters() {
   return (
@@ -57,6 +63,7 @@ function WebRouters() {
             <Route path="menu" element={<Menu />} />
             <Route path="products/:id" element={<ProductDetail />} />
             <Route path="cart" element={<Cart />} />
+            <Route path="reviews" element={<UserAccountReviews />} />
           </Route>
 
           <Route
@@ -78,6 +85,7 @@ function WebRouters() {
             <Route index element={<Navigate to="orders" replace />} />
             <Route path="orders" element={<UserAccountOrders />} />
             <Route path="orders/:id" element={<UserAccountOrderDetail />} />
+            <Route path="reviews" element={<UserAccountReviews />} />
             <Route path="password" element={<UserChangePassword />} />
           </Route>
 
@@ -89,6 +97,7 @@ function WebRouters() {
           <Route path="verify" element={<VerifyAccount />} />
           <Route path="register-success" element={<RegisterSuccess />} />
           <Route path="resend-verification" element={<ResendVerification />} />
+          <Route path="account-deactivated" element={<AccountDeactivated />} />
         </Route>
 
         {/* Admin routes */}
@@ -111,10 +120,34 @@ function WebRouters() {
           <Route path="products/add" element={<AddProductPage />} />
           <Route path="products/edit/:id" element={<EditProductPage />} />
           <Route path="products/detail/:id" element={<ProductDetailPage />} />
-          <Route path="pos" element={<PosPage />} />
+          <Route
+            path="pos"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <PosPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="barista"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <BaristaKdsPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="orders" element={<OrderPage />} />
           <Route path="daily-report" element={<DailyReportPage />} />
           <Route path="users" element={<UsersPage />} />
+          <Route path="users/:id" element={<UserDetailPage />} />
+          <Route
+            path="reviews"
+            element={
+              <ProtectedRoute allowedRoles={["SUPER_ADMIN"]}>
+                <ReviewsPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="orders/detail/:id" element={<OrderDetailPage />} />
           <Route path="delivery-areas" element={<DeliveryAreasPage />} />
           <Route path="delivery-areas/add" element={<AddDeliveryAreaPage />} />
@@ -132,6 +165,7 @@ function WebRouters() {
               </ProtectedRoute>
             }
           />
+          <Route path="support-chat" element={<SupportChat />} />
         </Route>
 
         <Route
@@ -145,8 +179,10 @@ function WebRouters() {
           <Route index element={<Navigate to="pos" replace />} />
 
           <Route path="pos" element={<PosPage />} />
+          <Route path="barista" element={<BaristaKdsPage />} />
           <Route path="orders" element={<OrderPage />} />
           <Route path="orders/detail/:id" element={<OrderDetailPage />} />
+          <Route path="support-chat" element={<SupportChat />} />
         </Route>
       </Routes>
     </BrowserRouter>

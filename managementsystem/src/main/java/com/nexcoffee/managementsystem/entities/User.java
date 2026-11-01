@@ -31,12 +31,23 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.CUSTOMER;
 
+    @Builder.Default
     @Column(nullable = false)
     private String status = "ACTIVE";
+
+    @Column(name = "deactivation_reason", columnDefinition = "TEXT")
+    private String deactivationReason;
+
+    @Column(name = "deactivated_at")
+    private LocalDateTime deactivatedAt;
+
+    @Column(name = "deactivated_by")
+    private String deactivatedBy;
 
     @Builder.Default
     @Column(name = "is_verified", nullable = false)

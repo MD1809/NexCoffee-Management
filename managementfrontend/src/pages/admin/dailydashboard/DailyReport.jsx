@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import dailyReportApi from "../../../apis/dailyReportService";
 import DataTable from "../../../components/admin/dataTable/DataTable";
 import Dropdown from "../../../components/admin/dropDown/Dropdown";
 import SearchBox from "../../../components/admin/searchBox/SearchBox";
 import HourlyRevenueChartWithIntervals from "./HourlyRevenueChartWithIntervals";
+import StoreSelectorBar from "../../../components/admin/storeSelector/StoreSelectorBar";
+import ExportReportModal from "../../../components/admin/exportReportModal/ExportReportModal";
+import { getCurrentUser } from "../../../utils/authStorage";
 import "./DailyReport.css";
 
 const getLocalDateString = (dateObj = new Date()) => {
@@ -22,12 +25,21 @@ const getYesterdayDateString = (currentDateStr) => {
 
 const DailyReport = () => {
   const navigate = useNavigate();
+  const currentUser = getCurrentUser();
+
+  // State chọn chi nhánh (với ADMIN là storeId của họ, với SUPER_ADMIN là null = tất cả)
+  const [selectedStoreId, setSelectedStoreId] = useState(() => {
+    if (currentUser?.role === "ADMIN" && currentUser?.storeId) {
+      return currentUser.storeId;
+    }
+    return null;
+  });
 
   const [selectedDate, setSelectedDate] = useState(getLocalDateString());
   const [revenue, setRevenue] = useState(0);
   const [salesStats, setSalesStats] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [calendarDate, setCalendarDate] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -35,17 +47,14 @@ const DailyReport = () => {
   const [prevRevenue, setPrevRevenue] = useState(0);
   const [prevOrdersCount, setPrevOrdersCount] = useState(0);
   const [prevProductsCount, setPrevProductsCount] = useState(0);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
-  useEffect(() => {
-    fetchDailyData(selectedDate);
-  }, [selectedDate]);
-
-  const fetchDailyData = async (date) => {
+  const fetchDailyData = useCallback(async (date, storeId) => {
     setLoading(true);
     try {
       const yesterdayStr = getYesterdayDateString(date);
 
-      // Gọi song song API lấy dữ liệu hôm nay và hôm qua
+      // Gọi song song API lấy dữ liệu hôm nay và hôm qua với storeId
       const [
         revenueData,
         statsData,
@@ -54,20 +63,18 @@ const DailyReport = () => {
         prevStatsData,
         prevOrdersData,
       ] = await Promise.allSettled([
-        dailyReportApi.getRevenue(date),
-        dailyReportApi.getSalesStats(date),
-        dailyReportApi.getOrders(date),
-        dailyReportApi.getRevenue(yesterdayStr),
-        dailyReportApi.getSalesStats(yesterdayStr),
-        dailyReportApi.getOrders(yesterdayStr),
+        dailyReportApi.getRevenue(date, storeId),
+        dailyReportApi.getSalesStats(date, storeId),
+        dailyReportApi.getOrders(date, storeId),
+        dailyReportApi.getRevenue(yesterdayStr, storeId),
+        dailyReportApi.getSalesStats(yesterdayStr, storeId),
+        dailyReportApi.getOrders(yesterdayStr, storeId),
       ]);
 
-      // Set dữ liệu hôm nay
       setRevenue(revenueData.status === "fulfilled" ? revenueData.value : 0);
       setSalesStats(statsData.status === "fulfilled" ? statsData.value : []);
       setOrders(ordersData.status === "fulfilled" ? ordersData.value : []);
 
-      // Set dữ liệu hôm qua
       setPrevRevenue(
         prevRevData.status === "fulfilled" ? prevRevData.value : 0,
       );
@@ -86,27 +93,21 @@ const DailyReport = () => {
 
       setVisibleProductsCount(5);
     } catch (error) {
-      console.error("Lỗi khi tải dữ liệu:", error);
+      console.error("Lỗi khi tải dữ liệu báo cáo:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchDailyData(selectedDate, selectedStoreId);
+  }, [selectedDate, selectedStoreId, fetchDailyData]);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
-    }).format(amount);
-  };
-
-  const formatDateTime = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return (
-      date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) +
-      " " +
-      date.toLocaleDateString("vi-VN")
-    );
+    }).format(amount || 0);
   };
 
   const totalProductsSold = salesStats.reduce(
@@ -135,6 +136,11 @@ const DailyReport = () => {
 
     return hourlyDataTemplate;
   }, [orders]);
+
+  // TÍNH NĂNG 4.5: MỞ FORM XUẤT BÁO CÁO EXCEL STUDIO
+  const handleExportReport = () => {
+    setIsExportModalOpen(true);
+  };
 
   const renderTrend = (current, previous) => {
     let percent = 0;
@@ -241,29 +247,29 @@ const DailyReport = () => {
       },
     },
     {
-  header: "Trạng thái",
-  accessor: "status",
-  render: (row) => {
-    const statusOption = statusOptions.find(opt => opt.value === row.status);
-    const label = statusOption ? statusOption.label : row.status;
+      header: "Trạng thái",
+      accessor: "status",
+      render: (row) => {
+        const statusOption = statusOptions.find(opt => opt.value === row.status);
+        const label = statusOption ? statusOption.label : row.status;
 
-    // 3. Xác định class dựa trên status
-    let badgeClass = "dr-badge-secondary";
-    if (row.status === "Completed") badgeClass = "dr-badge-completed";
-    else if (row.status === "Cancelled") badgeClass = "dr-badge-cancelled";
-    else if (row.status === "Pending");
-    else if (row.status === "Processing");
-    else if (row.status === "Shipped");
+        let badgeClass = "dr-badge-secondary";
+        if (row.status === "Completed") badgeClass = "dr-badge-completed";
+        else if (row.status === "Cancelled") badgeClass = "dr-badge-cancelled";
+        else if (row.status === "Pending") badgeClass = "dr-badge-pending";
+        else if (row.status === "Processing") badgeClass = "dr-badge-processing";
+        else if (row.status === "Shipped") badgeClass = "dr-badge-shipped";
 
-    return <span className={`dr-badge ${badgeClass}`}>{label}</span>;
-  },
-},
+        return <span className={`dr-badge ${badgeClass}`}>{label}</span>;
+      },
+    },
     {
       header: "Thao tác",
       render: (row) => (
         <div className="action-buttons">
           <i
             className="fa-regular fa-eye btn-icon btn-icon--view"
+            title="Xem chi tiết đơn"
             onClick={() => navigate(`/admin/orders/detail/${row.id}`)}
           ></i>
         </div>
@@ -327,10 +333,44 @@ const DailyReport = () => {
 
   return (
     <div className="daily-report-container">
+      {/* Thanh chọn chi nhánh & thông tin phân quyền */}
+      <StoreSelectorBar
+        selectedStoreId={selectedStoreId}
+        onStoreChange={(newStoreId) => setSelectedStoreId(newStoreId)}
+        title="Thống Kê Hoạt Động Theo Ngày"
+      />
+
+      {/* Thanh công cụ hành động: Ngày đang xem + Nút Xuất Báo Cáo */}
+      <div className="daily-report-action-bar">
+        <div className="current-date-badge">
+          <span>Ngày xem: <strong>{selectedDate}</strong></span>
+        </div>
+
+        <button
+          type="button"
+          className="btn-export-excel"
+          onClick={handleExportReport}
+          title="Xuất dữ liệu ngày sang file Excel / CSV"
+        >
+          Xuất Báo Cáo (Excel / CSV)
+        </button>
+      </div>
+
       {loading ? (
-        <div className="daily-report-loading">Đang tải dữ liệu báo cáo...</div>
+        /* Skeleton Loader cho trang Daily Report */
+        <div className="daily-report-skeleton-container">
+          <div className="daily-report-widgets-wrapper">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="daily-report-widget skeleton-card">
+                <div className="skeleton-line skeleton-title"></div>
+                <div className="skeleton-line skeleton-val"></div>
+              </div>
+            ))}
+          </div>
+          <div className="daily-report-card skeleton-card" style={{ height: "300px", marginTop: "20px" }}></div>
+        </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "30px" }}>
           <div className="daily-report-layoutTop">
             <div className="daily-report-col-left">
               {/* Box 3 Widgets */}
@@ -361,7 +401,7 @@ const DailyReport = () => {
                         Tổng số đơn hàng
                       </p>
                       <h3 className="daily-report-widget-val daily-report-val-blue">
-                        {totalOrders}
+                        {totalOrders.toLocaleString("vi-VN")}
                       </h3>
                     </div>
                     <div className="widget-icon-wrapper widget-icon-blue">
@@ -381,7 +421,7 @@ const DailyReport = () => {
                         Sản phẩm đã bán
                       </p>
                       <h3 className="daily-report-widget-val daily-report-val-orange">
-                        {totalProductsSold}
+                        {totalProductsSold.toLocaleString("vi-VN")}
                       </h3>
                     </div>
                     <div className="widget-icon-wrapper widget-icon-orange">
@@ -394,10 +434,10 @@ const DailyReport = () => {
                 </div>
               </div>
 
-              {/* Biểu đồ */}
+              {/* Biểu đồ doanh thu theo giờ */}
               <div className="daily-report-card">
                 <h3 className="daily-report-section-title">
-                  Biểu đồ doanh thu theo giờ
+                  Biểu đồ doanh thu theo giờ trong ngày
                 </h3>
                 <div className="daily-report-chart-wrapper">
                   <HourlyRevenueChartWithIntervals
@@ -407,8 +447,9 @@ const DailyReport = () => {
                 </div>
               </div>
             </div>
+
             <div className="daily-report-col-right">
-              {/* Lịch */}
+              {/* Lịch chọn ngày */}
               <div className="daily-report-cal-card">
                 <div className="daily-report-cal-header">
                   <span>
@@ -419,14 +460,16 @@ const DailyReport = () => {
                     <button
                       onClick={handlePrevMonth}
                       className="daily-report-cal-btn"
+                      aria-label="Tháng trước"
                     >
-                      <i class="fa-solid fa-angle-left"></i>
+                      <i className="fa-solid fa-angle-left"></i>
                     </button>
                     <button
                       onClick={handleNextMonth}
                       className="daily-report-cal-btn"
+                      aria-label="Tháng sau"
                     >
-                     <i class="fa-solid fa-angle-right"></i>
+                      <i className="fa-solid fa-angle-right"></i>
                     </button>
                   </div>
                 </div>
@@ -468,11 +511,10 @@ const DailyReport = () => {
                             color: "var(--text-secondary)",
                           }}
                         >
-                          Chưa có dữ liệu
+                          Chưa có dữ liệu bán hàng
                         </td>
                       </tr>
                     ) : (
-                      // Cắt mảng theo biến state thay vì số 5 cứng
                       salesStats
                         .slice(0, visibleProductsCount)
                         .map((stat, index) => (
@@ -500,7 +542,7 @@ const DailyReport = () => {
                     style={{
                       textAlign: "center",
                       marginTop: "16px",
-                      borderTop: "1px solid var(--bordertable-color)",
+                      borderTop: "1px solid var(--bordertable-color, rgba(255,255,255,0.08))",
                       paddingTop: "12px",
                     }}
                   >
@@ -513,35 +555,41 @@ const DailyReport = () => {
                         background: "transparent",
                         outline: "none",
                         border: "0",
-                        color: "#2677f0",
+                        color: "#3b82f6",
                         padding: "6px 16px",
                         borderRadius: "6px",
                         cursor: "pointer",
                         fontSize: "13px",
+                        fontWeight: 600,
                         transition: "background-color 0.2s",
                       }}
                       onMouseEnter={(e) =>
                         (e.currentTarget.style.backgroundColor =
-                          "var(--bg-secondary)")
+                          "rgba(59, 130, 246, 0.1)")
                       }
                       onMouseLeave={(e) =>
                         (e.currentTarget.style.backgroundColor = "transparent")
                       }
                     >
-                      Xem thêm
+                      Xem thêm ({salesStats.length - visibleProductsCount} món)
                     </button>
                   </div>
                 )}
               </div>
             </div>
           </div>
+
+          {/* Danh sách đơn hàng chi tiết */}
           <div className="daily-report-order">
             <div className="daily-report-table-header">
-              <h2>Chi tiết đơn hàng</h2>
+              <h2>
+                Chi Tiết Đơn Hàng ({filteredOrders.length})
+              </h2>
               <div className="daily-report-filter-wrapper">
                 <SearchBox
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Tìm mã đơn, tên khách..."
                 />
                 <div style={{ width: "200px" }}>
                   <Dropdown
@@ -562,6 +610,22 @@ const DailyReport = () => {
           </div>
         </div>
       )}
+
+      {/* Modal Xuất Báo Cáo Chuẩn Kế Toán (Export Studio) */}
+      <ExportReportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        defaultDate={selectedDate}
+        selectedStoreId={selectedStoreId}
+        currentUser={currentUser}
+        currentData={{
+          revenue,
+          totalOrders,
+          totalProductsSold,
+          salesStats,
+          orders,
+        }}
+      />
     </div>
   );
 };

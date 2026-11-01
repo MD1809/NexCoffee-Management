@@ -1,6 +1,7 @@
 package com.nexcoffee.managementsystem.controllers;
 
 import com.nexcoffee.managementsystem.dto.request.CreateReviewRequest;
+import com.nexcoffee.managementsystem.dto.request.UpdateReviewRequest;
 import com.nexcoffee.managementsystem.dto.response.FeaturedReviewsResponse;
 import com.nexcoffee.managementsystem.dto.response.ProductReviewResponse;
 import com.nexcoffee.managementsystem.services.ProductReviewService;
@@ -25,6 +26,15 @@ public class ProductReviewController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductReviewResponse> updateReview(
+            @PathVariable Integer id,
+            @Valid @RequestBody UpdateReviewRequest request
+    ) {
+        ProductReviewResponse response = productReviewService.updateReview(id, request);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/order/{orderId}")
     public ResponseEntity<List<ProductReviewResponse>> getReviewsByOrder(@PathVariable Integer orderId) {
         return ResponseEntity.ok(productReviewService.getReviewsByOrderId(orderId));
@@ -40,5 +50,14 @@ public class ProductReviewController {
             @RequestParam(defaultValue = "6") int limit
     ) {
         return ResponseEntity.ok(productReviewService.getFeaturedReviews(limit));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ProductReviewResponse>> getAllReviews(
+            @RequestParam(required = false) Integer rating,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size
+    ) {
+        return ResponseEntity.ok(productReviewService.getAllReviews(rating, page, size));
     }
 }

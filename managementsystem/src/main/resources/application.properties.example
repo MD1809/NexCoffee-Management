@@ -30,3 +30,5 @@ jwt.expiration-ms=86400000
 
 # Third-party APIs
 trackasia.api-key=your_trackasia_api_key
+gemini.api.key=gemini_ai_key
+gemini.model=gemini-flash-lite-latest

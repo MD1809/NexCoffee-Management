@@ -14,7 +14,19 @@ const posApi = {
   // Thanh toán
   checkout: (orderData) => {
     return axiosClient.post("/pos/checkout", orderData);
-  }
+  },
+
+  // Lấy danh sách đơn cần pha chế cho Barista
+  getBaristaOrders: (storeId) => {
+    return axiosClient.get("/pos/barista/orders", {
+      params: storeId ? { storeId } : {},
+    });
+  },
+
+  // Hoàn thành pha chế đơn hàng
+  completeBaristaOrder: (orderId, data) => {
+    return axiosClient.patch(`/pos/barista/orders/${orderId}/complete`, data);
+  },
 };
 
 export default posApi;

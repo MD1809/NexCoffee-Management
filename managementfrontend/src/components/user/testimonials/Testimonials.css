@@ -258,7 +258,6 @@
   flex: 1;
 }
 
-/* Card footer */
 .review-card-footer {
   display: flex;
   justify-content: space-between;
@@ -267,10 +266,69 @@
   border-top: 1px dashed var(--border-light, #f0eae1);
   font-size: 1.2rem;
   color: var(--text-light-muted, #78716c);
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.testimonial-dates-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.testimonial-dates-wrap .review-order-date {
+  color: #78716c;
+}
+
+.testimonial-dates-wrap .date-sep {
+  color: #d6d3d1;
+  font-weight: 700;
+}
+
+.testimonial-dates-wrap .review-date {
+  color: #44403c;
+  font-weight: 500;
+}
+
+.testimonial-dates-wrap .review-edited-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.6rem;
+  border-radius: 0.4rem;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-size: 1.1rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.testimonials-section .review-user-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #4b5563, #1f2937);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 2rem;
+  text-transform: uppercase;
 }
 
 .verified-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   font-weight: 600;
+  font-size: 1.25rem;
+  color: #16a34a;
+}
+
+.verified-text .store-badge-icon {
+  font-size: 1.15rem;
   color: #16a34a;
 }
 

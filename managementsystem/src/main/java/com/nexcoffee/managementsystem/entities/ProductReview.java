@@ -51,6 +51,16 @@ public class ProductReview {
     @Column(nullable = false, length = 20)
     private String status = "ACTIVE"; // ACTIVE, HIDDEN
 
+    @Column(name = "hidden_reason", columnDefinition = "TEXT")
+    private String hiddenReason;
+
+    @Builder.Default
+    @Column(name = "is_edited", nullable = false)
+    private Boolean isEdited = false;
+
+    @Column(name = "edited_at")
+    private LocalDateTime editedAt;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

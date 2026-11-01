@@ -14,10 +14,21 @@ import java.time.LocalDateTime;
 )
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class CartItem {
+
+    public CartItem() {
+    }
+
+    public CartItem(Long id, Cart cart, ProductVariant productVariant, Integer quantity, Double unitPrice, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.cart = cart;
+        this.productVariant = productVariant;
+        this.quantity = quantity;
+        this.unitPrice = unitPrice;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

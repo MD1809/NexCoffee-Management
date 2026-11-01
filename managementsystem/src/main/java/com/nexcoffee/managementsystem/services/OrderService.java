@@ -30,6 +30,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.nexcoffee.managementsystem.dto.response.barista.BaristaOrderResponse;
+import com.nexcoffee.managementsystem.dto.response.barista.BaristaOrderItemResponse;
+import java.time.Duration;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -44,12 +49,24 @@ public class OrderService {
     // --- PHẦN 1: CÁC HÀM MỚI PHỤC VỤ DASHBOARD THỐNG KÊ ---
 
     public Long getRevenueByDate(LocalDate date) {
+        return getRevenueByDate(date, null);
+    }
+
+    public Long getRevenueByDate(LocalDate date, Long requestedStoreId) {
         User currentUser = getCurrentUser();
 
         LocalDateTime startOfDay = getStartOfDay(date);
         LocalDateTime endOfDay = getEndOfDay(date);
 
         if (isSuperAdmin(currentUser)) {
+            if (requestedStoreId != null && requestedStoreId > 0) {
+                return orderRepository.calculateRevenueByDateAndStoreId(
+                        startOfDay,
+                        endOfDay,
+                        PaymentStatus.paid,
+                        requestedStoreId
+                );
+            }
             return orderRepository.calculateRevenueByDate(
                     startOfDay,
                     endOfDay,
@@ -68,12 +85,24 @@ public class OrderService {
     }
 
     public List<OrderDetailRepository.ProductSaleStats> getProductSalesStatsByDate(LocalDate date) {
+        return getProductSalesStatsByDate(date, null);
+    }
+
+    public List<OrderDetailRepository.ProductSaleStats> getProductSalesStatsByDate(LocalDate date, Long requestedStoreId) {
         User currentUser = getCurrentUser();
 
         LocalDateTime startOfDay = getStartOfDay(date);
         LocalDateTime endOfDay = getEndOfDay(date);
 
         if (isSuperAdmin(currentUser)) {
+            if (requestedStoreId != null && requestedStoreId > 0) {
+                return orderDetailRepository.getProductSalesByDateAndStoreId(
+                        startOfDay,
+                        endOfDay,
+                        OrderStatus.Completed,
+                        requestedStoreId
+                );
+            }
             return orderDetailRepository.getProductSalesByDate(
                     startOfDay,
                     endOfDay,
@@ -93,12 +122,23 @@ public class OrderService {
 
     // Lấy danh sách đơn hàng chi tiết phục vụ trang quản lý (kèm staff/shipper)
     public List<Order> getOrdersWithStaffInfoByDate(LocalDate date) {
+        return getOrdersWithStaffInfoByDate(date, null);
+    }
+
+    public List<Order> getOrdersWithStaffInfoByDate(LocalDate date, Long requestedStoreId) {
         User currentUser = getCurrentUser();
 
         LocalDateTime startOfDay = getStartOfDay(date);
         LocalDateTime endOfDay = getEndOfDay(date);
 
         if (isSuperAdmin(currentUser)) {
+            if (requestedStoreId != null && requestedStoreId > 0) {
+                return orderRepository.findOrdersWithStaffAndShipperByDateAndStoreId(
+                        startOfDay,
+                        endOfDay,
+                        requestedStoreId
+                );
+            }
             return orderRepository.findOrdersWithStaffAndShipperByDate(
                     startOfDay,
                     endOfDay
@@ -398,20 +438,42 @@ public class OrderService {
         }
 
         // 2. Tạo đơn hàng mới. Đặc thù của POS là mặc định khách mua tại quầy.
+        String orderType = (request.getOrderType() != null && !request.getOrderType().isBlank())
+                ? request.getOrderType().trim()
+                : "DINE_IN";
+        String tableNumber = (request.getTableNumber() != null && !request.getTableNumber().isBlank())
+                ? request.getTableNumber().trim()
+                : ("DINE_IN".equalsIgnoreCase(orderType) ? "Tại bàn" : "Mang về");
+
+        String customerDisplay = "Khách tại quầy (" + tableNumber + ")";
+
+        StringBuilder noteBuilder = new StringBuilder();
+        noteBuilder.append("[Loại: ").append("DINE_IN".equalsIgnoreCase(orderType) ? "Tại quán" : "Mang về")
+                .append(" - Vị trí: ").append(tableNumber).append("]");
+        if (request.getCashGiven() != null && request.getCashGiven() > 0) {
+            noteBuilder.append(" [Tiền khách: ").append(request.getCashGiven()).append("đ - Thối: ")
+                    .append(request.getChangeReturned() != null ? request.getChangeReturned() : 0).append("đ]");
+        }
+        if (request.getNote() != null && !request.getNote().isBlank()) {
+            noteBuilder.append(" - Ghi chú: ").append(request.getNote().trim());
+        }
+
         Order order = Order.builder()
                 .staff(staff)
                 .code(generateUniqueOrderCode())
                 .nearestStoreId(staffStoreId)
-                .fullName("Khách lẻ (Tại quầy)")
+                .fullName(customerDisplay)
                 .shipping(request.getShipping() != null ? request.getShipping().longValue() : 0L)
                 .discount(request.getDiscount() != null ? request.getDiscount().longValue() : 0L)
                 .paymentMethod(com.nexcoffee.managementsystem.enums.PaymentMethod.valueOf(request.getPaymentMethod()))
                 .paymentStatus(PaymentStatus.paid)
-                .status(OrderStatus.Completed)
+                .status(OrderStatus.Processing) // Đang pha chế chờ Barista hoàn tất
                 .paidAt(LocalDateTime.now())
-                .completedAt(LocalDateTime.now())
+                .processedAt(LocalDateTime.now())
+                .completedAt(null)
                 .subtotal(request.getSubtotal().longValue())
                 .total(request.getTotal().longValue())
+                .note(noteBuilder.toString())
                 .build();
 
         Order savedOrder = orderRepository.save(order);
@@ -445,6 +507,7 @@ public class OrderService {
 
         orderDetailRepository.saveAll(orderDetails);
         savedOrder.setOrderDetails(orderDetails);
+        updateProductSoldCount(savedOrder);
 
         return savedOrder;
     }
@@ -510,27 +573,132 @@ public class OrderService {
     @jakarta.annotation.PostConstruct
     public void syncHistoricalSoldCount() {
         try {
-            List<Product> products = productRepository.findAll();
-            boolean needSync = products.stream().allMatch(p -> p.getSoldCount() == null || p.getSoldCount() == 0);
-            if (needSync) {
-                for (Product p : products) {
-                    Long totalSold = orderDetailRepository.findAll().stream()
-                            .filter(od -> od.getOrder() != null && od.getOrder().getStatus() == OrderStatus.Completed)
-                            .filter(od -> od.getProductVariant() != null && od.getProductVariant().getProduct() != null
-                                    && od.getProductVariant().getProduct().getId().equals(p.getId()))
-                            .mapToLong(od -> od.getQuantity() != null ? od.getQuantity() : 0L)
-                            .sum();
-                    p.setSoldCount(totalSold.intValue());
-                    if (p.getAverageRating() == null) {
-                        p.setAverageRating(5.0);
+            productRepository.syncHistoricalSoldCount();
+        } catch (Exception ignored) {
+        }
+    }
+
+    // --- PHẦN 8: CÁC HÀM PHỤC VỤ MÀN HÌNH BARISTA (KDS) ---
+
+    @Transactional(readOnly = true)
+    public List<BaristaOrderResponse> getBaristaOrders(Long storeId) {
+        List<Order> orders;
+        if (storeId != null) {
+            orders = orderRepository.findByNearestStoreIdAndStatusOrderByCreatedAtAsc(storeId, OrderStatus.Processing);
+        } else {
+            orders = orderRepository.findByStatusOrderByCreatedAtAsc(OrderStatus.Processing);
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        return orders.stream().map(order -> {
+            Long elapsedMinutes = order.getCreatedAt() != null
+                    ? Duration.between(order.getCreatedAt(), now).toMinutes()
+                    : 0L;
+
+            // Tách loại đơn và số bàn từ note hoặc fullName
+            String orderType = "DINE_IN";
+            String tableNumber = "Tại bàn";
+            if (order.getNote() != null) {
+                if (order.getNote().contains("Mang về")) {
+                    orderType = "TAKEAWAY";
+                }
+                int posIdx = order.getNote().indexOf("Vị trí: ");
+                if (posIdx != -1) {
+                    int endIdx = order.getNote().indexOf("]", posIdx);
+                    if (endIdx != -1) {
+                        tableNumber = order.getNote().substring(posIdx + 8, endIdx).trim();
                     }
-                    if (p.getReviewCount() == null) {
-                        p.setReviewCount(0);
-                    }
-                    productRepository.save(p);
+                }
+            } else if (order.getFullName() != null && order.getFullName().contains("(") && order.getFullName().contains(")")) {
+                int start = order.getFullName().indexOf("(") + 1;
+                int end = order.getFullName().indexOf(")");
+                if (start < end) {
+                    tableNumber = order.getFullName().substring(start, end);
                 }
             }
-        } catch (Exception ignored) {
+
+            List<BaristaOrderItemResponse> itemResponses = new ArrayList<>();
+            int totalItemsCount = 0;
+
+            List<OrderDetail> details = order.getOrderDetails();
+            if (details == null || details.isEmpty()) {
+                try {
+                    details = orderDetailRepository.findByOrderId(order.getId());
+                } catch (Exception ignored) {
+                }
+            }
+
+            if (details != null) {
+                for (OrderDetail d : details) {
+                    totalItemsCount += (d.getQuantity() != null ? d.getQuantity() : 0);
+                    ProductVariant v = d.getProductVariant();
+                    String productName = (v != null && v.getProduct() != null) ? v.getProduct().getName() : "Sản phẩm";
+                    String variantSize = (v != null && v.getSize() != null && !v.getSize().isBlank()) ? v.getSize() : "Mặc định";
+
+                    itemResponses.add(BaristaOrderItemResponse.builder()
+                            .id(d.getId())
+                            .productName(productName)
+                            .variantSize(variantSize)
+                            .quantity(d.getQuantity())
+                            .unitPrice(d.getUnitPrice())
+                            .totalPrice(d.getTotalPrice())
+                            .imageUrl(null)
+                            .build());
+                }
+            }
+
+            String staffName = "Thu ngân";
+            try {
+                if (order.getStaff() != null && order.getStaff().getFullName() != null) {
+                    staffName = order.getStaff().getFullName();
+                }
+            } catch (Exception ignored) {
+            }
+
+            return BaristaOrderResponse.builder()
+                    .id(order.getId())
+                    .code(order.getCode())
+                    .orderType(orderType)
+                    .tableNumber(tableNumber)
+                    .staffName(staffName)
+                    .createdAt(order.getCreatedAt())
+                    .elapsedMinutes(elapsedMinutes)
+                    .totalItems(totalItemsCount)
+                    .note(order.getNote())
+                    .status(order.getStatus().name())
+                    .items(itemResponses)
+                    .build();
+        }).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void completeBaristaOrder(Integer orderId) {
+        completeBaristaOrder(orderId, null);
+    }
+
+    @Transactional
+    public void completeBaristaOrder(Integer orderId, Long baristaId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn hàng ID: " + orderId));
+
+        User barista = null;
+        if (baristaId != null) {
+            barista = userRepository.findById(baristaId).orElse(null);
+        }
+        if (barista == null) {
+            try {
+                barista = getCurrentUser();
+            } catch (Exception ignored) {}
+        }
+
+        if (order.getStatus() != OrderStatus.Completed) {
+            order.setStatus(OrderStatus.Completed);
+            order.setCompletedAt(LocalDateTime.now());
+            if (barista != null) {
+                order.setBarista(barista);
+            }
+            orderRepository.save(order);
         }
     }
 }

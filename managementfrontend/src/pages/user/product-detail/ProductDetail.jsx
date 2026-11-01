@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   FaCheckCircle,
@@ -9,6 +10,9 @@ import {
   FaShoppingCart,
   FaStar,
   FaTruck,
+  FaTimes,
+  FaArrowRight,
+  FaCommentDots,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 
@@ -149,6 +153,56 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [buyNowLoading, setBuyNowLoading] = useState(false);
   const [productReviews, setProductReviews] = useState([]);
+
+  // State modal toàn bộ đánh giá sản phẩm & đọc đánh giá dài
+  const [isReviewsModalOpen, setIsReviewsModalOpen] = useState(false);
+  const [selectedStarFilter, setSelectedStarFilter] = useState("ALL");
+  const [readingReview, setReadingReview] = useState(null);
+
+  // Khóa cuộn trang khi mở modal
+  useEffect(() => {
+    if (isReviewsModalOpen || readingReview) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isReviewsModalOpen, readingReview]);
+
+  // Lọc 3 đánh giá có rating cao nhất (ưu tiên rating cao, sau đó đến mới nhất)
+  const topReviews = useMemo(() => {
+    return [...productReviews]
+      .sort((a, b) => {
+        if ((b.rating || 0) !== (a.rating || 0)) {
+          return (b.rating || 0) - (a.rating || 0);
+        }
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+      })
+      .slice(0, 3);
+  }, [productReviews]);
+
+  // Đếm số lượng theo mức sao
+  const starCounts = useMemo(() => {
+    const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    productReviews.forEach((r) => {
+      const star = Number(r.rating);
+      if (counts[star] !== undefined) counts[star]++;
+    });
+    return counts;
+  }, [productReviews]);
+
+  // Lọc đánh giá hiển thị trong modal theo mức sao
+  const modalReviews = useMemo(() => {
+    let list = [...productReviews].sort(
+      (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+    );
+    if (selectedStarFilter !== "ALL") {
+      list = list.filter((r) => Number(r.rating) === Number(selectedStarFilter));
+    }
+    return list;
+  }, [productReviews, selectedStarFilter]);
 
   useEffect(() => {
     window.scrollTo({
@@ -599,58 +653,126 @@ const ProductDetail = () => {
           </div>
 
           {productReviews.length > 0 ? (
-            <div className="product-reviews-list">
-              {productReviews.map((review) => (
-                <div key={review.id} className="product-review-item">
-                  <div className="product-review-user">
-                    {review.userAvatar ? (
-                      <img
-                        src={getImageUrl(review.userAvatar)}
-                        alt={review.userFullName}
-                        className="review-user-avatar"
-                      />
-                    ) : (
-                      <div className="review-user-avatar-placeholder">
-                        {(review.userFullName || "U")[0]}
-                      </div>
-                    )}
-                    <div className="review-user-info">
-                      <span className="review-user-name">
-                        {review.userFullName || "Khách hàng"}
-                      </span>
-                      <span className="review-user-badge">
-                        <FaCheckCircle /> Đã mua hàng
-                      </span>
-                    </div>
-                  </div>
+            <>
+              <div className="product-reviews-list">
+                {topReviews.map((review) => {
+                  const commentText = review.comment || "";
+                  const isLong = commentText.length > 90 || commentText.includes("\n");
 
-                  <div className="product-review-body">
-                    <div className="product-review-stars-row">
-                      <div className="review-item-stars">
-                        {[1, 2, 3, 4, 5].map((s) => (
-                          <FaStar
-                            key={s}
-                            className={
-                              s <= review.rating ? "star-filled" : "star-empty"
-                            }
+                  return (
+                    <div key={review.id} className="product-review-item">
+                      <div className="product-review-user">
+                        {review.userAvatar ? (
+                          <img
+                            src={getImageUrl(review.userAvatar)}
+                            alt={review.userFullName}
+                            className="review-user-avatar"
                           />
-                        ))}
+                        ) : (
+                          <div className="review-user-avatar-placeholder">
+                            {(review.userFullName || "U")[0]}
+                          </div>
+                        )}
+                        <div className="review-user-info">
+                          <span className="review-user-name">
+                            {review.userFullName || "Khách hàng"}
+                          </span>
+                          <span className="review-user-badge">
+                            <FaCheckCircle /> Đã mua hàng
+                          </span>
+                        </div>
                       </div>
-                      {review.variantSize && (
-                        <span className="review-variant-tag">
-                          Size {review.variantSize}
-                        </span>
-                      )}
-                      <span className="review-date">
-                        {new Date(review.createdAt).toLocaleDateString("vi-VN")}
-                      </span>
-                    </div>
 
-                    <p className="product-review-comment">{review.comment}</p>
-                  </div>
+                      <div className="product-review-body">
+                        <div className="product-review-stars-row">
+                          <div className="review-item-stars">
+                            {[1, 2, 3, 4, 5].map((s) => (
+                              <FaStar
+                                key={s}
+                                className={
+                                  s <= review.rating ? "star-filled" : "star-empty"
+                                }
+                              />
+                            ))}
+                          </div>
+                          {review.variantSize && (
+                            <span className="review-variant-tag">
+                              Size {review.variantSize}
+                            </span>
+                          )}
+                          <div className="review-date-group">
+                            {review.orderCreatedAt && (
+                              <span className="review-order-date">
+                                Đặt: {new Date(review.orderCreatedAt).toLocaleDateString("vi-VN")}
+                              </span>
+                            )}
+                            {review.orderCreatedAt && <span className="review-date-dot">•</span>}
+                            <span className="review-date">
+                              Đánh giá: {new Date(review.createdAt).toLocaleDateString("vi-VN")}
+                            </span>
+                            {review.isEdited && (
+                              <>
+                                <span className="review-date-dot">•</span>
+                                <span className="review-edited-tag">Đã chỉnh sửa</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+
+                        {review.isContentHidden || review.status === "HIDDEN" ? (
+                          <div className="product-review-hidden-box">
+                            <span className="hidden-label">
+                              <i className="fa-solid fa-shield-halved" style={{ marginRight: 6 }}></i>
+                              Nội dung gốc đã bị ẩn:
+                            </span>
+                            <span className="hidden-reason-text">&ldquo;{review.comment}&rdquo;</span>
+                          </div>
+                        ) : (
+                          <div className="product-review-comment-wrap">
+                            <p
+                              className={`product-review-comment ${
+                                isLong ? "product-review-comment--clamped" : ""
+                              }`}
+                            >
+                              &ldquo;{commentText}&rdquo;
+                            </p>
+                            {isLong && (
+                              <button
+                                type="button"
+                                className="btn-product-review-more"
+                                onClick={() => setReadingReview(review)}
+                                title="Xem toàn bộ nhận xét"
+                              >
+                                <span>Xem thêm</span>
+                                <FaArrowRight style={{ fontSize: "0.68rem", marginLeft: 4 }} />
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Nút Xem thêm X đánh giá nếu có hơn 3 đánh giá */}
+              {productReviews.length > 3 && (
+                <div className="product-reviews-more-wrap">
+                  <button
+                    type="button"
+                    className="btn-show-all-product-reviews"
+                    onClick={() => {
+                      setSelectedStarFilter("ALL");
+                      setIsReviewsModalOpen(true);
+                    }}
+                  >
+                    <FaCommentDots className="more-reviews-icon" />
+                    <span>Xem thêm {productReviews.length - 3} đánh giá</span>
+                    <FaArrowRight className="more-reviews-arrow" />
+                  </button>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           ) : (
             <div className="product-reviews-empty">
               <FaCoffee className="empty-icon" />
@@ -676,6 +798,268 @@ const ProductDetail = () => {
           </div>
         )}
       </div>
+
+      {/* MODAL DANH SÁCH TOÀN BỘ ĐÁNH GIÁ SẢN PHẨM KÈM BỘ LỌC SAO */}
+      {isReviewsModalOpen &&
+        createPortal(
+          <div
+            className="product-reviews-modal-backdrop"
+            onClick={() => setIsReviewsModalOpen(false)}
+          >
+            <div
+              className="product-reviews-modal-card"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="prm-header">
+                <div className="prm-header-info">
+                  <h3>Đánh Giá Sản Phẩm</h3>
+                  <span className="prm-product-title">{product?.name}</span>
+                </div>
+                <button
+                  type="button"
+                  className="btn-prm-close"
+                  onClick={() => setIsReviewsModalOpen(false)}
+                  aria-label="Đóng cửa sổ đánh giá"
+                >
+                  <FaTimes />
+                </button>
+              </div>
+
+              {/* Tóm tắt điểm trung bình & thanh lọc sao */}
+              <div className="prm-summary-bar">
+                <div className="prm-score-box">
+                  <span className="prm-score-number">
+                    {Number(product?.averageRating || 5.0).toFixed(1)}
+                  </span>
+                  <div className="prm-score-stars">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <FaStar
+                        key={s}
+                        className={
+                          s <= Math.round(product?.averageRating || 5.0)
+                            ? "star-filled"
+                            : "star-empty"
+                        }
+                      />
+                    ))}
+                  </div>
+                  <span className="prm-score-count">
+                    {productReviews.length} đánh giá
+                  </span>
+                </div>
+
+                {/* Star Filter Pills */}
+                <div className="prm-filter-pills">
+                  <button
+                    type="button"
+                    className={`prm-filter-btn ${
+                      selectedStarFilter === "ALL" ? "active" : ""
+                    }`}
+                    onClick={() => setSelectedStarFilter("ALL")}
+                  >
+                    Tất cả ({productReviews.length})
+                  </button>
+                  {[5, 4, 3, 2, 1].map((star) => (
+                    <button
+                      type="button"
+                      key={star}
+                      className={`prm-filter-btn ${
+                        selectedStarFilter === String(star) ? "active" : ""
+                      }`}
+                      onClick={() => setSelectedStarFilter(String(star))}
+                    >
+                      <span>{star} sao</span>
+                      <span className="prm-filter-count">({starCounts[star] || 0})</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Danh sách các đánh giá theo bộ lọc */}
+              <div className="prm-reviews-body">
+                {modalReviews.length === 0 ? (
+                  <div className="prm-empty-state">
+                    <FaCoffee className="empty-icon" />
+                    <p>
+                      {selectedStarFilter === "ALL"
+                        ? "Chưa có đánh giá nào cho sản phẩm này."
+                        : `Chưa có đánh giá nào ở mức ${selectedStarFilter} sao.`}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="prm-reviews-list">
+                    {modalReviews.map((review) => {
+                      const commentText = review.comment || "";
+                      const isLong = commentText.length > 90 || commentText.includes("\n");
+
+                      return (
+                        <div key={review.id} className="prm-review-item">
+                          <div className="prm-review-user-row">
+                            {review.userAvatar ? (
+                              <img
+                                src={getImageUrl(review.userAvatar)}
+                                alt={review.userFullName}
+                                className="prm-user-avatar"
+                              />
+                            ) : (
+                              <div className="prm-user-avatar-placeholder">
+                                {(review.userFullName || "U")[0]}
+                              </div>
+                            )}
+
+                            <div className="prm-user-meta">
+                              <strong className="prm-user-name">
+                                {review.userFullName || "Khách hàng"}
+                              </strong>
+                              <div className="prm-tags-row">
+                                <span className="prm-verified-badge">
+                                  <FaCheckCircle /> Đã mua hàng
+                                </span>
+                                {review.variantSize && (
+                                  <span className="prm-variant-pill">
+                                    Size {review.variantSize}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="prm-review-time">
+                              {new Date(review.createdAt).toLocaleDateString("vi-VN")}
+                            </div>
+                          </div>
+
+                          <div className="prm-stars-row">
+                            <div className="prm-stars">
+                              {[1, 2, 3, 4, 5].map((s) => (
+                                <FaStar
+                                  key={s}
+                                  className={
+                                    s <= review.rating ? "star-filled" : "star-empty"
+                                  }
+                                />
+                              ))}
+                            </div>
+                            {review.isEdited && (
+                              <span className="prm-edited-tag">Đã chỉnh sửa</span>
+                            )}
+                          </div>
+
+                          {review.isContentHidden || review.status === "HIDDEN" ? (
+                            <div className="product-review-hidden-box">
+                              <span className="hidden-label">
+                                <i className="fa-solid fa-shield-halved" style={{ marginRight: 6 }}></i>
+                                Nội dung gốc đã bị ẩn:
+                              </span>
+                              <span className="hidden-reason-text">&ldquo;{review.comment}&rdquo;</span>
+                            </div>
+                          ) : (
+                            <div className="prm-comment-wrap">
+                              <p
+                                className={`prm-comment-text ${
+                                  isLong ? "prm-comment-text--clamped" : ""
+                                }`}
+                              >
+                                &ldquo;{commentText}&rdquo;
+                              </p>
+                              {isLong && (
+                                <button
+                                  type="button"
+                                  className="btn-prm-more"
+                                  onClick={() => setReadingReview(review)}
+                                >
+                                  <span>Xem thêm</span>
+                                  <FaArrowRight style={{ fontSize: "0.68rem", marginLeft: 4 }} />
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className="prm-footer">
+                <button
+                  type="button"
+                  className="btn-prm-footer-close"
+                  onClick={() => setIsReviewsModalOpen(false)}
+                >
+                  Đóng
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+      {/* MODAL ĐỌC TOÀN VĂN NHẬN XÉT DÀI */}
+      {readingReview &&
+        createPortal(
+          <div
+            className="product-reviews-modal-backdrop"
+            style={{ zIndex: 10001 }}
+            onClick={() => setReadingReview(null)}
+          >
+            <div
+              className="product-reading-modal-card"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="prm-header">
+                <div className="prm-header-info">
+                  <h3>Cảm Nhận Khách Hàng</h3>
+                  <span className="prm-product-title">{product?.name}</span>
+                </div>
+                <button
+                  type="button"
+                  className="btn-prm-close"
+                  onClick={() => setReadingReview(null)}
+                  aria-label="Đóng"
+                >
+                  <FaTimes />
+                </button>
+              </div>
+
+              <div className="product-reading-meta">
+                <div className="prm-stars">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <FaStar
+                      key={s}
+                      className={
+                        s <= (readingReview.rating || 0) ? "star-filled" : "star-empty"
+                      }
+                    />
+                  ))}
+                </div>
+                <span className="product-reading-author">
+                  Khách hàng: <strong>{readingReview.userFullName || "Khách hàng"}</strong>
+                </span>
+                <span className="product-reading-date">
+                  {new Date(readingReview.createdAt).toLocaleDateString("vi-VN")}
+                </span>
+              </div>
+
+              <div className="product-reading-comment-box">
+                <p className="product-reading-comment-text">
+                  &ldquo;{readingReview.comment}&rdquo;
+                </p>
+              </div>
+
+              <div className="prm-footer">
+                <button
+                  type="button"
+                  className="btn-prm-footer-close"
+                  style={{ width: "100%" }}
+                  onClick={() => setReadingReview(null)}
+                >
+                  Đóng
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </section>
   );
 };

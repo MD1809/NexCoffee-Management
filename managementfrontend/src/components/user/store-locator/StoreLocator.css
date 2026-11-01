@@ -200,3 +200,333 @@
     justify-content: center;
   }
 }
+
+/* =========================================================
+   STORE LOCATOR MAP SECTION (TRACK ASIA)
+   ========================================================= */
+.store-locator-map-wrapper {
+  background: var(--card-light, #ffffff);
+  border: 1px solid var(--border-light, #f0eae1);
+  border-radius: 1.8rem;
+  padding: 2.2rem 2.4rem;
+  margin-bottom: 5rem;
+  box-shadow: 0 10px 30px -4px rgba(41, 37, 36, 0.06);
+}
+
+/* Store Chips (Quick Filter / Horizontal Scroll) */
+.store-chips-scroll {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 1rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 1.2rem;
+  margin-bottom: 1.6rem;
+  cursor: grab;
+  user-select: none;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #d6d3d1 transparent;
+}
+
+.store-chips-scroll:active {
+  cursor: grabbing;
+}
+
+.store-chips-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.store-chips-scroll::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 999px;
+}
+
+.store-chips-scroll::-webkit-scrollbar-thumb {
+  background: #d6d3d1;
+  border-radius: 999px;
+}
+
+.store-chips-scroll::-webkit-scrollbar-thumb:hover {
+  background: #a8a29e;
+}
+
+.store-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.85rem 1.6rem;
+  background: #ffffff;
+  border: 1px solid #e7e5e4;
+  border-radius: 999px;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #44403c;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.store-chip-btn .chip-icon {
+  color: #b91c1c;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.store-chip-btn:hover {
+  border-color: #b91c1c;
+  color: #b91c1c;
+  background: #fef2f2;
+  transform: translateY(-1px);
+}
+
+.store-chip-btn--active {
+  background: #b91c1c;
+  color: #ffffff !important;
+  border-color: #b91c1c;
+  box-shadow: 0 4px 14px rgba(185, 28, 28, 0.3);
+}
+
+.store-chip-btn--active .chip-icon {
+  color: #ffffff;
+}
+
+/* Container map */
+.store-map-container-box {
+  width: 100%;
+  height: 480px;
+  border-radius: 1.4rem;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(41, 37, 36, 0.12);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.store-trackasia-map-element {
+  width: 100%;
+  height: 100%;
+}
+
+.store-map-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  z-index: 10;
+  font-size: 1.4rem;
+  color: #78716c;
+  font-weight: 500;
+}
+
+.store-map-spinner {
+  width: 38px;
+  height: 38px;
+  border: 3px solid #f3f4f6;
+  border-top-color: #b91c1c;
+  border-radius: 50%;
+  animation: spinStoreMap 0.8s linear infinite;
+}
+
+@keyframes spinStoreMap {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- Track Asia Custom Markers & Labels --- */
+.store-locator-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transform: translateY(6px);
+  pointer-events: auto;
+  user-select: none;
+}
+
+.store-locator-marker-pin {
+  width: 26px;
+  height: 26px;
+  border-radius: 50% 50% 50% 0;
+  background-color: #b91c1c;
+  transform: rotate(-45deg);
+  border: 3px solid #ffffff;
+  box-shadow: 0 4px 12px rgba(185, 28, 28, 0.45);
+  position: relative;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.store-locator-marker:hover .store-locator-marker-pin {
+  transform: rotate(-45deg) scale(1.15);
+  background-color: #991b1b;
+}
+
+.store-locator-marker-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffffff;
+  top: 6px;
+  left: 6px;
+}
+
+.store-locator-marker-label {
+  margin-top: 6px;
+  max-width: 170px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background-color: #ffffff;
+  color: #1c1917;
+  border: 1.5px solid #b91c1c;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+  font-size: 1.2rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.store-locator-marker:hover .store-locator-marker-label {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(185, 28, 28, 0.25);
+  color: #b91c1c;
+}
+
+/* --- Track Asia Custom Popups --- */
+.trackasia-popup-content {
+  border-radius: 14px !important;
+  padding: 0 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid #f0eae1 !important;
+  overflow: hidden;
+}
+
+.store-popup-card {
+  min-width: 250px;
+  max-width: 300px;
+  padding: 16px;
+  font-family: inherit;
+}
+
+.store-popup-header {
+  border-bottom: 1px solid #f5f5f4;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.store-popup-badge {
+  display: inline-block;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.store-popup-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1c1917;
+  line-height: 1.35;
+}
+
+.store-popup-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.store-popup-item {
+  margin: 0;
+  font-size: 13px;
+  color: #57534e;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  line-height: 1.4;
+}
+
+.popup-icon {
+  font-size: 13px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.popup-phone-link {
+  color: #b91c1c;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.popup-phone-link:hover {
+  text-decoration: underline;
+}
+
+.store-popup-footer {
+  padding-top: 10px;
+  border-top: 1px solid #f5f5f4;
+}
+
+.store-popup-direction-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  background: #b91c1c;
+  color: #ffffff;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease;
+  box-sizing: border-box;
+}
+
+.store-popup-direction-btn:hover {
+  background: #991b1b;
+  color: #ffffff;
+}
+
+.store-popup-direction-btn .btn-arrow {
+  font-size: 13px;
+}
+
+/* Map Responsive */
+@media (max-width: 768px) {
+  .store-locator-map-wrapper {
+    padding: 1.6rem 1.4rem;
+    border-radius: 1.4rem;
+  }
+
+  .store-chips-scroll {
+    gap: 0.8rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .store-chip-btn {
+    padding: 0.75rem 1.4rem;
+    font-size: 1.25rem;
+  }
+
+  .store-map-container-box {
+    height: 360px;
+  }
+}

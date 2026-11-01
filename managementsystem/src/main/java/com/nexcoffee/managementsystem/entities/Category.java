@@ -2,7 +2,9 @@ package com.nexcoffee.managementsystem.entities;
 
 import com.nexcoffee.managementsystem.enums.CategoryStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
@@ -10,6 +12,8 @@ import java.util.List;
 
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "categories")
 @SQLRestriction("deleted = false")
 public class Category {

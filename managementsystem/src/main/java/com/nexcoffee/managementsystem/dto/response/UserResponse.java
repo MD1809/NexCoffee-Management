@@ -19,4 +19,8 @@ public class UserResponse {
     private String status;
     private Long storeId;
     private String storeName;
+    private String deactivationReason;
+    private java.time.LocalDateTime deactivatedAt;
+    private String deactivatedBy;
+    private java.time.LocalDateTime createdAt;
 }

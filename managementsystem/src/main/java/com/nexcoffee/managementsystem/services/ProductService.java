@@ -82,14 +82,15 @@ public class ProductService {
             res.setCategoryName(product.getCategory().getName());
         }
 
-        if (product.getImages() != null) {
-            product.getImages().stream()
-                    .filter(ProductImage::getIsMain)
+        if (product.getImages() != null && !product.getImages().isEmpty()) {
+            ProductImage mainImg = product.getImages().stream()
+                    .filter(img -> Boolean.TRUE.equals(img.getIsMain()))
                     .findFirst()
-                    .ifPresent(img -> res.setMainImage(new ImageProductResponse(img.getId(), img.getImageUrl())));
+                    .orElse(product.getImages().get(0));
+            res.setMainImage(new ImageProductResponse(mainImg.getId(), mainImg.getImageUrl()));
 
             List<ImageProductResponse> subImgs = product.getImages().stream()
-                    .filter(img -> !img.getIsMain())
+                    .filter(img -> !img.getId().equals(mainImg.getId()))
                     .map(img -> new ImageProductResponse(img.getId(), img.getImageUrl()))
                     .collect(Collectors.toList());
             res.setGalleryImages(subImgs);
@@ -144,18 +145,25 @@ public class ProductService {
             res.setCategoryName(product.getCategory().getName());
         }
 
-        // Lấy ảnh chính (giữ nguyên logic)
-        if (product.getImages() != null) {
-            product.getImages().stream()
-                    .filter(ProductImage::getIsMain)
+        // Lấy ảnh chính và danh sách ảnh phụ
+        if (product.getImages() != null && !product.getImages().isEmpty()) {
+            ProductImage mainImg = product.getImages().stream()
+                    .filter(img -> Boolean.TRUE.equals(img.getIsMain()))
                     .findFirst()
-                    .ifPresent(img -> res.setMainImage(new ImageProductResponse(img.getId(), img.getImageUrl())));
+                    .orElse(product.getImages().get(0));
+            res.setMainImage(new ImageProductResponse(mainImg.getId(), mainImg.getImageUrl()));
+
+            List<ImageProductResponse> subImgs = product.getImages().stream()
+                    .filter(img -> !img.getId().equals(mainImg.getId()))
+                    .map(img -> new ImageProductResponse(img.getId(), img.getImageUrl()))
+                    .collect(Collectors.toList());
+            res.setGalleryImages(subImgs);
         }
 
-        // 2. LOGIC LỌC RIÊNG CHO POS: Chỉ lấy variant "available"
+        // 2. LOGIC LỌC RIÊNG CHO POS & MENU: Chỉ lấy variant "available"
         if (product.getVariants() != null) {
             List<ProductVariantResponse> variantResponses = product.getVariants().stream()
-                    .filter(v -> v.getStatus() == ProductVariantStatus.available) // Lọc ở đây
+                    .filter(v -> v.getStatus() == ProductVariantStatus.available)
                     .map(v -> {
                         ProductVariantResponse vr = new ProductVariantResponse();
                         vr.setId(v.getId());
@@ -166,6 +174,10 @@ public class ProductService {
                     }).collect(Collectors.toList());
             res.setVariants(variantResponses);
         }
+
+        res.setSoldCount(product.getSoldCount() != null ? product.getSoldCount() : 0);
+        res.setAverageRating(product.getAverageRating() != null ? product.getAverageRating() : 5.0);
+        res.setReviewCount(product.getReviewCount() != null ? product.getReviewCount() : 0);
 
         return res;
     }

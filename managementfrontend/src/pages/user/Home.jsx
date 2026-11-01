@@ -52,16 +52,8 @@ const Home = () => {
         <Hero />
       </div>
 
-      {/* Chuyển tiếp Tối -> Sáng */}
-      <SectionDivider type="dark-to-light" />
-
-      {/* Section 2: Signature Brews - Món nổi bật (SÁNG) */}
-      <div id="signature-brews" className="home-scroll-section section-light">
-        <SignatureBrews />
-      </div>
-
-      {/* Chuyển tiếp Sáng -> Tối */}
-      <SectionDivider type="light-to-dark" flip={true} />
+      {/* Section 2: Signature Brews - Món nổi bật (SÁNG) - Tự chứa Dividers, chỉ hiển thị khi có sản phẩm thật */}
+      <SignatureBrews />
 
       {/* Section 3: About / Storytelling (TỐI) */}
       <div id="about" className="home-scroll-section section-dark">
@@ -84,16 +76,8 @@ const Home = () => {
         <Contact />
       </div>
 
-      {/* Chuyển tiếp Tối -> Sáng */}
-      <SectionDivider type="dark-to-light" />
-
-      {/* Section 6: Testimonials - Đánh giá từ khách hàng (SÁNG) */}
-      <div id="testimonials" className="home-scroll-section section-light">
-        <Testimonials />
-      </div>
-
-      {/* Chuyển tiếp Sáng -> Tối trước khi vào Footer */}
-      <SectionDivider type="light-to-dark" flip={true} />
+      {/* Section 6: Testimonials - Đánh giá từ khách hàng (SÁNG) - Tự chứa Dividers, chỉ hiển thị khi có đánh giá thật */}
+      <Testimonials />
     </div>
   );
 };

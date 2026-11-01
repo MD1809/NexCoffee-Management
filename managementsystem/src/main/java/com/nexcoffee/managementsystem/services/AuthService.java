@@ -261,7 +261,14 @@ public class AuthService {
         }
 
         if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
-            throw new RuntimeException("Tài khoản của bạn đang bị khóa hoặc không hoạt động.");
+            String reason = user.getDeactivationReason() != null && !user.getDeactivationReason().isBlank()
+                    ? user.getDeactivationReason()
+                    : "Tài khoản có dấu hiệu bất thường hoặc vi phạm chính sách của NexCoffee.";
+            throw new com.nexcoffee.managementsystem.exceptions.AccountDeactivatedException(
+                    "Tài khoản của bạn đã bị vô hiệu hóa.",
+                    reason,
+                    user.getDeactivatedAt()
+            );
         }
 
         String token = jwtService.generateToken(user);

@@ -21,6 +21,19 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @GetMapping("/staff-stats")
+    public ResponseEntity<List<com.nexcoffee.managementsystem.dto.response.StaffPerformanceResponse>> getStaffPerformanceStats(
+            @RequestParam(value = "range", defaultValue = "TODAY") String range) {
+        return ResponseEntity.ok(userService.getStaffPerformanceStats(range));
+    }
+
+    @GetMapping("/{id}/staff-detail")
+    public ResponseEntity<java.util.Map<String, Object>> getStaffDetailWithOrders(
+            @PathVariable Long id,
+            @RequestParam(value = "range", defaultValue = "TODAY") String range) {
+        return ResponseEntity.ok(userService.getStaffDetailWithOrders(id, range));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
@@ -41,6 +54,24 @@ public class UserController {
             @PathVariable Long id,
             @RequestBody User userDetails) {
         return ResponseEntity.ok(userService.updateUser(id, userDetails));
+    }
+
+    @GetMapping("/{id}/customer-detail")
+    public ResponseEntity<com.nexcoffee.managementsystem.dto.response.CustomerDetailResponse> getCustomerDetail(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getCustomerDetail(id));
+    }
+
+    @PutMapping("/{id}/deactivate")
+    public ResponseEntity<UserResponse> deactivateUser(
+            @PathVariable Long id,
+            @RequestBody(required = false) java.util.Map<String, String> body) {
+        String reason = body != null ? body.get("reason") : null;
+        return ResponseEntity.ok(userService.deactivateUser(id, reason));
+    }
+
+    @PutMapping("/{id}/reactivate")
+    public ResponseEntity<UserResponse> reactivateUser(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.reactivateUser(id));
     }
 
     @DeleteMapping("/{id}")

@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,5 +30,6 @@ public class CreateReviewRequest {
     private Integer rating;
 
     @NotBlank(message = "Nội dung nhận xét không được để trống")
+    @Size(max = 300, message = "Nội dung nhận xét không được vượt quá 300 ký tự")
     private String comment;
 }

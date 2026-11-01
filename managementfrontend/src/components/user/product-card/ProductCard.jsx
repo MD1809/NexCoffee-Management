@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaShoppingCart } from "react-icons/fa";
+import { FaShoppingCart, FaStar } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { showCartToast } from "../../../utils/cartToast";
 
@@ -148,8 +148,30 @@ const ProductCard = ({ product }) => {
 
         <div className="menu-card-info">
           <p className="menu-card-name" title={product.name}>
-            {truncateText(product.name, 15)}
+            {truncateText(product.name, 22)}
           </p>
+
+          <div className="menu-card-meta">
+            <span
+              className="menu-card-rating"
+              title={
+                product.reviewCount !== null && product.reviewCount !== undefined
+                  ? `${product.reviewCount} đánh giá`
+                  : undefined
+              }
+            >
+              <FaStar className="star-icon" />
+              <span>
+                {product.averageRating !== null && product.averageRating !== undefined
+                  ? Number(product.averageRating).toFixed(1)
+                  : "5.0"}
+              </span>
+            </span>
+            <span className="menu-card-dot">•</span>
+            <span className="menu-card-sold">
+              Đã bán {product.soldCount ?? 0}
+            </span>
+          </div>
 
           {displayPrice !== null && displayPrice !== undefined && (
             <p className="menu-card-price">{formatCurrency(displayPrice)}</p>

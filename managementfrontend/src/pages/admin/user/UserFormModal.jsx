@@ -47,12 +47,19 @@ const UserFormModal = ({
   const shouldShowStoreSelect =
     currentRole === "SUPER_ADMIN" && storeRequiredRoles.includes(formData.role);
 
+  const modalTitle = isEdit
+    ? (currentRole === "ADMIN" ? "Cập nhật thông tin nhân viên" : "Cập nhật thông tin tài khoản")
+    : (currentRole === "ADMIN" ? "Thêm nhân viên mới" : "Thêm người dùng mới");
+  const modalSubmitText = isEdit
+    ? "Cập nhật"
+    : (currentRole === "ADMIN" ? "Thêm nhân viên" : "Tạo tài khoản");
+
   return (
     <FormModal
       isOpen={isOpen}
       onClose={onClose}
-      title={isEdit ? "Cập nhật thông tin tài khoản" : "Thêm người dùng mới"}
-      submitText={isEdit ? "Cập nhật" : "Tạo tài khoản"}
+      title={modalTitle}
+      submitText={modalSubmitText}
       onSubmit={onSubmit}
     >
       <div className="form-modal__group">

@@ -189,6 +189,7 @@ const OrderDetail = () => {
       };
       const response = await orderApi.updateOrderStatus(id, payload);
       setOrder(response.data);
+      window.dispatchEvent(new CustomEvent("admin-notifications:refresh"));
 
       Swal.fire({
         title: "Thành công!",

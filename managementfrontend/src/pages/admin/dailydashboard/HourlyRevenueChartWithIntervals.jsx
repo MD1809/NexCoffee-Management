@@ -77,6 +77,29 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const HourlyRevenueChartWithIntervals = ({ data, selectedDate }) => {
+  const containerRef = React.useRef(null);
+  const [hasDimensions, setHasDimensions] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!containerRef.current) return;
+
+    const checkDimensions = () => {
+      if (
+        containerRef.current &&
+        containerRef.current.clientWidth > 0 &&
+        containerRef.current.clientHeight > 0
+      ) {
+        setHasDimensions(true);
+      }
+    };
+
+    checkDimensions();
+    const observer = new ResizeObserver(checkDimensions);
+    observer.observe(containerRef.current);
+
+    return () => observer.disconnect();
+  }, []);
+
   const chartData = useMemo(() => {
     return groupRevenueByHourIntervals(data, 3, selectedDate);
   }, [data, selectedDate]);
@@ -86,12 +109,31 @@ const HourlyRevenueChartWithIntervals = ({ data, selectedDate }) => {
   };
 
   return (
-    <div style={{ width: "100%", height: 350 }}>
-      <ResponsiveContainer width="100%" height="100%" minHeight={350}>
-        <AreaChart
-          data={chartData}
-          margin={{ top: 20, right: 20, bottom: 5, left: 20 }}
-        >
+    <div
+      ref={containerRef}
+      style={{
+        width: "100%",
+        height: 350,
+        minWidth: 0,
+        minHeight: 350,
+        position: "relative",
+      }}
+    >
+      {!hasDimensions ? (
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(255, 255, 255, 0.02)",
+            borderRadius: "8px",
+          }}
+        />
+      ) : (
+        <ResponsiveContainer width="100%" height={350} minWidth={0}>
+          <AreaChart
+            data={chartData}
+            margin={{ top: 20, right: 20, bottom: 5, left: 20 }}
+          >
           <defs>
             <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="var(--sidebar-active-dark)" stopOpacity={0.6} />
@@ -134,6 +176,7 @@ const HourlyRevenueChartWithIntervals = ({ data, selectedDate }) => {
           />
         </AreaChart>
       </ResponsiveContainer>
+      )}
     </div>
   );
 };

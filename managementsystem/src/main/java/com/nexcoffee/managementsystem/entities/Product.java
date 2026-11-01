@@ -2,7 +2,9 @@ package com.nexcoffee.managementsystem.entities;
 
 import com.nexcoffee.managementsystem.enums.ProductsStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
@@ -11,6 +13,8 @@ import java.util.List;
 
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "products")
 public class Product {
 

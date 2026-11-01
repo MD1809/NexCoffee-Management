@@ -463,3 +463,559 @@
   background: var(--btn-primary-hover);
   transform: translateY(-1px);
 }
+
+.cart-footer .checkout-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* --- CÁC TÍNH NĂNG NÂNG CẤP TẠI QUẦY --- */
+
+/* 1. Header Giỏ hàng Actions */
+.cart-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-held-badge {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-held-badge:hover {
+  background: rgba(245, 158, 11, 0.25);
+  border-color: #f59e0b;
+}
+
+.btn-hold-cart {
+  background: transparent;
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-hold-cart:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: #38bdf8;
+}
+
+/* 2. Khối chọn Hình thức & Số bàn */
+.pos-order-type-panel {
+  padding: 14px 20px;
+  background-color: var(--bg-main);
+  border-bottom: 1px solid var(--border-primary-color);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.pos-type-segmented {
+  display: flex;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  padding: 3px;
+  border: 1px solid var(--border-primary-color);
+}
+
+.pos-type-btn {
+  flex: 1;
+  padding: 7px 0;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pos-type-btn--active {
+  background: var(--sidebar-active-dark);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(20, 104, 227, 0.3);
+}
+
+.pos-table-input-wrap {
+  width: 100%;
+}
+
+.pos-table-input {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-primary-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.pos-table-input:focus {
+  border-color: var(--sidebar-active-dark);
+}
+
+/* 3. Khối Ghi chú đơn hàng */
+.order-note-box {
+  margin-bottom: 14px;
+}
+
+.order-note-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-primary-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.order-note-input:focus {
+  border-color: var(--sidebar-active-dark);
+}
+
+/* 4. Khối Tính tiền mặt & Tiền thừa */
+.cash-tender-panel {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary-color);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cash-input-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cash-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.cash-input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-primary-color);
+  background: var(--bg-main);
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 700;
+  text-align: right;
+  outline: none;
+}
+
+.cash-input:focus {
+  border-color: var(--sidebar-active-dark);
+}
+
+.quick-cash-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.quick-cash-btn {
+  flex: 1;
+  padding: 6px 0;
+  background: var(--bg-main);
+  border: 1px solid var(--border-primary-color);
+  color: var(--text-primary);
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quick-cash-btn:hover {
+  background: var(--sidebar-active-blur);
+  border-color: var(--sidebar-active-dark);
+  color: var(--sidebar-active-dark);
+}
+
+.change-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-primary-color);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.change-row--return {
+  color: #10b981;
+}
+
+.change-row--short {
+  color: #ef4444;
+}
+
+/* 5. Modal chung của POS */
+.pos-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.pos-modal-dialog {
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border-primary-color);
+  border-radius: 12px;
+  width: 100%;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.pos-hold-dialog {
+  max-width: 540px;
+  max-height: 80vh;
+}
+
+.pos-receipt-dialog {
+  max-width: 440px;
+  max-height: 92vh;
+}
+
+.pos-modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-primary-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pos-modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.pos-modal-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  transition: color 0.15s;
+}
+
+.pos-modal-close:hover {
+  color: var(--text-primary);
+}
+
+.pos-modal-body {
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.pos-modal-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border-primary-color);
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* 6. Danh sách Đơn tạm */
+.pos-hold-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pos-hold-card {
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.pos-hold-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.pos-hold-type {
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.pos-hold-table {
+  color: var(--text-primary);
+}
+
+.pos-hold-time {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.pos-hold-items-summary {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.pos-hold-total {
+  font-size: 14px;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.pos-hold-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-restore-hold {
+  padding: 8px 14px;
+  background: var(--btn-submit);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-restore-hold:hover {
+  opacity: 0.9;
+}
+
+.btn-delete-hold {
+  padding: 8px 12px;
+  background: transparent;
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-delete-hold:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* 7. Hóa đơn nhiệt (Thermal Receipt) */
+.thermal-receipt {
+  background: #ffffff;
+  color: #000000;
+  padding: 24px 20px;
+  border-radius: 6px;
+  font-family: 'Courier New', Courier, monospace, sans-serif;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  line-height: 1.4;
+  font-size: 13px;
+}
+
+.receipt-brand {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.receipt-subtitle {
+  text-align: center;
+  font-size: 11px;
+  color: #555555;
+  margin-top: 2px;
+}
+
+.receipt-divider {
+  text-align: center;
+  color: #777777;
+  margin: 8px 0;
+  overflow: hidden;
+}
+
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.receipt-row--bold {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.receipt-location-row {
+  margin: 6px 0;
+}
+
+.receipt-location-badge {
+  background: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #000000;
+}
+
+.receipt-items-table {
+  width: 100%;
+  margin: 6px 0;
+}
+
+.receipt-item-header {
+  display: flex;
+  font-weight: 700;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.receipt-item-row {
+  display: flex;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.col-name {
+  flex: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.col-qty {
+  width: 28px;
+  text-align: center;
+}
+
+.col-price {
+  width: 48px;
+  text-align: right;
+}
+
+.col-sub {
+  width: 52px;
+  text-align: right;
+  font-weight: 600;
+}
+
+.receipt-footer-text {
+  text-align: center;
+  font-size: 11px;
+  color: #666666;
+  margin-top: 8px;
+}
+
+.btn-print-bill {
+  padding: 10px 20px;
+  background: #10b981;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-print-bill:hover {
+  background: #059669;
+}
+
+.btn-close-receipt {
+  padding: 10px 18px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary-color);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Print Stylesheet - Chỉ in duy nhất hóa đơn */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .thermal-receipt,
+  .thermal-receipt * {
+    visibility: visible;
+  }
+
+  .pos-modal-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: transparent;
+    padding: 0;
+  }
+
+  .pos-modal-dialog {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .thermal-receipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: 80mm;
+    margin: 0 auto;
+    box-shadow: none;
+    border: none;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
+

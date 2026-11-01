@@ -60,7 +60,9 @@ const DataTable = ({ columns, data, itemsPerPage = 5, searchQuery = "" }) => {
                 <th
                   key={index}
                   style={{
-                    width: col.width || "auto", // Hỗ trợ set cứng width từ mảng columns truyền vào
+                    width: col.width || col.style?.width || "auto",
+                    textAlign: col.style?.textAlign || "center",
+                    ...col.style,
                   }}
                 >
                   {col.header}
@@ -81,6 +83,7 @@ const DataTable = ({ columns, data, itemsPerPage = 5, searchQuery = "" }) => {
                         whiteSpace: "nowrap", // Ép text hiển thị trên 1 dòng
                         overflow: "hidden", // Ẩn phần text thừa
                         textOverflow: "ellipsis", // Thêm dấu "..." ở cuối
+                        ...col.style,
                       }}
                       // Dùng title để hiện đầy đủ thông tin khi người dùng di chuột (hover) vào ô
                       title={

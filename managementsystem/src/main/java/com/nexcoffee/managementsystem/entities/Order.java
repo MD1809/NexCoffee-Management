@@ -38,6 +38,11 @@ public class Order {
     @JoinColumn(name = "shipper_id")
     private User shipper;
 
+    // Nhân viên pha chế hoàn tất
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "barista_id")
+    private User barista;
+
     @Column(unique = true, nullable = false, length = 32)
     private String code;
 
@@ -53,26 +58,33 @@ public class Order {
     @Column(length = 500)
     private String address;
 
+    @Builder.Default
     @Column(nullable = false)
     private Long subtotal = 0L;
 
+    @Builder.Default
     @Column(nullable = false)
     private Long shipping = 0L;
 
+    @Builder.Default
     @Column(nullable = false)
     private Long discount = 0L;
 
+    @Builder.Default
     @Column(nullable = false)
     private Long total = 0L;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false)
     private PaymentMethod paymentMethod = PaymentMethod.COD;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status", nullable = false)
     private PaymentStatus paymentStatus = PaymentStatus.unpaid;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus status = OrderStatus.Pending;

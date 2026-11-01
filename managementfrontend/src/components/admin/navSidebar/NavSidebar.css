@@ -48,17 +48,117 @@
 
 .sidebar__link {
     display: flex;
+    align-items: center;
     gap: 12px;
     text-decoration: none;
+    width: 100%;
+}
+
+.sidebar__icon-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
 }
 
 .sidebar__link .sidebar__icon {
     color: var(--text-primary);
+    font-size: 16px;
+}
+
+/* Mini Badge (khi thu gọn Sidebar) - Đơn sắc tối giản */
+.sidebar__mini-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    background-color: #334155;
+    color: #f8fafc !important;
+    font-size: 9px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    border: 1.5px solid var(--bg-sidebar);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    line-height: 1;
+}
+
+[data-theme="light"] .sidebar__mini-badge {
+    background-color: #e2e8f0;
+    border-color: var(--bg-sidebar);
+    color: #1e293b !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar__content-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+    min-width: 0;
+    gap: 12px;
+    padding-right: 14px;
 }
 
 .sidebar__text {
     color: var(--text-primary);
-    font-size: 16px;
+    font-size: 15px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Sidebar Badge: Phong cách Đơn sắc tối giản (Monochrome Slate) */
+.sidebar__badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 20px;
+    height: 19px;
+    padding: 0 6px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.2px;
+    margin-left: auto;
+    flex-shrink: 0;
+    white-space: nowrap;
+    user-select: none;
+    transition: all 0.2s ease;
+
+    /* Dark mode: Xám tro nhã nhặn, viền mảnh */
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #e2e8f0 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Light Theme: Xám tro thanh lịch, viền tinh tế, số đậm nét */
+[data-theme="light"] .sidebar__badge {
+    background-color: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #334155 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Khi mục Sidebar đang active */
+.sidebar__item:has(.sidebar__item--active) .sidebar__badge {
+    background-color: rgba(20, 104, 227, 0.18) !important;
+    border-color: rgba(20, 104, 227, 0.35) !important;
+    color: #ffffff !important;
+}
+
+[data-theme="light"] .sidebar__item:has(.sidebar__item--active) .sidebar__badge {
+    background-color: rgba(20, 104, 227, 0.1) !important;
+    border-color: rgba(20, 104, 227, 0.25) !important;
+    color: #1468e3 !important;
 }
 
 .sidebar__item:has(.sidebar__item--active) {

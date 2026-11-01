@@ -2,181 +2,805 @@
   background: #ffffff;
   color: var(--primary-brown);
   min-height: calc(100vh - 180px);
-  padding: 5rem 0 7rem;
+  padding: 4.8rem 0 7rem;
 }
 
 .user-portal .user-account-wrap {
-  display: grid;
-  grid-template-columns: 28rem 1fr;
-  gap: 3rem;
-  align-items: start;
+  display: flex;
+  align-items: stretch;
+  min-height: 60rem;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
 }
 
+/* ================= CỘT ACCOUNT OPTIONS (GIỐNG MENU SIDEBAR) ================= */
 .user-portal .user-account-sidebar {
-  background: #fafafa;
-  border: 1px solid rgba(57, 27, 9, 0.1);
-  border-radius: 1.4rem;
-  padding: 2.4rem;
+  flex: 0 0 28rem;
+  border: none;
+  border-right: 1px solid rgba(57, 27, 9, 0.12); /* Giống trang menu: chỉ một border bên phải cột options */
+  padding-right: 3.2rem;
+  padding-top: 0.6rem;
+  padding-bottom: 2rem;
   position: sticky;
   top: 11rem;
+  height: fit-content;
+  background: transparent;
+  border-radius: 0; /* Không bo góc tròn */
+  box-shadow: none;
 }
 
-.user-portal .user-account-sidebar h3 {
-  font-size: 2.4rem;
+.user-portal .user-account-profile-box {
+  padding-bottom: 1.8rem;
+  margin-bottom: 2.2rem;
+  border-bottom: 1px solid rgba(57, 27, 9, 0.12);
+}
+
+.user-portal .profile-greeting {
+  display: block;
+  font-size: 1.25rem;
+  color: #78716c;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.user-portal .profile-name {
+  font-size: 2rem;
   font-weight: 700;
-  margin-bottom: 1rem;
+  color: var(--primary-brown);
+  margin: 0 0 0.6rem;
+  line-height: 1.3;
+  word-break: break-word;
 }
 
-.user-portal .user-account-sidebar p {
-  font-size: 1.6rem;
-  color: #6b5a50;
-  margin-bottom: 2rem;
+.user-portal .profile-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #059669;
 }
 
-.user-portal .user-account-sidebar nav {
+.user-portal .user-account-nav {
   display: flex;
   flex-direction: column;
+  gap: 0.6rem;
+}
+
+.user-portal .user-account-nav .nav-item {
+  width: 100%;
+  border: none;
+  border-left: 3px solid transparent;
+  background: transparent;
+  color: #57534e;
+  font-family: var(--font-main);
+  font-size: 1.6rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  padding: 0.95rem 1.4rem;
+  border-radius: 0; /* Không sử dụng bo góc tròn */
+  transition: all 0.22s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  text-decoration: none;
+}
+
+.user-portal .user-account-nav .nav-item:hover {
+  color: var(--accent-primary, #dc2626);
+  background-color: rgba(220, 38, 38, 0.05);
+  transform: translateX(4px);
+}
+
+.user-portal .user-account-nav .nav-item.active {
+  color: var(--accent-primary, #dc2626);
+  background-color: rgba(220, 38, 38, 0.08);
+  font-weight: 600;
+  border-left-color: var(--accent-primary, #dc2626);
+}
+
+.user-portal .user-account-nav .nav-item .nav-icon {
+  font-size: 1.6rem;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.user-portal .user-account-nav .nav-item-back {
+  margin-top: 1.6rem;
+  border-top: 1px dashed rgba(57, 27, 9, 0.16);
+  padding-top: 1.6rem;
+  color: #78716c;
+}
+
+.user-portal .user-account-nav .nav-item-back:hover {
+  color: #1c1917;
+  background-color: rgba(57, 27, 9, 0.04);
+  transform: translateX(4px);
+}
+
+/* ================= NỘI DUNG CHÍNH (CONTENT - GIỐNG MENU CONTENT) ================= */
+.user-portal .user-account-content {
+  flex: 1;
+  min-width: 0;
+  padding-left: 3.6rem; /* Giống menu-content */
+  padding-top: 0.6rem;
+  background: transparent;
+  border: none;
+  border-radius: 0; /* Không sử dụng bo góc tròn */
+  box-shadow: none;
+}
+
+/* ================= TRANG ĐƠN HÀNG (USER ACCOUNT ORDERS) ================= */
+.user-portal .user-account-orders-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-portal .orders-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.6rem;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.user-portal .orders-title-wrap {
+  flex: 1;
+  min-width: 24rem;
+}
+
+.user-portal .orders-title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--primary-brown);
+  margin: 0 0 0.4rem;
+}
+
+.user-portal .orders-subtitle {
+  font-size: 1.4rem;
+  color: #78716c;
+  margin: 0;
+}
+
+/* Thanh tìm kiếm đơn hàng */
+.user-portal .orders-search-box {
+  position: relative;
+  width: 100%;
+  max-width: 34rem;
+}
+
+.user-portal .orders-search-box input {
+  width: 100%;
+  height: 4.2rem;
+  padding: 0 3.6rem 0 3.8rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: #f9fafb;
+  font-size: 1.35rem;
+  color: var(--primary-brown);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.user-portal .orders-search-box input:focus {
+  background: #ffffff;
+  border-color: var(--accent-primary, #dc2626);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.user-portal .orders-search-box .search-icon {
+  position: absolute;
+  left: 1.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 1.4rem;
+  pointer-events: none;
+}
+
+.user-portal .orders-search-box .clear-search-btn {
+  position: absolute;
+  right: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 0.4rem;
+}
+
+/* Thanh Tab lọc trạng thái giống danh mục Menu, phân cách nhau bằng một border */
+.user-portal .orders-status-tabs-wrap {
+  margin-bottom: 2.4rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.user-portal .orders-status-filter-bar {
+  display: flex;
+  background: #ffffff;
+  border: 1px solid #e7e5e4;
+  border-radius: 1.2rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  min-width: max-content;
+}
+
+.user-portal .orders-filter-tab-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1.1rem 2rem;
+  background: transparent;
+  border: none;
+  border-right: 1px solid #e7e5e4; /* Phân cách nhau bằng một border */
+  color: #57534e;
+  font-family: var(--font-main);
+  font-size: 1.45rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.22s ease;
+  position: relative;
+}
+
+.user-portal .orders-filter-tab-btn:last-child {
+  border-right: none;
+}
+
+.user-portal .orders-filter-tab-btn:hover {
+  color: var(--accent-primary, #dc2626);
+  background-color: rgba(220, 38, 38, 0.04);
+}
+
+.user-portal .orders-filter-tab-btn.active {
+  color: var(--accent-primary, #dc2626);
+  background-color: rgba(220, 38, 38, 0.08);
+  font-weight: 600;
+  box-shadow: inset 0 -3px 0 var(--accent-primary, #dc2626);
+}
+
+.user-portal .orders-filter-tab-btn .tab-count {
+  font-size: 1.2rem;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+/* ================= ECOMMERCE ORDER CARD (SHOPEE STYLE) ================= */
+.user-portal .orders-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.user-portal .ecommerce-order-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 1.4rem;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.025);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.user-portal .ecommerce-order-card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  border-color: #d1d5db;
+}
+
+/* Card Header: Tên quán nhận đơn theo đơn hàng & Trạng thái */
+.user-portal .order-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  padding: 1.6rem 2.2rem;
+  background: #ffffff;
+  border-bottom: 1px solid #f0e6dd;
+}
+
+.user-portal .order-store-info {
+  display: flex;
+  align-items: center;
   gap: 0.8rem;
 }
 
-.user-portal .user-account-sidebar a {
-  padding: 1.2rem 1.4rem;
-  border-radius: 1rem;
-  color: var(--primary-brown);
+.user-portal .order-store-info .store-icon {
+  font-size: 1.6rem;
+  color: var(--accent-primary, #dc2626);
+}
+
+.user-portal .store-title {
+  font-size: 1.6rem;
   font-weight: 700;
-  background: transparent;
+  color: #1c1917;
 }
 
-.user-portal .user-account-sidebar a.active,
-.user-portal .user-account-sidebar a:hover {
-  background: rgba(255, 137, 20, 0.06);
-  color: var(--primary-orange);
-  border: 1px dashed var(--primary-orange);
+.user-portal .order-status-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
 }
 
-.user-portal .user-account-content {
-  background: #ffffff;
-  border: 1px solid #d3d3d3;
-  border-radius: 1.4rem;
-  padding: 2.8rem;
-  min-width: 0;
+.user-portal .order-shipping-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.3rem;
+  color: #059669;
+  font-weight: 500;
 }
 
-.user-portal .user-account-content h2 {
-  font-size: 2.6rem;
-  font-weight: 700;
-  color: var(--primary-brown);
-  margin-bottom: 2rem;
-}
-
-.user-portal .user-account-muted {
-  color: #8b7b72;
-  font-size: 1.5rem;
-}
-
-.user-portal .user-account-empty {
-  padding: 4rem 2rem;
-  text-align: center;
-  background: #fafafa;
-  border-radius: 1.2rem;
-}
-
-.user-portal .user-account-empty p {
-  color: #7a6a60;
-  margin-bottom: 2rem;
-}
-
-.user-portal .user-account-empty a {
-  color: var(--primary-orange);
-  font-weight: 700;
-}
-
-.user-portal .user-account-table-wrap {
-  width: 100%;
-  overflow-x: auto;
-}
-
-.user-portal .user-account-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 90rem;
-}
-
-.user-portal .user-account-table th,
-.user-portal .user-account-table td {
-  border-bottom: 1px solid #eeeeee;
-  padding: 1.4rem 1.2rem;
-  text-align: left;
-  vertical-align: middle;
+.user-portal .order-shipping-badge .shipping-icon {
   font-size: 1.4rem;
 }
 
-.user-portal .user-account-table th {
-  background: #fffaf6;
-  color: var(--primary-brown);
-  font-weight: 700;
+.user-portal .order-status-sep {
+  color: #d1d5db;
+  font-size: 1.3rem;
 }
 
-.user-portal .user-account-table a {
-  color: var(--primary-orange);
-  font-weight: 700;
+.user-portal .order-main-status {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.3px;
 }
 
-.user-portal .user-account-price {
-  color: #e74c3c;
-  font-weight: 700;
+.user-portal .order-main-status.status-completed {
+  color: #dc2626;
 }
 
-.user-portal .user-account-badge {
-  display: inline-flex;
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
-  font-size: 1.25rem;
-  font-weight: 700;
+.user-portal .order-main-status.status-pending {
+  color: #2563eb;
 }
 
-.user-portal .user-account-badge.warn,
-.user-portal .user-account-status-text.warn {
-  color: #1e88e5;
-  background: #e3f2fd;
+.user-portal .order-main-status.status-processing {
+  color: #d97706;
 }
 
-.user-portal .user-account-badge.shipping,
-.user-portal .user-account-status-text.shipping {
-  color: #fb8c00;
-  background: #fff3e0;
+.user-portal .order-main-status.status-shipped {
+  color: #059669;
 }
 
-.user-portal .user-account-badge.success,
-.user-portal .user-account-status-text.success {
-  color: #2e7d32;
-  background: #e8f5e9;
+.user-portal .order-main-status.status-cancelled {
+  color: #9ca3af;
 }
 
-.user-portal .user-account-badge.cancelled,
-.user-portal .user-account-status-text.cancelled {
-  color: #e53935;
-  background: #ffebee;
+/* Card Body: Danh sách sản phẩm */
+.user-portal .order-card-items-wrap {
+  padding: 0 2.2rem;
 }
 
-.user-portal .user-account-actions {
+.user-portal .order-product-row {
   display: flex;
-  gap: 1rem;
+  align-items: center;
+  gap: 1.6rem;
+  padding: 1.6rem 0;
+  border-bottom: 1px solid #ede8e3; /* Phân cách nhau bằng một border */
+}
+
+.user-portal .order-product-row:last-child {
+  border-bottom: none;
+}
+
+.user-portal .order-item-img-link {
+  width: 7.6rem;
+  height: 7.6rem;
+  flex-shrink: 0;
+  border-radius: 0.8rem;
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+  background: #f9fafb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-portal .order-item-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.25s ease;
+}
+
+.user-portal .order-item-img-link:hover .order-item-thumbnail {
+  transform: scale(1.06);
+}
+
+.user-portal .order-item-img-placeholder {
+  color: #a8a29e;
+  font-size: 2.2rem;
+}
+
+.user-portal .order-item-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.user-portal .order-item-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1c1917;
+  text-decoration: none;
+  line-height: 1.35;
+  transition: color 0.2s ease;
+}
+
+.user-portal .order-item-title:hover {
+  color: var(--accent-primary, #dc2626);
+}
+
+.user-portal .order-item-variant-line {
+  display: flex;
   align-items: center;
 }
 
-.user-portal .user-account-action-link,
-.user-portal .user-account-cancel-btn {
-  border: none;
-  background: transparent;
-  color: var(--primary-orange);
-  font-weight: 700;
-  cursor: pointer;
-  padding: 0;
+.user-portal .order-item-variant {
+  font-size: 1.3rem;
+  color: #78716c;
 }
 
-.user-portal .user-account-cancel-btn {
-  color: #e53935;
+.user-portal .order-item-quantity {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #44403c;
+}
+
+.user-portal .order-item-price-col {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.user-portal .order-item-unit-price {
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #292524;
+}
+
+.user-portal .order-product-fallback {
+  padding: 2rem 0;
+}
+
+/* Card Footer: Tổng tiền & Hàng nút hành động */
+.user-portal .order-card-foot {
+  padding: 1.8rem 2.2rem;
+  background: #fafaf9;
+  border-top: 1px solid #f0e6dd;
+}
+
+.user-portal .order-foot-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  padding-bottom: 1.4rem;
+  border-bottom: 1px dashed #e5e7eb;
+}
+
+.user-portal .order-created-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.35rem;
+  color: #78716c;
+  font-weight: 500;
+}
+
+.user-portal .order-created-time .order-time-icon {
+  font-size: 1.35rem;
+  color: #9ca3af;
+}
+
+.user-portal .order-total-amount-box {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+}
+
+.user-portal .order-total-label {
+  font-size: 1.4rem;
+  color: #44403c;
+}
+
+.user-portal .order-total-value {
+  font-size: 2.1rem;
+  font-weight: 900;
+  color: var(--accent-primary, #dc2626);
+}
+
+.user-portal .order-foot-actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  padding-top: 1.4rem;
+}
+
+.user-portal .order-note-hint {
+  font-size: 1.25rem;
+  color: #78716c;
+}
+
+.user-portal .order-hint-pending {
+  color: #2563eb;
+  font-weight: 500;
+}
+
+.user-portal .order-hint-cancelled {
+  color: #dc2626;
+  font-style: italic;
+}
+
+.user-portal .order-actions-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.user-portal .btn-order-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 1.6rem;
+  border-radius: 0.8rem;
+  font-size: 1.35rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.user-portal .btn-order-action .btn-icon {
+  font-size: 1.2rem;
+}
+
+/* Nút Xem chi tiết */
+.user-portal .btn-order-detail {
+  background: var(--accent-primary, #dc2626);
+  color: #ffffff;
+  border-color: var(--accent-primary, #dc2626);
+}
+
+.user-portal .btn-order-detail:hover {
+  background: #b91c1c;
+  border-color: #b91c1c;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Nút Hủy đơn */
+.user-portal .btn-order-cancel {
+  background: #ffffff;
+  color: #57534e;
+  border-color: #d6d3d1;
+}
+
+.user-portal .btn-order-cancel:hover {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+/* Nút Đánh giá */
+.user-portal .btn-order-review {
+  background: rgba(220, 38, 38, 0.08);
+  color: var(--accent-primary, #dc2626);
+  border-color: rgba(220, 38, 38, 0.25);
+}
+
+.user-portal .btn-order-review:hover {
+  background: var(--accent-primary, #dc2626);
+  color: #ffffff;
+}
+
+/* Nút Mua lại */
+.user-portal .btn-order-reorder {
+  background: #ffffff;
+  color: #44403c;
+  border-color: #d6d3d1;
+}
+
+.user-portal .btn-order-reorder:hover {
+  background: #f5f5f4;
+  color: #1c1917;
+}
+
+/* ================= INFINITE SCROLL ================= */
+.user-portal .infinite-scroll-sentinel {
+  padding: 2.4rem 0 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-portal .infinite-scroll-loading {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #78716c;
+  font-size: 1.4rem;
+}
+
+.user-portal .loading-spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid #e5e7eb;
+  border-top-color: var(--accent-primary, #dc2626);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.user-portal .infinite-scroll-end {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1.1rem 2.2rem;
+  background: #f5f5f4;
+  border-radius: 999px;
+  color: #78716c;
+  font-size: 1.35rem;
+  font-weight: 500;
+}
+
+.user-portal .infinite-scroll-end .end-icon {
+  color: #059669;
+  font-size: 1.4rem;
+}
+
+/* ================= EMPTY STATE & SKELETON ================= */
+.user-portal .orders-empty-state {
+  padding: 6rem 2rem;
+  text-align: center;
+  background: #fafaf9;
+  border-radius: 1.4rem;
+  border: 1px dashed #d6d3d1;
+}
+
+.user-portal .empty-icon-wrap {
+  width: 7.2rem;
+  height: 7.2rem;
+  border-radius: 50%;
+  background: #f5f5f4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.6rem;
+}
+
+.user-portal .empty-coffee-icon {
+  font-size: 3.2rem;
+  color: #a8a29e;
+}
+
+.user-portal .orders-empty-state h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1c1917;
+  margin: 0 0 0.8rem;
+}
+
+.user-portal .orders-empty-state p {
+  color: #78716c;
+  font-size: 1.45rem;
+  margin: 0 0 2rem;
+}
+
+.user-portal .btn-explore-menu {
+  display: inline-flex;
+  align-items: center;
+  padding: 1rem 2.4rem;
+  background: var(--accent-primary, #dc2626);
+  color: #ffffff;
+  border-radius: 999px;
+  font-size: 1.45rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.25);
+}
+
+.user-portal .btn-explore-menu:hover {
+  background: #b91c1c;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(220, 38, 38, 0.35);
+}
+
+.user-portal .orders-skeleton-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.user-portal .order-card-skeleton {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 1.4rem;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+
+.user-portal .skeleton-line {
+  height: 1.6rem;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0.4rem;
+}
+
+.user-portal .skeleton-line.skeleton-header {
+  height: 2.4rem;
+  width: 50%;
+}
+
+.user-portal .skeleton-line.skeleton-footer {
+  height: 3.2rem;
+  width: 100%;
+}
+
+.user-portal .skeleton-item-row {
+  display: flex;
+  gap: 1.4rem;
+}
+
+.user-portal .skeleton-square {
+  width: 7.2rem;
+  height: 7.2rem;
+  border-radius: 0.8rem;
+  background: #f0f0f0;
+}
+
+.user-portal .skeleton-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  justify-content: center;
+}
+
+.user-portal .skeleton-line.short {
+  width: 60%;
+}
+
+.user-portal .skeleton-line.tiny {
+  width: 30%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .user-portal .user-account-detail-head {
@@ -567,17 +1191,146 @@
   color: #f59e0b;
 }
 
-/* Modal Popup */
-.user-portal .review-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(4px);
+.user-portal .review-cell-done {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+/* Review Badges & Buttons */
+.review-badge-row,
+.user-portal .review-badge-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.review-edited-tag,
+.user-portal .review-edited-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.4rem;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-size: 1.15rem;
+  font-weight: 500;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.btn-edit-review,
+.user-portal .btn-edit-review {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 0.6rem;
+  background: #ffffff;
+  border: 1px solid #fed7aa;
+  color: #ea580c;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  margin-top: 0.3rem;
+}
+
+.btn-edit-review:hover,
+.user-portal .btn-edit-review:hover {
+  background: #fff7ed;
+  border-color: #ea580c;
+  color: #c2410c;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.15);
+}
+
+.btn-edit-review .edit-icon,
+.user-portal .btn-edit-review .edit-icon {
+  font-size: 1.1rem;
+}
+
+.review-date-caption,
+.user-portal .review-date-caption {
+  font-size: 1.15rem;
+  color: rgba(57, 27, 9, 0.5);
+  font-weight: 500;
+}
+
+.badge-expired-review,
+.user-portal .badge-expired-review {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
+  font-size: 1.2rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.review-order-meta-info,
+.user-portal .review-order-meta-info {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 1.2rem;
+  padding: 1.2rem 1.6rem;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.review-order-meta-info .meta-info-row,
+.user-portal .review-order-meta-info .meta-info-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 1200;
-  padding: 2rem;
+  justify-content: space-between;
+  font-size: 1.3rem;
+  color: #7c2d12;
+}
+
+.review-order-meta-info .meta-icon,
+.user-portal .review-order-meta-info .meta-icon {
+  margin-right: 0.5rem;
+  color: #ea580c;
+  vertical-align: middle;
+}
+
+.review-order-meta-info .meta-expiry-hint,
+.user-portal .review-order-meta-info .meta-expiry-hint {
+  font-size: 1.2rem;
+  color: #c2410c;
+  font-weight: 500;
+}
+
+/* Modal Popup Sửa Đánh Giá - Luôn cố định chính giữa viewport màn hình và cuộn mượt mà */
+.review-modal-backdrop,
+.user-portal .review-modal-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(0, 0, 0, 0.72) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  z-index: 999999 !important;
+  padding: 3rem 1.6rem !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
   animation: fadeInModal 0.2s ease-out;
 }
 
@@ -586,15 +1339,18 @@
   to { opacity: 1; }
 }
 
+.review-modal-card,
 .user-portal .review-modal-card {
-  background: #ffffff;
-  border-radius: 2rem;
-  padding: 3.2rem;
-  width: 100%;
-  max-width: 520px;
-  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.3);
-  position: relative;
+  background: #ffffff !important;
+  border-radius: 2rem !important;
+  padding: 2.8rem 2.4rem !important;
+  width: 100% !important;
+  max-width: 520px !important;
+  margin: auto !important;
+  box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.45) !important;
+  position: relative !important;
   animation: slideUpModal 0.25s ease-out;
+  box-sizing: border-box !important;
 }
 
 @keyframes slideUpModal {
@@ -602,6 +1358,7 @@
   to { transform: translateY(0); opacity: 1; }
 }
 
+.review-modal-head,
 .user-portal .review-modal-head {
   display: flex;
   justify-content: space-between;
@@ -611,6 +1368,7 @@
   border-bottom: 1px solid #f0eae1;
 }
 
+.review-modal-head h3,
 .user-portal .review-modal-head h3 {
   font-size: 2rem;
   font-weight: 700;
@@ -618,6 +1376,7 @@
   margin: 0;
 }
 
+.review-modal-head .btn-close-modal,
 .user-portal .btn-close-modal {
   background: transparent;
   border: none;
@@ -628,10 +1387,12 @@
   transition: color 0.2s ease;
 }
 
+.review-modal-head .btn-close-modal:hover,
 .user-portal .btn-close-modal:hover {
   color: var(--primary-brown, #1c1917);
 }
 
+.review-product-preview,
 .user-portal .review-product-preview {
   display: flex;
   align-items: center;
@@ -642,6 +1403,7 @@
   margin-bottom: 2.4rem;
 }
 
+.review-product-preview img,
 .user-portal .review-product-preview img {
   width: 5.4rem;
   height: 5.4rem;
@@ -649,6 +1411,7 @@
   border-radius: 0.8rem;
 }
 
+.review-product-placeholder,
 .user-portal .review-product-placeholder {
   width: 5.4rem;
   height: 5.4rem;
@@ -661,6 +1424,7 @@
   color: #78716c;
 }
 
+.review-product-info strong,
 .user-portal .review-product-info strong {
   display: block;
   font-size: 1.55rem;
@@ -668,11 +1432,13 @@
   margin-bottom: 0.3rem;
 }
 
+.review-product-info span,
 .user-portal .review-product-info span {
   font-size: 1.3rem;
   color: #78716c;
 }
 
+.review-stars-select,
 .user-portal .review-stars-select {
   display: flex;
   flex-direction: column;
@@ -681,17 +1447,20 @@
   margin-bottom: 2.4rem;
 }
 
+.review-stars-select label,
 .user-portal .review-stars-select label {
   font-size: 1.4rem;
   font-weight: 600;
   color: #44403c;
 }
 
+.stars-picker,
 .user-portal .stars-picker {
   display: flex;
   gap: 0.8rem;
 }
 
+.star-btn,
 .user-portal .star-btn {
   background: transparent;
   border: none;
@@ -701,21 +1470,26 @@
   transition: transform 0.15s ease, color 0.15s ease;
 }
 
+.star-btn.active,
+.star-btn:hover,
 .user-portal .star-btn.active,
 .user-portal .star-btn:hover {
   color: #f59e0b;
 }
 
+.star-btn:hover,
 .user-portal .star-btn:hover {
   transform: scale(1.18);
 }
 
+.rating-text-hint,
 .user-portal .rating-text-hint {
   font-size: 1.35rem;
   font-weight: 600;
   color: #b45309;
 }
 
+.review-textarea-group,
 .user-portal .review-textarea-group {
   display: flex;
   flex-direction: column;
@@ -723,12 +1497,36 @@
   margin-bottom: 2.4rem;
 }
 
+.review-textarea-header,
+.user-portal .review-textarea-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.review-textarea-group label,
 .user-portal .review-textarea-group label {
   font-size: 1.35rem;
   font-weight: 600;
   color: #44403c;
+  margin: 0;
 }
 
+.review-char-counter,
+.user-portal .review-char-counter {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #78716c;
+}
+
+.review-char-counter.limit-near,
+.user-portal .review-char-counter.limit-near {
+  color: #ea580c;
+  font-weight: 700;
+}
+
+.review-textarea-group textarea,
 .user-portal .review-textarea-group textarea {
   width: 100%;
   min-height: 110px;
@@ -743,17 +1541,20 @@
   resize: vertical;
 }
 
+.review-textarea-group textarea:focus,
 .user-portal .review-textarea-group textarea:focus {
   border-color: var(--accent-primary, #dc2626);
   box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.14);
 }
 
+.review-modal-actions,
 .user-portal .review-modal-actions {
   display: flex;
   justify-content: flex-end;
   gap: 1.2rem;
 }
 
+.review-modal-actions .btn-modal-cancel,
 .user-portal .btn-modal-cancel {
   padding: 1rem 1.8rem;
   border-radius: 0.8rem;
@@ -766,10 +1567,12 @@
   transition: background 0.2s ease;
 }
 
+.review-modal-actions .btn-modal-cancel:hover,
 .user-portal .btn-modal-cancel:hover {
   background: #f5f5f4;
 }
 
+.review-modal-actions .btn-modal-submit,
 .user-portal .btn-modal-submit {
   padding: 1rem 2.2rem;
   border-radius: 0.8rem;
@@ -782,6 +1585,7 @@
   transition: all 0.2s ease;
 }
 
+.review-modal-actions .btn-modal-submit:hover:not(:disabled),
 .user-portal .btn-modal-submit:hover:not(:disabled) {
   background: var(--accent-hover, #ef4444);
   box-shadow: 0 6px 16px rgba(220, 38, 38, 0.35);
@@ -790,4 +1594,489 @@
 .user-portal .btn-modal-submit:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* ================= TRANG ĐÁNH GIÁ CỦA KHÁCH HÀNG (CUSTOMER REVIEWS) ================= */
+.user-portal .user-account-reviews-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-portal .customer-reviews-container {
+  margin-top: 1rem;
+}
+
+.user-portal .customer-reviews-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+}
+
+.user-portal .customer-review-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.user-portal .customer-review-card {
+  background: #ffffff;
+  border: 1px solid #ede8e3;
+  border-radius: 1.4rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.user-portal .customer-review-card:hover {
+  border-color: var(--accent-primary, #dc2626);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.08);
+}
+
+/* Header card: Thông tin sản phẩm */
+.user-portal .review-card-product-head {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  padding: 1.4rem 2rem;
+  background: #fafaf9;
+  border-bottom: 1px solid #f0e6dd;
+}
+
+.user-portal .review-product-thumb-wrap {
+  width: 5.6rem;
+  height: 5.6rem;
+  border-radius: 0.8rem;
+  overflow: hidden;
+  border: 1px solid #e7e5e4;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.user-portal .review-product-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.25s ease;
+}
+
+.user-portal .customer-review-card:hover .review-product-thumb {
+  transform: scale(1.08);
+}
+
+.user-portal .review-product-placeholder {
+  color: #a8a29e;
+  font-size: 2rem;
+}
+
+.user-portal .review-product-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-portal .review-product-name {
+  display: block;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--primary-brown);
+  line-height: 1.3;
+  margin-bottom: 0.4rem;
+  transition: color 0.2s ease;
+}
+
+.user-portal .customer-review-card:hover .review-product-name {
+  color: var(--accent-primary, #dc2626);
+}
+
+.user-portal .review-product-meta-tags {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.user-portal .review-variant-pill {
+  font-size: 1.2rem;
+  background: #f5f5f4;
+  color: #57534e;
+  padding: 0.2rem 0.6rem;
+  border-radius: 0.4rem;
+  font-weight: 600;
+}
+
+.user-portal .review-category-pill {
+  font-size: 1.2rem;
+  color: #78716c;
+}
+
+.user-portal .review-goto-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--accent-primary, #dc2626);
+  background: rgba(220, 38, 38, 0.06);
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.user-portal .customer-review-card:hover .review-goto-badge {
+  background: var(--accent-primary, #dc2626);
+  color: #ffffff;
+}
+
+.user-portal .review-goto-badge .goto-icon {
+  font-size: 1.1rem;
+  transition: transform 0.2s ease;
+}
+
+.user-portal .customer-review-card:hover .review-goto-badge .goto-icon {
+  transform: translateX(3px);
+}
+
+/* Nội dung đánh giá */
+.user-portal .review-card-content {
+  padding: 1.8rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.user-portal .review-user-and-stars-row {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.user-portal .review-stars-list {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.user-portal .review-star-icon {
+  font-size: 1.5rem;
+}
+
+.user-portal .review-star-icon.active {
+  color: #f59e0b;
+}
+
+.user-portal .review-star-icon.empty {
+  color: #d1d5db;
+}
+
+.user-portal .review-author-name {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #1c1917;
+}
+
+.user-portal .review-verified-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1.2rem;
+  color: #059669;
+  background: #ecfdf5;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.user-portal .review-verified-tag .verified-icon {
+  font-size: 1.1rem;
+}
+
+.user-portal .review-my-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1.15rem;
+  color: #1d4ed8;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.user-portal .btn-card-edit-review {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 0.6rem;
+  background: #ffffff;
+  border: 1px solid #fed7aa;
+  color: #ea580c;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+.user-portal .btn-card-edit-review:hover {
+  background: #fff7ed;
+  border-color: #ea580c;
+  color: #c2410c;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.15);
+}
+
+.user-portal .btn-card-edit-review .edit-icon {
+  font-size: 1.1rem;
+}
+
+.user-portal .review-card-comment-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.user-portal .review-card-comment {
+  font-size: 1.5rem;
+  line-height: 1.6;
+  color: #44403c;
+  font-style: italic;
+  margin: 0;
+  white-space: pre-line;
+  word-break: break-word;
+}
+
+.user-portal .review-card-comment--clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.user-portal .btn-card-read-more {
+  background: none;
+  border: none;
+  color: var(--accent-primary, #dc2626);
+  font-size: 1.3rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  transition: all 0.2s ease;
+}
+
+.user-portal .btn-card-read-more:hover {
+  color: var(--accent-hover, #b91c1c);
+  text-decoration: underline;
+}
+
+/* Modal chi tiết toàn văn nhận xét */
+.reading-modal-card {
+  max-width: 560px !important;
+}
+
+.reading-modal-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.4rem;
+  background: #fdfaf6;
+  border: 1px solid #f1e9dd;
+  border-radius: 1rem;
+  margin-bottom: 1.6rem;
+}
+
+.reading-modal-stars {
+  display: flex;
+  gap: 0.2rem;
+  color: #f59e0b;
+}
+
+.reading-modal-author {
+  font-size: 1.35rem;
+  color: #44403c;
+}
+
+.reading-modal-date {
+  font-size: 1.25rem;
+  color: #78716c;
+  margin-left: auto;
+}
+
+.reading-modal-comment-box {
+  background: #faf7f4;
+  border-left: 4px solid var(--accent-primary, #dc2626);
+  border-radius: 0.8rem;
+  padding: 1.6rem 1.8rem;
+  margin-bottom: 2rem;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.reading-modal-comment-text {
+  font-size: 1.55rem;
+  line-height: 1.7;
+  color: #1c1917;
+  font-style: italic;
+  white-space: pre-line;
+  word-break: break-word;
+  margin: 0;
+}
+
+.user-portal .review-card-hidden-notice {
+  background: rgba(185, 28, 28, 0.05);
+  border: 1px dashed rgba(185, 28, 28, 0.3);
+  padding: 1rem 1.4rem;
+  border-radius: 0.8rem;
+  font-size: 1.35rem;
+  color: #78350f;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.user-portal .review-card-hidden-notice .hidden-tag {
+  font-weight: 700;
+  color: #b91c1c;
+  font-size: 1.25rem;
+}
+
+.user-portal .review-card-hidden-notice .hidden-reason {
+  font-style: italic;
+  color: #92400e;
+}
+
+/* Footer card */
+.user-portal .review-card-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  padding: 1.2rem 2rem;
+  background: #fafaf9;
+  border-top: 1px solid #f0e6dd;
+  font-size: 1.3rem;
+  color: #78716c;
+}
+
+.user-portal .review-foot-store {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 600;
+  color: #292524;
+}
+
+.user-portal .review-foot-store .store-icon {
+  color: var(--accent-primary, #dc2626);
+  font-size: 1.3rem;
+}
+
+.user-portal .review-foot-dates {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-portal .review-foot-dates .date-icon {
+  font-size: 1.1rem;
+  color: #9ca3af;
+}
+
+/* Skeleton */
+.user-portal .customer-reviews-skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+}
+
+.user-portal .customer-review-skeleton-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 1.4rem;
+  padding: 2rem;
+}
+
+@media (max-width: 768px) {
+  .user-portal .user-account-wrap {
+    flex-direction: column;
+  }
+
+  .user-portal .user-account-sidebar {
+    flex: auto;
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(57, 27, 9, 0.12);
+    padding-right: 0;
+    padding-bottom: 1.8rem;
+    position: static;
+  }
+
+  .user-portal .user-account-content {
+    padding-left: 0;
+    padding-top: 1.8rem;
+  }
+
+  .user-portal .orders-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .user-portal .orders-search-box {
+    max-width: 100%;
+  }
+
+  .user-portal .order-card-head {
+    padding: 1.4rem 1.6rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+
+  .user-portal .order-card-items-wrap {
+    padding: 0 1.6rem;
+  }
+
+  .user-portal .order-card-foot {
+    padding: 1.4rem 1.6rem;
+  }
+
+  .user-portal .order-item-img-link {
+    width: 6.4rem;
+    height: 6.4rem;
+  }
+
+  .user-portal .order-item-title {
+    font-size: 1.4rem;
+  }
+
+  .user-portal .order-item-unit-price {
+    font-size: 1.4rem;
+  }
+
+  .user-portal .order-foot-meta-row,
+  .user-portal .order-foot-actions-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .user-portal .order-actions-buttons {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }

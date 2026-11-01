@@ -22,7 +22,7 @@ const About = () => {
           {/* Cột phải: Nội dung câu chuyện & Cam kết */}
           <div className="about-narrative">
             <div className="section-badge-dark">
-              <span>☕ Câu Chuyện Thương Hiệu</span>
+              <span>Câu Chuyện Thương Hiệu</span>
             </div>
 
             <h2 className="about-heading title-font">
@@ -31,13 +31,13 @@ const About = () => {
             </h2>
 
             <p className="about-lead">
-              Tại NexCoffee, chúng tôi tin rằng một tách cà phê ngon không đơn thuần là thức uống nạp năng lượng, 
+              Tại NexCoffee, chúng tôi tin rằng một tách cà phê ngon không đơn thuần là thức uống nạp năng lượng,
               mà là khoảnh khắc kết nối và đánh thức cảm hứng trong mỗi ngày mới.
             </p>
 
             <p className="about-paragraph">
-              Khởi đầu từ những vùng đồi đất đỏ bazan tại Cầu Đất và Buôn Ma Thuột, chúng tôi đồng hành cùng các nông hộ 
-              bền vững để tuyển chọn từng quả cà phê chín mọng. Từng mẻ hạt được rang mộc tỉ mỉ bởi thợ rang lành nghề, 
+              Khởi đầu từ những vùng đồi đất đỏ bazan tại Cầu Đất và Buôn Ma Thuột, chúng tôi đồng hành cùng các nông hộ
+              bền vững để tuyển chọn từng quả cà phê chín mọng. Từng mẻ hạt được rang mộc tỉ mỉ bởi thợ rang lành nghề,
               giữ trọn vẹn tầng hương hoa quả thanh khiết và hậu vị ngọt sâu nguyên bản.
             </p>
 

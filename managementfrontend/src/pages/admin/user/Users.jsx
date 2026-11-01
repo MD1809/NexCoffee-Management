@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import userApi from "../../../apis/userApi";
-import UserFormModal from "./UserFormModal"; // Component vừa tách
+import UserFormModal from "./UserFormModal";
 import "./Users.css";
 
 import SearchBox from "../../../components/admin/searchBox/SearchBox";
@@ -30,13 +31,23 @@ const initialFormData = {
   storeId: "",
 };
 
+const TIME_RANGE_OPTIONS = [
+  { key: "TODAY", label: "Hôm nay" },
+  { key: "7_DAYS", label: "7 ngày qua" },
+  { key: "THIS_MONTH", label: "Tháng này" },
+  { key: "ALL", label: "Toàn thời gian" },
+];
+
 function Users() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("ALL");
+  const [timeRange, setTimeRange] = useState("TODAY");
+  const [isLoading, setIsLoading] = useState(false);
   const [formErrors, setFormErrors] = useState({});
 
-  // State quản lý Modal
+  // State quản lý Modal thêm / sửa
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [formData, setFormData] = useState(initialFormData);
@@ -44,6 +55,8 @@ function Users() {
   // State Detail
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [viewingUser, setViewingUser] = useState(null);
+  const [staffDetailData, setStaffDetailData] = useState(null);
+  const [loadingStaffDetail, setLoadingStaffDetail] = useState(false);
 
   const currentUser = getCurrentUser();
   const currentRole = currentUser?.role;
@@ -74,6 +87,9 @@ function Users() {
 
   useEffect(() => {
     fetchUsers();
+  }, [timeRange]);
+
+  useEffect(() => {
     if (isSuperAdmin) {
       fetchStores();
     }
@@ -90,12 +106,24 @@ function Users() {
   };
 
   const fetchUsers = async () => {
+    setIsLoading(true);
     try {
-      const response = await userApi.getAll();
-      setUsers(response.data);
+      if (isAdmin) {
+        const response = await userApi.getStaffStats(timeRange);
+        setUsers(Array.isArray(response.data) ? response.data : []);
+      } else {
+        const response = await userApi.getAll();
+        setUsers(Array.isArray(response.data) ? response.data : []);
+      }
     } catch (error) {
       console.error("Lỗi:", error);
-      toast.error("Không thể tải danh sách người dùng.");
+      toast.error(
+        isAdmin
+          ? "Không thể tải danh sách nhân viên."
+          : "Không thể tải danh sách người dùng."
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -141,10 +169,13 @@ function Users() {
 
   // --- ACTIONS ---
 
+  const storeRequiredRoles = ["ADMIN", "STAFF", "SHIPPER"];
+
   const handleOpenAdd = () => {
     setFormData({
       ...initialFormData,
       role: isAdmin ? "STAFF" : "CUSTOMER",
+      storeId: isAdmin ? (currentUser?.storeId || "") : "",
     });
     setIsEditMode(false);
     setFormErrors({});
@@ -169,7 +200,6 @@ function Users() {
     setFormErrors({});
   };
 
-  const storeRequiredRoles = ["ADMIN", "STAFF", "SHIPPER"];
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
@@ -215,17 +245,19 @@ function Users() {
             : null,
       };
 
-      let response;
       if (isEditMode) {
-        response = await userApi.update(formData.id, dataToSend);
-        setUsers(users.map((u) => (u.id === formData.id ? response.data : u)));
+        await userApi.update(formData.id, dataToSend);
         toast.success("Cập nhật thành công!");
       } else {
-        response = await userApi.create(dataToSend);
-        setUsers([...users, response.data]);
-        toast.success("Thêm người dùng thành công!");
+        await userApi.create(dataToSend);
+        toast.success(
+          isAdmin
+            ? "Thêm nhân viên mới thành công!"
+            : "Thêm người dùng thành công!"
+        );
       }
 
+      fetchUsers();
       handleCloseModal();
     } catch (error) {
       console.error("Lỗi:", error.response?.data);
@@ -251,10 +283,14 @@ function Users() {
         status: nextStatus,
         isVerified: user.isVerified ?? false,
       };
-      const response = await userApi.update(user.id, updatedData);
-      setUsers(users.map((u) => (u.id === user.id ? response.data : u)));
+      await userApi.update(user.id, updatedData);
+      setUsers(
+        users.map((u) =>
+          u.id === user.id ? { ...u, status: nextStatus } : u
+        )
+      );
       toast.success(
-        `Đã ${nextStatus === "ACTIVE" ? "mở khóa" : "khóa"} tài khoản thành công!`,
+        `Đã ${nextStatus === "ACTIVE" ? "mở khóa" : "khóa"} tài khoản thành công!`
       );
     } catch (error) {
       console.error("Lỗi thay đổi trạng thái:", error);
@@ -262,15 +298,159 @@ function Users() {
     }
   };
 
-  const handleOpenDetail = (user) => {
+  const handleOpenDetail = async (user) => {
     setViewingUser(user);
     setIsDetailModalOpen(true);
+    setStaffDetailData(null);
+
+    if (isAdmin) {
+      setLoadingStaffDetail(true);
+      try {
+        const res = await userApi.getStaffDetail(user.id, timeRange);
+        setStaffDetailData(res.data);
+      } catch (err) {
+        console.error("Lỗi tải chi tiết nhân viên:", err);
+      } finally {
+        setLoadingStaffDetail(false);
+      }
+    }
   };
 
-  // --- CẤU HÌNH BẢNG ---
-  const columnsTableUser = [
+  const formatCurrency = (val) => {
+    if (!val && val !== 0) return "0 ₫";
+    return Number(val).toLocaleString("vi-VN") + " ₫";
+  };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "—";
+    const d = new Date(dateStr);
+    return (
+      d.toLocaleDateString("vi-VN") +
+      " " +
+      d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })
+    );
+  };
+
+  // --- CẤU HÌNH BẢNG CHO ADMIN (QUẢN LÝ NHÂN VIÊN) ---
+  const columnsStaffAdmin = [
     { header: "ID", accessor: "id", className: "td-id" },
-    { header: "Người dùng", accessor: "fullName" },
+    {
+      header: "Nhân viên",
+      accessor: "fullName",
+      render: (row) => (
+        <div className="staff-cell-info">
+          <div className="staff-fullname">{row.fullName}</div>
+          <div className="staff-subtext">{row.email}</div>
+        </div>
+      ),
+    },
+    { header: "Số điện thoại", accessor: "phone", className: "td-phone" },
+    {
+      header: "Vai trò",
+      accessor: "role",
+      render: (row) => (
+        <span className={`staff-role-badge staff-role-badge--${row.role?.toLowerCase()}`}>
+          {roleTranslations[row.role] || row.role}
+        </span>
+      ),
+    },
+    {
+      header: "Đơn bán (POS)",
+      accessor: "posOrderCount",
+      className: "td-metric",
+      render: (row) => (
+        <span className="staff-metric-number">
+          {row.posOrderCount ?? 0}
+        </span>
+      ),
+    },
+    {
+      header: "Đơn pha chế",
+      accessor: "baristaOrderCount",
+      className: "td-metric",
+      render: (row) => (
+        <span className="staff-metric-number">
+          {row.baristaOrderCount ?? 0}
+        </span>
+      ),
+    },
+    {
+      header: "Đơn giao",
+      accessor: "deliveredOrderCount",
+      className: "td-metric",
+      render: (row) => (
+        <span className="staff-metric-number">
+          {row.deliveredOrderCount ?? 0}
+        </span>
+      ),
+    },
+    {
+      header: "Trạng thái",
+      accessor: "status",
+      className: "td-status",
+      render: (row) => (
+        <span
+          className={`status ${row.status === "ACTIVE" ? "status--active" : "status--locked"}`}
+        >
+          {row.status === "ACTIVE" ? "Hoạt động" : "Ngừng hoạt động"}
+        </span>
+      ),
+    },
+    {
+      header: "Thao tác",
+      render: (u) => (
+        <div className="action-buttons">
+          <i
+            className="fa-regular fa-eye btn-icon btn-icon--view"
+            onClick={() => handleOpenDetail(u)}
+            title="Xem hồ sơ & hiệu suất"
+          ></i>
+          <i
+            className="fa-regular fa-pen-to-square btn-icon btn-icon--edit"
+            onClick={() => handleOpenEdit(u)}
+            title="Chỉnh sửa thông tin"
+          ></i>
+          <i
+            className={`fa-solid ${u.status === "ACTIVE" ? "fa-user-slash" : "fa-user-check"} btn-icon`}
+            style={{ color: u.status === "ACTIVE" ? "#e74c3c" : "#2ecc71" }}
+            onClick={() => handleToggleStatus(u)}
+            title={u.status === "ACTIVE" ? "Khóa tài khoản" : "Mở khóa"}
+          ></i>
+        </div>
+      ),
+    },
+  ];
+
+  // --- CẤU HÌNH BẢNG CHO SUPER_ADMIN (TOÀN CHUỖI) ---
+  const columnsSuperAdmin = [
+    { header: "ID", accessor: "id", className: "td-id" },
+    {
+      header: "Người dùng",
+      accessor: "fullName",
+      render: (row) =>
+        row.role === "CUSTOMER" ? (
+          <Link
+            to={`/admin/users/${row.id}`}
+            style={{
+              color: "#38bdf8",
+              fontWeight: 600,
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 5,
+            }}
+            title="Xem hồ sơ chi tiết khách hàng"
+          >
+            <span>{row.fullName}</span>
+            <i
+              className="fa-solid fa-arrow-up-right-from-square"
+              style={{ fontSize: "0.75rem", color: "#94a3b8" }}
+            ></i>
+          </Link>
+        ) : (
+          <span>{row.fullName}</span>
+        ),
+    },
     { header: "Email", accessor: "email" },
     { header: "Số điện thoại", accessor: "phone", className: "td-phone" },
     {
@@ -301,12 +481,19 @@ function Users() {
         <div className="action-buttons">
           <i
             className="fa-regular fa-eye btn-icon btn-icon--view"
-            onClick={() => handleOpenDetail(u)}
+            onClick={() => {
+              if (u.role === "CUSTOMER") {
+                navigate(`/admin/users/${u.id}`);
+              } else {
+                handleOpenDetail(u);
+              }
+            }}
             title="Xem chi tiết"
           ></i>
           <i
             className="fa-regular fa-pen-to-square btn-icon btn-icon--edit"
             onClick={() => handleOpenEdit(u)}
+            title="Chỉnh sửa"
           ></i>
           <i
             className={`fa-solid ${u.status === "ACTIVE" ? "fa-user-slash" : "fa-user-check"} btn-icon`}
@@ -319,18 +506,32 @@ function Users() {
     },
   ];
 
+  const currentColumns = isAdmin ? columnsStaffAdmin : columnsSuperAdmin;
+
   return (
     <>
       <div className="user-management">
         <div className="user-management__header">
-          <h2>Danh sách người dùng</h2>
-          <Button buttonName="Thêm tài khoản" onClick={handleOpenAdd} />
+          <div>
+            <h2>{isAdmin ? "Quản lý nhân viên chi nhánh" : "Danh sách người dùng"}</h2>
+            {isAdmin && currentUser?.storeName && (
+              <span className="admin-store-tag">
+                <i className="fa-solid fa-store"></i> {currentUser.storeName}
+              </span>
+            )}
+          </div>
+          <Button
+            buttonName={isAdmin ? "Thêm nhân viên" : "Thêm tài khoản"}
+            onClick={handleOpenAdd}
+          />
         </div>
 
+        {/* Thanh công cụ tìm kiếm và lọc */}
         <div className="user-management__toolbar">
           <SearchBox
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={isAdmin ? "Tìm theo tên, email, SĐT nhân viên..." : "Tìm kiếm người dùng..."}
           />
 
           <div className="user-role-filter">
@@ -345,14 +546,43 @@ function Users() {
               ))}
             </select>
           </div>
+
+          {/* Bộ lọc khoảng thời gian KPI dành riêng cho Admin */}
+          {isAdmin && (
+            <div className="time-range-filter-group">
+              <span className="time-range-filter-label">Kỳ thống kê:</span>
+              <div className="time-range-pills">
+                {TIME_RANGE_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    className={`btn-time-range ${timeRange === opt.key ? "btn-time-range--active" : ""}`}
+                    onClick={() => setTimeRange(opt.key)}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        <DataTable
-          columns={columnsTableUser}
-          data={filteredUsers}
-          itemsPerPage={5}
-          searchQuery={searchQuery}
-        />
+        {/* Bảng dữ liệu */}
+        {isLoading ? (
+          <div className="staff-table-skeleton-wrap">
+            <div className="staff-skeleton-row staff-skeleton-row--header"></div>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="staff-skeleton-row"></div>
+            ))}
+          </div>
+        ) : (
+          <DataTable
+            columns={currentColumns}
+            data={filteredUsers}
+            itemsPerPage={isAdmin ? 10 : 8}
+            searchQuery={searchQuery}
+          />
+        )}
       </div>
 
       <UserFormModal
@@ -368,7 +598,7 @@ function Users() {
         onClearError={handleClearError}
       />
 
-      {/* --- PHẦN CHI TIẾT USER GIỮ NGUYÊN (Chưa tách) --- */}
+      {/* --- MODAL XEM CHI TIẾT NHÂN VIÊN / NGƯỜI DÙNG --- */}
       {isDetailModalOpen && viewingUser && (
         <div className="modal-userdetail">
           <div
@@ -376,7 +606,7 @@ function Users() {
             onClick={() => setIsDetailModalOpen(false)}
           ></div>
 
-          <div className="modal-userdetail__content">
+          <div className="modal-userdetail__content staff-modal-content">
             <i
               className="fa-solid fa-xmark modal-userdetail__close"
               onClick={() => setIsDetailModalOpen(false)}
@@ -384,24 +614,24 @@ function Users() {
               title="Đóng"
             ></i>
 
+            {/* Thông tin hồ sơ cơ bản */}
             <div className="modal-userdetail__top">
               <div className="modal-userdetail__profile">
-                <div className="modal-userdetail__avatar">
-                  <img
-                    src="https://i.pinimg.com/236x/5e/e0/82/5ee082781b8c41406a2a50a0f32d6aa6.jpg"
-                    alt="User Avatar"
-                  />
+                <div className="staff-modal-avatar">
+                  {viewingUser.fullName?.charAt(0)?.toUpperCase() || "N"}
                 </div>
                 <div className="modal-userdetail__meta">
-                  <p className="modal-userdetail__id">
-                    Mã ID: #{viewingUser.id}
-                  </p>
+                  <p className="modal-userdetail__id">Mã ID: #{viewingUser.id}</p>
                   <span
-                    className={`modal-userdetail__status ${viewingUser.status === "ACTIVE" ? "status--active" : "status--locked"}`}
+                    className={`modal-userdetail__status ${
+                      viewingUser.status === "ACTIVE"
+                        ? "status--active"
+                        : "status--locked"
+                    }`}
                   >
                     {viewingUser.status === "ACTIVE"
-                      ? "Hoạt động"
-                      : "Không hoạt động"}
+                      ? "Đang hoạt động"
+                      : "Ngừng hoạt động"}
                   </span>
                 </div>
               </div>
@@ -409,7 +639,7 @@ function Users() {
               <div className="modal-userdetail__info">
                 <div className="modal-userdetail__info-grid">
                   <div className="modal-userdetail__info-item">
-                    <span className="label">Tên:</span>
+                    <span className="label">Họ và tên:</span>
                     <span className="value">{viewingUser.fullName}</span>
                   </div>
                   <div className="modal-userdetail__info-item">
@@ -419,28 +649,160 @@ function Users() {
                   <div className="modal-userdetail__info-item">
                     <span className="label">Vai trò:</span>
                     <span className="value">
-                      {roleTranslations[viewingUser.role] || viewingUser.role}
+                      <span className={`staff-role-badge staff-role-badge--${viewingUser.role?.toLowerCase()}`}>
+                        {roleTranslations[viewingUser.role] || viewingUser.role}
+                      </span>
                     </span>
                   </div>
                   <div className="modal-userdetail__info-item">
                     <span className="label">Số điện thoại:</span>
-                    <span className="value">{viewingUser.phone}</span>
+                    <span className="value">{viewingUser.phone || "Chưa cập nhật"}</span>
+                  </div>
+                  {viewingUser.storeName && (
+                    <div className="modal-userdetail__info-item">
+                      <span className="label">Cửa hàng:</span>
+                      <span className="value">{viewingUser.storeName}</span>
+                    </div>
+                  )}
+                  <div className="modal-userdetail__info-item">
+                    <span className="label">Ngày tham gia:</span>
+                    <span className="value">{formatDate(viewingUser.createdAt)}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {viewingUser.role === "CUSTOMER" && (
+            {/* Khối thống kê KPI cho Admin */}
+            {isAdmin && (
               <>
-                <hr className="modal-userdetail__divider" />
-
-                <div className="modal-userdetail__bottom">
-                  <h3 className="modal-userdetail__section-title">
-                    Lịch sử mua hàng:
-                  </h3>
-                  <div className="modal-userdetail__empty">
-                    <p>Không có dữ liệu</p>
+                <div className="staff-kpi-summary-section">
+                  <div className="staff-kpi-header">
+                    <h4>
+                      Hiệu suất làm việc (
+                      {TIME_RANGE_OPTIONS.find((t) => t.key === timeRange)?.label || "Hôm nay"}
+                      )
+                    </h4>
                   </div>
+                  <div className="staff-kpi-cards-grid">
+                    <div className="staff-kpi-card staff-kpi-card--pos">
+                      <div className="staff-kpi-card__icon">
+                        <i className="fa-solid fa-cash-register"></i>
+                      </div>
+                      <div className="staff-kpi-card__content">
+                        <span className="staff-kpi-card__label">Đơn bán (POS)</span>
+                        <strong className="staff-kpi-card__val">
+                          {viewingUser.posOrderCount ?? 0}
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div className="staff-kpi-card staff-kpi-card--online">
+                      <div className="staff-kpi-card__icon">
+                        <i className="fa-solid fa-globe"></i>
+                      </div>
+                      <div className="staff-kpi-card__content">
+                        <span className="staff-kpi-card__label">Đơn online</span>
+                        <strong className="staff-kpi-card__val">
+                          {viewingUser.onlineOrderCount ?? 0}
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div className="staff-kpi-card staff-kpi-card--barista">
+                      <div className="staff-kpi-card__icon">
+                        <i className="fa-solid fa-mug-hot"></i>
+                      </div>
+                      <div className="staff-kpi-card__content">
+                        <span className="staff-kpi-card__label">Đơn pha chế</span>
+                        <strong className="staff-kpi-card__val">
+                          {viewingUser.baristaOrderCount ?? 0}
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div className="staff-kpi-card staff-kpi-card--shipper">
+                      <div className="staff-kpi-card__icon">
+                        <i className="fa-solid fa-motorcycle"></i>
+                      </div>
+                      <div className="staff-kpi-card__content">
+                        <span className="staff-kpi-card__label">Đơn giao (Shipper)</span>
+                        <strong className="staff-kpi-card__val">
+                          {viewingUser.deliveredOrderCount ?? 0}
+                        </strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Danh sách đơn hàng phụ trách gần đây */}
+                <div className="staff-recent-orders-section">
+                  <h4 className="staff-recent-orders-title">
+                    Đơn hàng phụ trách gần đây
+                  </h4>
+
+                  {loadingStaffDetail ? (
+                    <div className="staff-detail-skeleton">
+                      <div className="skeleton-bar"></div>
+                      <div className="skeleton-bar"></div>
+                      <div className="skeleton-bar"></div>
+                    </div>
+                  ) : staffDetailData?.recentOrders?.length > 0 ? (
+                    <div className="staff-orders-table-wrap">
+                      <table className="staff-orders-table">
+                        <thead>
+                          <tr>
+                            <th>Mã đơn</th>
+                            <th>Nhiệm vụ</th>
+                            <th>Tổng tiền</th>
+                            <th>Thời gian</th>
+                            <th>Trạng thái</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {staffDetailData.recentOrders.map((ord) => (
+                            <tr key={ord.id}>
+                              <td>
+                                <Link
+                                  to={`/admin/orders/detail/${ord.id}`}
+                                  className="staff-order-code"
+                                  title="Xem chi tiết đơn"
+                                >
+                                  {ord.code || `#${ord.id}`}
+                                </Link>
+                              </td>
+                              <td>
+                                <span className={`handled-role-tag handled-role-tag--${ord.roleHandled?.toLowerCase()}`}>
+                                  {ord.roleHandled === "POS"
+                                    ? "Bán quầy"
+                                    : ord.roleHandled === "ONLINE"
+                                    ? "Đơn online"
+                                    : ord.roleHandled === "BARISTA"
+                                    ? "Pha chế"
+                                    : ord.roleHandled === "SHIPPER"
+                                    ? "Giao hàng"
+                                    : "Đơn online"}
+                                </span>
+                              </td>
+                              <td style={{ fontWeight: 600 }}>
+                                {formatCurrency(ord.total)}
+                              </td>
+                              <td>{formatDate(ord.createdAt)}</td>
+                              <td>
+                                <span className={`order-status-badge order-status--${ord.status?.toLowerCase()}`}>
+                                  {ord.status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="staff-orders-empty">
+                      <i className="fa-solid fa-receipt"></i>
+                      <p>Chưa có đơn hàng nào do nhân viên này phụ trách gần đây.</p>
+                    </div>
+                  )}
                 </div>
               </>
             )}

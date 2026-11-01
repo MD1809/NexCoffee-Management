@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { FaSun, FaMoon, FaBars } from "react-icons/fa";
 import { getCurrentUser, AUTH_EVENTS } from "../../utils/authStorage";
@@ -6,8 +6,13 @@ import { getCurrentUser, AUTH_EVENTS } from "../../utils/authStorage";
 import "./AdminLayout.css";
 import NavSidebar from "../../components/admin/navSidebar/NavSidebar";
 import AccountOptions from "../../components/user/header/AccountOptions";
+import {
+  AdminNotificationProvider,
+  useAdminNotifications,
+} from "../../context/AdminNotificationContext";
 
-function AdminLayout() {
+function AdminLayoutContent() {
+  const navigate = useNavigate();
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
   const [currentUser, setCurrentUser] = useState(() => getCurrentUser());
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
@@ -51,6 +56,9 @@ function AdminLayout() {
     (currentUser?.role === "SUPER_ADMIN"
       ? "Toàn hệ thống"
       : "Chưa gán cửa hàng");
+
+  const userRole = currentUser?.role;
+
   return (
     <div className={`admin-container ${isSidebarOpen ? "" : "sidebar-closed"}`}>
       <NavSidebar isOpen={isSidebarOpen} />
@@ -60,6 +68,7 @@ function AdminLayout() {
           <div className="header__left">
             <FaBars className="toggle-sidebar" onClick={ToggleSidebar} />
           </div>
+
           <div className="header_right">
             <button
               className="theme-toggle-btn"
@@ -75,9 +84,7 @@ function AdminLayout() {
 
             <div className="admin-header-store" title={storeDisplayName}>
               <span className="admin-header-store__label">Cửa hàng</span>
-              <span className="admin-header-store__name">
-                {storeDisplayName}
-              </span>
+              <span className="admin-header-store__name">{storeDisplayName}</span>
             </div>
 
             <AccountOptions variant="admin" accountPath="/admin" />
@@ -91,4 +98,10 @@ function AdminLayout() {
   );
 }
 
-export default AdminLayout;
+export default function AdminLayout() {
+  return (
+    <AdminNotificationProvider>
+      <AdminLayoutContent />
+    </AdminNotificationProvider>
+  );
+}

@@ -35,6 +35,6 @@ export const deleteStore = async (id) => {
 };
 
 export const getActiveStores = async () => {
-  const response = await axiosClient.get("/api/stores/active");
-  return response.data;
+  const response = await axiosClient.get("/stores/active");
+  return unwrap(response);
 };

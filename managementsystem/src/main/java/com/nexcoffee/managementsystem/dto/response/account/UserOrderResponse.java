@@ -31,7 +31,11 @@ public class UserOrderResponse {
     private String cancelReason;
 
     private LocalDateTime createdAt;
+    private LocalDateTime completedAt;
     private LocalDateTime updatedAt;
+
+    private Long nearestStoreId;
+    private String storeName;
 
     private List<UserOrderItemResponse> items;
 }

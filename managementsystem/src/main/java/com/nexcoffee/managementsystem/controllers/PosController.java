@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import com.nexcoffee.managementsystem.dto.response.barista.BaristaOrderResponse;
 
 @RestController
 @RequestMapping("/api/pos")
@@ -49,5 +50,38 @@ public class PosController {
         }).collect(Collectors.toList());
 
         return ResponseEntity.ok(categories);
+    }
+
+    @GetMapping("/barista/orders")
+    public ResponseEntity<?> getBaristaOrders(
+            @RequestParam(name = "storeId", required = false) Long storeId
+    ) {
+        try {
+            List<BaristaOrderResponse> orders = orderService.getBaristaOrders(storeId);
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> err = new HashMap<>();
+            err.put("error", e.getClass().getName());
+            err.put("message", e.getMessage());
+            err.put("cause", e.getCause() != null ? e.getCause().toString() : null);
+            return ResponseEntity.status(500).body(err);
+        }
+    }
+
+    @PatchMapping("/barista/orders/{orderId}/complete")
+    public ResponseEntity<Map<String, String>> completeBaristaOrder(
+            @PathVariable("orderId") Integer orderId,
+            @RequestBody(required = false) Map<String, Object> body) {
+        Long baristaId = null;
+        if (body != null && body.get("baristaId") != null) {
+            try {
+                baristaId = Long.valueOf(body.get("baristaId").toString());
+            } catch (Exception ignored) {}
+        }
+        orderService.completeBaristaOrder(orderId, baristaId);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Đã hoàn thành pha chế đơn hàng thành công!");
+        return ResponseEntity.ok(response);
     }
 }

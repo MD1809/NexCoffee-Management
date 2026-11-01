@@ -6,7 +6,9 @@ import com.nexcoffee.managementsystem.dto.response.account.UserOrderItemResponse
 import com.nexcoffee.managementsystem.dto.response.account.UserOrderResponse;
 import com.nexcoffee.managementsystem.entities.*;
 import com.nexcoffee.managementsystem.enums.OrderStatus;
+import com.nexcoffee.managementsystem.enums.StoreStatus;
 import com.nexcoffee.managementsystem.repositories.OrderRepository;
+import com.nexcoffee.managementsystem.repositories.StoreRepository;
 import com.nexcoffee.managementsystem.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -19,13 +21,21 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class AccountService {
 
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
+    private final StoreRepository storeRepository;
     private final PasswordEncoder passwordEncoder;
+
+    public AccountService(OrderRepository orderRepository, UserRepository userRepository, StoreRepository storeRepository, PasswordEncoder passwordEncoder) {
+        super();
+        this.orderRepository = orderRepository;
+        this.userRepository = userRepository;
+        this.storeRepository = storeRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Transactional(readOnly = true)
     public List<UserOrderResponse> getMyOrders() {
@@ -33,7 +43,7 @@ public class AccountService {
 
         return orderRepository.findByUserOrderByCreatedAtDesc(user)
                 .stream()
-                .map(order -> toResponse(order, false))
+                .map(order -> toResponse(order, true))
                 .toList();
     }
 
@@ -115,6 +125,17 @@ public class AccountService {
                   .toList()
                 : List.of();
 
+        String storeName = "NexCoffee";
+        if (order.getNearestStoreId() != null) {
+            storeName = storeRepository.findById(order.getNearestStoreId())
+                    .map(Store::getName)
+                    .orElse("NexCoffee");
+        } else {
+            storeName = storeRepository.findFirstByStatusOrderByCreatedAtAsc(StoreStatus.ACTIVE)
+                    .map(Store::getName)
+                    .orElse("NexCoffee");
+        }
+
         return UserOrderResponse.builder()
                 .id(order.getId())
                 .code(order.getCode())
@@ -132,7 +153,10 @@ public class AccountService {
                 .note(order.getNote())
                 .cancelReason(order.getCancelReason())
                 .createdAt(order.getCreatedAt())
+                .completedAt(order.getCompletedAt())
                 .updatedAt(order.getUpdatedAt())
+                .nearestStoreId(order.getNearestStoreId())
+                .storeName(storeName)
                 .items(items)
                 .build();
     }

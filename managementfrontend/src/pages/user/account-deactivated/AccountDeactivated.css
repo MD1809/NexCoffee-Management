@@ -1,0 +1,178 @@
+/* AccountDeactivated.css */
+
+.deactivated-page {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background-color: #fbfbfa;
+}
+
+.deactivated-card {
+  background: #ffffff;
+  border-radius: 16px;
+  max-width: 580px;
+  width: 100%;
+  padding: 40px 32px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  border: 1px solid #f1f1f0;
+  text-align: center;
+  animation: fadeInDeactivated 0.3s ease;
+}
+
+@keyframes fadeInDeactivated {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.deactivated-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px auto;
+  border-radius: 50%;
+  background-color: #fee2e2;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  border: 4px solid #fef2f2;
+}
+
+.deactivated-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #991b1b;
+  margin: 0 0 10px 0;
+  letter-spacing: -0.3px;
+}
+
+.deactivated-subtitle {
+  font-size: 0.95rem;
+  color: #4b5563;
+  margin: 0 0 24px 0;
+  line-height: 1.5;
+}
+
+.deactivated-reason-box {
+  background-color: #fff7ed;
+  border: 1px solid #ffedd5;
+  border-left: 4px solid #f97316;
+  border-radius: 10px;
+  padding: 18px 20px;
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+.deactivated-reason-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #c2410c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.deactivated-reason-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #7c2d12;
+  margin: 0 0 10px 0;
+  line-height: 1.45;
+}
+
+.deactivated-reason-meta {
+  font-size: 0.825rem;
+  color: #9a3412;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 8px;
+  border-top: 1px dashed #fed7aa;
+}
+
+.deactivated-help-text {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+  margin-bottom: 28px;
+}
+
+.deactivated-contact-info {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 12px;
+  font-weight: 600;
+  color: #374151;
+  flex-wrap: wrap;
+}
+
+.deactivated-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+}
+
+.deactivated-contact-item i {
+  color: #b45309;
+}
+
+.deactivated-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-contact-support {
+  padding: 12px 24px;
+  background-color: #b45309;
+  color: #ffffff;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-contact-support:hover {
+  background-color: #92400e;
+  transform: translateY(-1px);
+}
+
+.btn-home-return {
+  padding: 12px 24px;
+  background-color: #f3f4f6;
+  color: #374151;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+  border: 1px solid #e5e7eb;
+}
+
+.btn-home-return:hover {
+  background-color: #e5e7eb;
+  color: #111827;
+}

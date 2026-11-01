@@ -31,23 +31,26 @@ public class OrderController {
     // 1. Lấy tổng doanh thu trong ngày
     @GetMapping("/dashboard/revenue")
     public ResponseEntity<Long> getDashboardRevenue(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        Long revenue = orderService.getRevenueByDate(date);
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false) Long storeId) {
+        Long revenue = orderService.getRevenueByDate(date, storeId);
         return ResponseEntity.ok(revenue != null ? revenue : 0L);
     }
 
     // 2. Lấy thống kê số lượng từng món bán được trong ngày
     @GetMapping("/dashboard/sales-stats")
     public ResponseEntity<List<OrderDetailRepository.ProductSaleStats>> getDashboardProductSales(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return ResponseEntity.ok(orderService.getProductSalesStatsByDate(date));
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false) Long storeId) {
+        return ResponseEntity.ok(orderService.getProductSalesStatsByDate(date, storeId));
     }
 
     // 3. Lấy danh sách đơn hàng chi tiết (Kèm thông tin ai bán, ai giao)
     @GetMapping("/dashboard/list")
     public ResponseEntity<List<OrderResponse>> getDashboardOrders(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        List<Order> orders = orderService.getOrdersWithStaffInfoByDate(date);
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false) Long storeId) {
+        List<Order> orders = orderService.getOrdersWithStaffInfoByDate(date, storeId);
 
         List<OrderResponse> response = orders.stream()
                 .map(this::mapToDashboardResponseSummary)
