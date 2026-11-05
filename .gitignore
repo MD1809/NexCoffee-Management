@@ -120,5 +120,5 @@ $RECYCLE.BIN/
 
 # --- 8. AI Tools & Agent Local Storage ---
 .agents/
-.antigravity/scratch/
-.antigravity/tmp/
+.antigravity/
+**/.antigravity/
